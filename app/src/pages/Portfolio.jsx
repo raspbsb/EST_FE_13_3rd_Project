@@ -1,26 +1,52 @@
+import { Link } from "react-router-dom";
+
+import Button from "@mui/material/Button";
+
+import EditIcon from "@mui/icons-material/Edit";
+import ViewsIcon from "@mui/icons-material/VisibilityOutlined";
+import LikeIcon from "@mui/icons-material/FavoriteBorder";
+import LikeIconActive from "@mui/icons-material/Favorite";
+import StarIcon from "@mui/icons-material/StarBorder";
+import StarIconActive from "@mui/icons-material/Star";
+import LinkIcon from "@mui/icons-material/Link";
+import CodeIcon from "@mui/icons-material/Code";
+import AiIcon from "@mui/icons-material/AutoAwesome";
+import EmailIcon from "@mui/icons-material/EmailOutlined";
+
 export default function Portfolio() {
   return (
     <>
       <h1>포트폴리오 상세</h1>
       <section>
         <h2>Project Title</h2>
-        <a href="">수정하기</a>
+        <Link to="/portfolios/:id/edit">
+          <Button color="secondary" variant="contained" startIcon={<EditIcon />}>
+            수정하기
+          </Button>
+        </Link>
         <div>
           <p>
-            작성일: <time></time>
+            작성일: <time>2026/08/04</time>
           </p>
           <p>
-            <time>2026/04/07</time> ~ <time>2026/08/21</time>
+            작업기간: <time>2026/04/07</time> ~ <time>2026/08/21</time>
           </p>
         </div>
         <div>
           <div>
-            <img src="" alt="author" />
+            <img src={null} alt="author" />
             <p>author</p>
           </div>
-          <div>65535</div>
-          <div>1972</div>
-          <div>북마크</div>
+          <div>
+            <ViewsIcon fontSize="small" />
+            65535
+          </div>
+          <Button color="secondary" variant="contained" startIcon={<LikeIcon />}>
+            1972
+          </Button>
+          <Button color="secondary" variant="contained" startIcon={<StarIcon />}>
+            북마크
+          </Button>
         </div>
         <ul>
           <li>
@@ -37,17 +63,23 @@ export default function Portfolio() {
           <li>프로젝트 형태</li>
         </ul>
         <div>
-          <h3>AI 요약 미리보기</h3>
+          <h3>
+            <AiIcon />
+            AI 요약 미리보기
+          </h3>
           <p></p>
-          <a href="">전체 AI 분석 보기</a>
+          <a href="#ai-analysis">전체 AI 분석 보기</a>
         </div>
       </section>
       <section>
         <h2>프로젝트 설명</h2>
         <div>Lorem ipsum dolor sit amet consectetur adipisicing elit.</div>
       </section>
-      <section>
-        <h2>AI 분석결과</h2>
+      <section id="ai-analysis">
+        <h2>
+          <AiIcon />
+          AI 분석결과
+        </h2>
         <p>AI로 생성된 내용입니다.</p>
         <div>
           <ul>
@@ -65,18 +97,39 @@ export default function Portfolio() {
         <div>
           <h4>author</h4>
           <p>Frontend Developer</p>
-          <a href="">View Profile</a>
+          <Link to="/profiles/:userId">
+            <Button color="secondary" variant="contained">
+              View Profile
+            </Button>
+          </Link>
           <ul>
-            <li>Email</li>
-            <li>GitHub</li>
-            <li>Linkedin</li>
+            <li>
+              <EmailIcon fontSize="small" />
+              Email
+            </li>
+            <li>
+              <CodeIcon fontSize="small" />
+              GitHub
+            </li>
+            <li>
+              <LinkIcon fontSize="small" />
+              Linkedin
+            </li>
           </ul>
         </div>
         <div>
-          <h3>author의 다른 프로젝트</h3>
-          <a href="">View all 4</a>
-          <article></article>
-          <article></article>
+          <div>
+            <h3>author의 다른 프로젝트</h3>
+            <Link to="/profiles/:userId">View all 4</Link>
+          </div>
+          <ul>
+            <li>
+              <article></article>
+            </li>
+            <li>
+              <article></article>
+            </li>
+          </ul>
         </div>
       </section>
     </>
