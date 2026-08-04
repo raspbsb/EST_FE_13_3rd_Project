@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import ContactCard from './ContactCard';
+import List from '@mui/material/List';
 
 export default function ContactSection() {
   const notifications = [
@@ -28,11 +29,11 @@ export default function ContactSection() {
           <NavLink to=''>View all</NavLink>
         </nav>
       </div>
-      <div>
+      <List>
         {notifications.map(item => (
           <ContactCard key={item.id} item={item} />
         ))}
-      </div>
+      </List>
     </section>
   );
 }

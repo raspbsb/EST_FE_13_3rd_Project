@@ -1,19 +1,23 @@
 import { NavLink } from 'react-router-dom';
 import BookmarkCard from './BookmarkCard';
+import List from '@mui/material/List';
 
 export default function BookmarkSection() {
   const collections = [
     {
+      id: 1,
       title: 'Collection title',
       total: 10,
     },
     {
+      id: 2,
       title: 'Collection title',
-      total: 10,
+      total: 5,
     },
     {
+      id: 3,
       title: 'Collection title',
-      total: 10,
+      total: 6,
     },
   ];
   return (
@@ -24,11 +28,11 @@ export default function BookmarkSection() {
           <NavLink to=''>View all</NavLink>
         </nav>
       </div>
-      <div>
+      <List>
         {collections.map(c => (
-          <BookmarkCard key={c.title} title={c.title} total={c.total} />
+          <BookmarkCard key={c.id} title={c.title} total={c.total} />
         ))}
-      </div>
+      </List>
     </section>
   );
 }
