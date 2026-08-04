@@ -1,15 +1,29 @@
-export default function Profile() {
+import ProfileNav from '../components/mypage/ProfileNav';
+import ProfileHeader from '../components/mypage/ProfileHeader';
+import ActivityStats from '../components/mypage/ActivityStats';
+import MyProjects from '../components/mypage/MyProjects';
+import BookmarkSection from '../components/mypage/BookmarkSection';
+import ContactSection from '../components/mypage/ContactSection';
+
+export default function Profile({ mode }) {
   return (
     <>
-      <ProfileCard />
+      {mode === 'mypage' && <ProfileNav />}
 
-      <ActivityStats />
+      <main>
+        <ProfileHeader mode={mode} />
 
-      <ProjectSection />
+        <ActivityStats />
 
-      <BookmarkSection />
+        <MyProjects />
 
-      <NotificationSection />
+        {mode === 'mypage' && (
+          <>
+            <BookmarkSection />
+            <ContactSection />
+          </>
+        )}
+      </main>
     </>
   );
 }
