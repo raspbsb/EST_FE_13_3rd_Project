@@ -13,6 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Input from "@mui/material/Input";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
@@ -30,6 +31,8 @@ import Switch from "@mui/material/Switch";
 // Material Icons
 import PublicIcon from "@mui/icons-material/Public";
 import LockIcon from "@mui/icons-material/Lock";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
 
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
@@ -39,19 +42,26 @@ export default function PortfolioEditor({ data }) {
   // 현재 경로가 id/edit이면 true
   const isEdit = Boolean(id);
 
-  const [checked, setChecked] = useState(false);
+  // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
+  const [temp, setTemp] = useState([{ id: null }]);
 
+  // 공개/비공개 토글 스위치 체크여부 상태
+  const [switchChecked, setSwitchChecked] = useState(false);
+
+  // 공개/비공개 토글 스위치 핸들링 함수
   const handleSwitch = e => {
-    setChecked(e.target.checked);
+    setSwitchChecked(e.target.checked);
   };
 
+  // 폼 전송 함수
   const handleSubmit = e => {
     e.preventDefault();
   };
 
+  // 실험용 콘솔로그 끝나면 지울것
   useEffect(() => {
-    console.log(checked);
-  }, [checked]);
+    console.log(switchChecked);
+  }, [switchChecked]);
 
   // AI 분석 결과 데이터 객체
 
@@ -66,15 +76,40 @@ export default function PortfolioEditor({ data }) {
           py: 6,
         }}
       >
-        {/* 헤더 */}
+        {/* 타이틀 */}
         <Box>
           {/* 타이틀 & 페이지 설명 */}
-          <Text component="h1" variant="h4" fontWeight={700}>
-            포트폴리오 {isEdit ? "수정" : "등록"}
-          </Text>
+          <Box>
+            <Text component="h1" variant="h4" fontWeight={700}>
+              포트폴리오 {isEdit ? "수정" : "등록"}
+            </Text>
+            <Text>
+              프로젝트 정보를{" "}
+              {isEdit
+                ? "최신으로 유지하고 AI 분석을 통해 디테일을 강화하세요."
+                : "입력하고 AI 분석을 통해 포트폴리오를 완성하세요."}
+            </Text>
+          </Box>
 
           {/* 임시저장 */}
-          <Box></Box>
+          {temp[0].id ? (
+            <Box>
+              {/* 텍스트 그룹 */}
+              <Box>
+                <Text>이전에 임시저장한 내용이 있습니다.</Text>
+                <Text>최신 저장 : 2026.08.02 18:30</Text>
+              </Box>
+              {/* 버튼 그룹 */}
+              <Box>
+                <Button type="submit" variant="contained">
+                  최신 저장 내용 적용
+                </Button>
+                <Button type="button" variant="outlined">
+                  전체 저장 목록 확인
+                </Button>
+              </Box>
+            </Box>
+          ) : null}
         </Box>
 
         {/* 전송 폼 */}
@@ -84,7 +119,35 @@ export default function PortfolioEditor({ data }) {
             {/* 좌측 (기본 정보 & AI 분석) */}
             <Box>
               {/* 기본 정보 */}
-              <Box></Box>
+              <Box>
+                {/* 섹션 타이틀 */}
+                <Box>
+                  <Text>
+                    <ErrorOutlinedIcon />
+                    프로젝트 기본 정보
+                  </Text>
+                </Box>
+                <FormControl variant="standard">
+                  <InputLabel htmlFor="title">
+                    프로젝트명
+                    <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
+                      *
+                    </Box>
+                  </InputLabel>
+
+                  <Input
+                    id="title"
+                    name="title"
+                    required
+                    fullWidth
+                    slotProps={{
+                      htmlInput: {
+                        "aria-required": true,
+                      },
+                    }}
+                  />
+                </FormControl>
+              </Box>
 
               {/* AI 분석 */}
               <Box></Box>
@@ -103,10 +166,10 @@ export default function PortfolioEditor({ data }) {
                 <Switch onChange={handleSwitch} />
                 {/* 공개/비공개 텍스트 */}
                 <Box>
-                  <Text>{checked ? "공개 설정" : "비공개 설정"}</Text>
-                  <Text>{checked ? "모든 사용자가 " : "초대된 사람만 "}내 포트폴리오를 볼 수 있습니다.</Text>
+                  <Text>{switchChecked ? "공개 설정" : "비공개 설정"}</Text>
+                  <Text>{switchChecked ? "모든 사용자가 " : "초대된 사람만 "}내 포트폴리오를 볼 수 있습니다.</Text>
                 </Box>
-                {checked ? <PublicIcon /> : <LockIcon />}
+                {switchChecked ? <PublicIcon /> : <LockIcon />}
               </Box>
 
               {/* 임시저장/미리보기/수정완료 버튼 */}
@@ -115,7 +178,8 @@ export default function PortfolioEditor({ data }) {
                   임시저장
                 </Button>
                 <Button type="button" variant="outlined">
-                  Outlined
+                  <VisibilityOutlinedIcon />
+                  미리보기
                 </Button>
                 <Button type="submit" variant="contained">
                   {isEdit ? "수정 완료" : "작성 완료"}
