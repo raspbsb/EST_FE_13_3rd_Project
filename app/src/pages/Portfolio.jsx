@@ -82,40 +82,49 @@ export default function Portfolio() {
             </Text>
           </Button>
         </Box>
-        <Box component={"ul"}>
-          <Box component={"li"}>
-            <Text variant="subtitle1">카테고리</Text>
+        <Box component={"dl"}>
+          <Text component={"dt"} variant="subtitle1">
+            카테고리
+          </Text>
+          <Box component={"dd"}>
             <Box component={"ul"}></Box>
           </Box>
-          <Box component={"li"}>
-            <Text variant="subtitle1">기술 스택</Text>
+
+          <Text component={"dt"} variant="subtitle1">
+            기술 스택
+          </Text>
+          <Box component={"dd"}>
             <Box component={"ul"}></Box>
           </Box>
-          <Box component={"li"}>
-            <Text variant="subtitle1">배포 링크</Text>
-            <Box>
-              <LinkIcon />
-              <Text variant="body1">https://deploy-url.com/project</Text>
-            </Box>
+
+          <Text component={"dt"} variant="subtitle1">
+            배포 링크
+          </Text>
+          <Box component={"dd"}>
+            <LinkIcon />
+            <Text variant="body1">https://deploy-url.com/project</Text>
           </Box>
-          <Box component={"li"}>
-            <Text variant="subtitle1">Repo 주소</Text>
-            <Box>
-              <CodeIcon />
-              <Text variant="body1">https://github.com/author/project</Text>
-            </Box>
+
+          <Text component={"dt"} variant="subtitle1">
+            Repo 주소
+          </Text>
+          <Box component={"dd"}>
+            <CodeIcon />
+            <Text variant="body1">https://github.com/author/project</Text>
           </Box>
-          <Box component={"li"}>
-            <Text variant="subtitle1">담당 역할</Text>
-            <Box>
-              <Text variant="body1">Frontend Lead</Text>
-            </Box>
+
+          <Text component={"dt"} variant="subtitle1">
+            담당 역할
+          </Text>
+          <Box component={"dd"}>
+            <Text variant="body1">Frontend Lead</Text>
           </Box>
-          <Box component={"li"}>
-            <Text variant="subtitle1">프로젝트 형태</Text>
-            <Box>
-              <Text variant="body1">Team Project</Text>
-            </Box>
+
+          <Text component={"dt"} variant="subtitle1">
+            프로젝트 형태
+          </Text>
+          <Box component={"dd"}>
+            <Text variant="body1">Team Project</Text>
           </Box>
         </Box>
         <Box>
@@ -150,54 +159,47 @@ export default function Portfolio() {
           </Text>
         </Box>
         <Box>
-          <Box component={"ul"}>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                프로젝트 요약
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+          <Box component={"dl"}>
+            <Text component={"dt"} variant="h6">
+              프로젝트 요약
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                주요 기능
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+
+            <Text component={"dt"} variant="h6">
+              주요 기능
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                기술적 특징
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+
+            <Text component={"dt"} variant="h6">
+              기술적 특징
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                프로젝트 구조 및 복잡도
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+
+            <Text component={"dt"} variant="h6">
+              프로젝트 구조 및 복잡도
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                담당 역할
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+
+            <Text component={"dt"} variant="h6">
+              담당 역할
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
-            <Box component={"li"}>
-              <Text component={"p"} variant="h6">
-                참여 내역
-              </Text>
-              <Box>
-                <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
-              </Box>
+
+            <Text component={"dt"} variant="h6">
+              참여 내역
+            </Text>
+            <Box component={"dd"}>
+              <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
             </Box>
           </Box>
           <Box>분석 근거</Box>
