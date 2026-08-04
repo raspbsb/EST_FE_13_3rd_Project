@@ -1,20 +1,11 @@
-import { useNavigate } from 'react-router-dom';
-
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import Text from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-export default function BookmarkCard({ title, total }) {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate(`/mypage/collections`);
-  };
-
+export default function BookmarkCard({ title, total, handleClick }) {
   return (
     <ListItem>
       <ListItemButton onClick={handleClick}>
@@ -26,19 +17,20 @@ export default function BookmarkCard({ title, total }) {
             overflow: 'hidden',
           }}
         >
-          {/* <img src='' alt='' /> */}
+          {/* <img src='{}' alt='{}' /> */}
         </Box>
         <ListItemText
-          primary={title}
-          secondary={
-            <>
-              <Text>총 {total}개</Text>
-            </>
-          }
+          sx={{
+            width: `100%`,
+            height: `100%`,
+            ml: 2,
+          }}
+          primary={<Text>{title}</Text>}
+          secondary={<Text>총 {total}개</Text>}
         />
-        <ListItemIcon>
+        <Box>
           <ChevronRightIcon />
-        </ListItemIcon>
+        </Box>
       </ListItemButton>
     </ListItem>
   );

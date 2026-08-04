@@ -3,6 +3,7 @@ import ContactCard from './ContactCard';
 import List from '@mui/material/List';
 
 export default function ContactSection() {
+  //임시데이터
   const notifications = [
     {
       id: 1,
@@ -21,6 +22,7 @@ export default function ContactSection() {
       createdAt: '2h ago',
     },
   ];
+
   return (
     <section>
       <div>
