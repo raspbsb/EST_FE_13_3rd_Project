@@ -1,4 +1,5 @@
 import { Link, Route, Routes } from "react-router-dom";
+import { useState } from "react";
 import MainLayout from "./layouts/MainLayout";
 
 import Home from "./pages/Home";
@@ -25,9 +26,9 @@ export default function App() {
           <Route path="/" element={<Home />} />
 
           <Route path="/gallery" element={<Gallery />} />
-          <Route path="/portfolios/new" element={<PortfolioEditor mode="create" />} />
+          <Route path="/portfolios/new" element={<PortfolioEditor />} />
           <Route path="/portfolios/:id" element={<Portfolio />} />
-          <Route path="/portfolios/:id/edit" element={<PortfolioEditor mode="edit" />} />
+          <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
 
           <Route path="/profiles/:userId" element={<Profile mode="public" />} />
           <Route path="/mypage" element={<Profile mode="mypage" />} />
