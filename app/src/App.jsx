@@ -13,32 +13,23 @@ import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
-    <>
-      <Link to="/">Portfolio+</Link>
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
 
-      <Link to="/">Home</Link>
-      <Link to="/gallery">Explore</Link>
-      <Link to="/portfolios/new">Upload</Link>
-      <Link to="/mypage">MyPage</Link>
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/portfolios/new" element={<PortfolioEditor />} />
+        <Route path="/portfolios/:id" element={<Portfolio />} />
+        <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
 
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
+        <Route path="/profiles/:userId" element={<Profile mode="public" />} />
+        <Route path="/mypage" element={<Profile mode="mypage" />} />
 
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/portfolios/new" element={<PortfolioEditor />} />
-          <Route path="/portfolios/:id" element={<Portfolio />} />
-          <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-          <Route path="/profiles/:userId" element={<Profile mode="public" />} />
-          <Route path="/mypage" element={<Profile mode="mypage" />} />
-
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </>
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }

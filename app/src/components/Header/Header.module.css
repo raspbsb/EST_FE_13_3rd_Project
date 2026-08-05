@@ -1,7 +1,8 @@
 .header {
-  height: var(--header-height);
+  height: 80px;
   background-color: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-divider, #e0e0e0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .inner {
@@ -11,111 +12,145 @@
   height: 100%;
   max-width: 1920px;
   margin: 0 auto;
-  padding: 0 var(--layout-padding-pc);
+  padding: 0 24px;
+  position: relative; /* 중앙에 nav를 배치하기 위해 필요 */
 }
 
+/* 로고 - 왼쪽 정렬 */
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-primary);
   line-height: 1;
+  z-index: 3;
+  text-decoration: none;
 }
 
-.logo:hover,
-.logo:focus-visible {
-  opacity: 0.85;
-}
-
+/* 오른쪽 영역 (로그인/회원가입 또는 아바타) */
 .right {
   display: flex;
   align-items: center;
   gap: 2rem;
+  z-index: 3;
 }
 
-.nav-list {
+/* 중앙 네비게이션 (logo와 right 사이 중앙 고정) */
+.navList {
   display: flex;
   align-items: center;
   gap: 2rem;
   margin: 0;
   padding: 0;
   list-style: none;
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
-.nav-link {
+/* 네비 링크 스타일 */
+.navLink {
   font-size: 1rem;
   font-weight: 400;
   color: var(--color-text-primary);
   line-height: 1;
-  transition: color 0.2s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
+  text-decoration: none;
+  padding: 4px 6px;
+  border-radius: 4px;
 }
 
-.nav-link:hover,
-.nav-link:focus-visible {
+.navLink:hover,
+.navLink:focus-visible {
   color: var(--color-primary);
+  transform: translateY(-1px);
 }
 
-.nav-link-active {
+.navLinkActive {
   color: var(--color-primary);
   font-weight: 500;
 }
 
-.auth-actions {
+/* 인증 액션 그룹 (비로그인 상태) */
+.authActions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.login-button {
+/* 로그인 - 아웃라인 스타일 */
+.loginButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 88px;
   height: 40px;
   padding: 0 1rem;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.login-button:hover,
-.login-button:focus-visible {
+.loginButton:hover,
+.loginButton:focus-visible {
   background-color: var(--color-background);
   border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  outline: none;
 }
 
-.signup-button {
+/* 회원가입 - 채워진 프라이머리 버튼 */
+.signupButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 88px;
   height: 40px;
   padding: 0 1rem;
   border: 1px solid var(--color-primary);
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: var(--color-primary);
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+    background-color 0.12s ease,
+    transform 0.12s ease;
 }
 
-.signup-button:hover,
-.signup-button:focus-visible {
-  background-color: #0b5ed7;
+.signupButton:hover,
+.signupButton:focus-visible {
+  background-color: #0b5ed7; /* 진한 블루 계열로 호버 */
   border-color: #0b5ed7;
+  transform: translateY(-1px);
+  outline: none;
 }
 
-.avatar-link {
+/* 로그인된 상태 - 아바타 링크 */
+.avatarLink {
   display: flex;
   align-items: center;
   border-radius: 50%;
+  text-decoration: none;
 }
 
-.avatar-link:focus-visible {
+.avatarLink:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
@@ -123,8 +158,11 @@
 .avatar {
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
+/* 반응형 조정 */
 @media (max-width: 1023px) {
   .inner {
     padding: 0 var(--layout-padding-tablet);
@@ -134,7 +172,7 @@
     gap: 1.5rem;
   }
 
-  .nav-list {
+  .navList {
     gap: 1.5rem;
   }
 }
@@ -144,7 +182,19 @@
     padding: 0 var(--layout-padding-mobile);
   }
 
-  .nav-list {
+  /* 모바일에서는 중앙 네비는 숨기고(토글 메뉴로 대체) 인증 액션만 표시.
+     토글 메뉴가 있다면 별도 구현 필요(여기서는 스타일만 제안). */
+  .navList {
     display: none;
+    position: static;
+    transform: none;
+  }
+
+  .right {
+    gap: 1rem;
+  }
+
+  .logo {
+    font-size: 1.25rem;
   }
 }

@@ -1,53 +1,64 @@
-import { Link, NavLink } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import { HEADER_AUTH_PATHS, HEADER_NAV_ITEMS } from "../../constants/header";
-import styles from "./Header.module.css";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { Link } from "react-router-dom";
 
-function Header({ isLoggedIn = false, avatarUrl = "", avatarAlt = "프로필" }) {
+export default function Header() {
   return (
-    <header className={styles.header}>
-      <div className={styles.inner}>
-        <Link to="/" className={styles.logo} aria-label="Portfolio+ 홈">
+    <AppBar position="sticky" color="inherit" elevation={1}>
+      <Toolbar
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          maxWidth: 1920,
+          width: "100%",
+          mx: "auto",
+          px: { xs: 2, md: 3 },
+          position: "relative" /* 중앙 배치의 기준점 */,
+        }}
+      >
+        {/* 1. 좌측: 로고 */}
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          sx={{ fontWeight: "bold", color: "primary.main", textDecoration: "none" }}
+        >
           Portfolio+
-        </Link>
+        </Typography>
 
-        <div className={styles.right}>
-          <nav aria-label="주요 메뉴">
-            <ul className={styles.navList}>
-              {HEADER_NAV_ITEMS.map(item => (
-                <li key={item.path}>
-                  <NavLink
-                    to={item.path}
-                    className={({ isActive }) =>
-                      isActive ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink
-                    }
-                    end={item.path === "/"}
-                  >
-                    {item.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </nav>
+        {/* 2. 중앙: 네비게이션 4개 */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        >
+          <Button component={Link} to="/" color="inherit">
+            Home
+          </Button>
+          <Button component={Link} to="/explore" color="inherit">
+            Explore
+          </Button>
+          <Button component={Link} to="/upload" color="inherit">
+            Upload
+          </Button>
+          <Button component={Link} to="/mypage" color="inherit">
+            MyPage
+          </Button>
+        </Box>
 
-          {isLoggedIn ? (
-            <Link to="/mypage" className={styles.avatarLink} aria-label="마이페이지">
-              <Avatar src={avatarUrl || undefined} alt={avatarAlt} className={styles.avatar} />
-            </Link>
-          ) : (
-            <div className={styles.authActions}>
-              <Link to={HEADER_AUTH_PATHS.login} className={styles.loginButton}>
-                로그인
-              </Link>
-              <Link to={HEADER_AUTH_PATHS.signup} className={styles.signupButton}>
-                회원가입
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
+        {/* 3. 우측: 로그인 / 회원가입 버튼 (marginLeft: 'auto'로 오른쪽 끝 고정) */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, ml: "auto" }}>
+          <Button component={Link} to="/login" variant="outlined" color="primary">
+            로그인
+          </Button>
+          <Button component={Link} to="/signup" variant="contained" color="primary">
+            회원가입
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }
-
-export default Header;
