@@ -1,12 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-
 import Text from "@mui/material/Typography";
 
-import HeroSection from "../components/Portfolio/HeroSection";
-import DescriptionSection from "../components/Portfolio/DescriptionSection";
-import AiSummarySection from "../components/Portfolio/AiSummarySection";
-import AuthorInfoSection from "../components/Portfolio/AuthorInfoSection";
+import * as Sections from "../components/Portfolio/index";
 
 export default function Portfolio() {
   return (
@@ -14,10 +8,10 @@ export default function Portfolio() {
       <Text component={"p"} variant="h4">
         포트폴리오 상세
       </Text>
-      <HeroSection />
-      <DescriptionSection />
-      <AiSummarySection />
-      <AuthorInfoSection />
+      <Sections.HeroSection />
+      <Sections.DescriptionSection />
+      <Sections.AiSummarySection />
+      <Sections.AuthorInfoSection />
     </>
   );
 }

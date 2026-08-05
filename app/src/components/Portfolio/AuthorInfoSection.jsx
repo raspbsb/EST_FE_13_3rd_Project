@@ -36,15 +36,21 @@ export default function AuthorInfoSection({}) {
         <List>
           <ListItem>
             <EmailIcon fontSize="small" />
-            <Text variant="body2">Email</Text>
+            <Text component={"a"} href={null} variant="body2">
+              portfoliop@gmail.com
+            </Text>
           </ListItem>
           <ListItem>
             <CodeIcon fontSize="small" />
-            <Text variant="body2">GitHub</Text>
+            <Text component={"a"} href={null} variant="body2">
+              https://github.com/portfolioplus
+            </Text>
           </ListItem>
           <ListItem>
             <LinkIcon fontSize="small" />
-            <Text variant="body2">Linkedin</Text>
+            <Text component={"a"} href={null} variant="body2">
+              https://www.linkedin.com/in/portfolioplus/
+            </Text>
           </ListItem>
         </List>
       </Box>
