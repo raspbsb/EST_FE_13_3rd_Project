@@ -8,3 +8,5 @@ export { default as LinkIcon } from "@mui/icons-material/Link";
 export { default as CodeIcon } from "@mui/icons-material/Code";
 export { default as AiIcon } from "@mui/icons-material/AutoAwesome";
 export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
+export { default as DropDownIcon } from "@mui/icons-material/ArrowDropDown";
+export { default as DropUpIcon } from "@mui/icons-material/ArrowDropUp";
