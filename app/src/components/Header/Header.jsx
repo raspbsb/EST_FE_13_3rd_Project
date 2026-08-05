@@ -2,7 +2,6 @@ import { Link, NavLink } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import { HEADER_AUTH_PATHS, HEADER_NAV_ITEMS } from "../../constants/header";
 import styles from "./Header.module.css";
-
 function Header({ isLoggedIn = false, avatarUrl = "", avatarAlt = "프로필" }) {
   return (
     <header className={styles.header}>
@@ -10,7 +9,6 @@ function Header({ isLoggedIn = false, avatarUrl = "", avatarAlt = "프로필" })
         <Link to="/" className={styles.logo} aria-label="Portfolio+ 홈">
           Portfolio+
         </Link>
-
         <div className={styles.right}>
           <nav aria-label="주요 메뉴">
             <ul className={styles.navList}>
@@ -29,7 +27,6 @@ function Header({ isLoggedIn = false, avatarUrl = "", avatarAlt = "프로필" })
               ))}
             </ul>
           </nav>
-
           {isLoggedIn ? (
             <Link to="/mypage" className={styles.avatarLink} aria-label="마이페이지">
               <Avatar src={avatarUrl || undefined} alt={avatarAlt} className={styles.avatar} />
@@ -49,5 +46,4 @@ function Header({ isLoggedIn = false, avatarUrl = "", avatarAlt = "프로필" })
     </header>
   );
 }
-
 export default Header;
