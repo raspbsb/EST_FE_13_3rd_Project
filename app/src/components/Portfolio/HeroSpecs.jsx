@@ -12,7 +12,7 @@ export default function HeroSpecs({}) {
         카테고리
       </Text>
       <Box component={"dd"}>
-        <Stack component={"ul"} direction="row" sx={{ gap: 1 }}>
+        <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
           <Chip component={"li"} label="Lorem" />
           <Chip component={"li"} label="Ipsum" />
           <Chip component={"li"} label="Dolor" />
@@ -28,7 +28,7 @@ export default function HeroSpecs({}) {
         기술 스택
       </Text>
       <Box component={"dd"}>
-        <Stack component={"ul"} direction="row" sx={{ gap: 1 }}>
+        <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
           <Chip component={"li"} label="HTML" />
           <Chip component={"li"} label="CSS" />
           <Chip component={"li"} label="JavaScript" />
