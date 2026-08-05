@@ -1,0 +1,10 @@
+export { default as EditIcon } from "@mui/icons-material/Edit";
+export { default as ViewsIcon } from "@mui/icons-material/VisibilityOutlined";
+export { default as LikeIcon } from "@mui/icons-material/FavoriteBorder";
+export { default as LikeIconActive } from "@mui/icons-material/Favorite";
+export { default as StarIcon } from "@mui/icons-material/StarBorder";
+export { default as StarIconActive } from "@mui/icons-material/Star";
+export { default as LinkIcon } from "@mui/icons-material/Link";
+export { default as CodeIcon } from "@mui/icons-material/Code";
+export { default as AiIcon } from "@mui/icons-material/AutoAwesome";
+export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
