@@ -6,16 +6,14 @@ export default function Header() {
     <AppBar position="sticky" color="inherit" elevation={1}>
       <Toolbar
         sx={{
-          display: "flex",
-          alignItems: "center",
           maxWidth: 1920,
           width: "100%",
           mx: "auto",
           px: { xs: 2, md: 3 },
-          position: "relative" /* 중앙 배치의 기준점 */,
+          position: "relative",
         }}
       >
-        {/* 1. 좌측: 로고 */}
+        {/* 1. 좌측: 로고 (primary.main 색상 적용) */}
         <Typography
           variant="h6"
           component={Link}
@@ -29,7 +27,7 @@ export default function Header() {
         <Box
           sx={{
             display: "flex",
-            gap: 2,
+            gap: 1,
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
@@ -49,7 +47,7 @@ export default function Header() {
           </Button>
         </Box>
 
-        {/* 3. 우측: 로그인 / 회원가입 버튼 (marginLeft: 'auto'로 오른쪽 끝 고정) */}
+        {/* 3. 우측: 로그인 / 회원가입 (theme.js 의 primary, secondary 활용) */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, ml: "auto" }}>
           <Button component={Link} to="/login" variant="outlined" color="primary">
             로그인
