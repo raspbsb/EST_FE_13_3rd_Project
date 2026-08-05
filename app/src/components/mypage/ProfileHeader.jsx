@@ -43,8 +43,9 @@ export default function ProfileHeader({ mode }) {
       {/* 프로필 이미지 업로드 */}
       <Box
         sx={{
+          width: '191px',
+          height: '192px',
           position: 'relative',
-          height: '191px',
         }}
       >
         {image ? (
@@ -53,18 +54,20 @@ export default function ProfileHeader({ mode }) {
             src={''}
             alt='프로필 이미지'
             sx={{
-              width: 191,
-              height: '191',
-              borderRadius: 9999,
-              border: '1px solid #aaa', //색상 나중에 수정
+              width: '191px',
+              height: '192px',
+              borderRadius: '50%',
+              border: '1px solid #e0e0e0',
               objectFit: 'cover',
             }}
           />
         ) : (
           <AccountCircleIcon
             sx={{
-              width: 191,
-              height: 191,
+              width: '191px',
+              height: '192px',
+              borderRadius: '50%',
+              border: '1px solid #e0e0e0',
             }}
           />
         )}
@@ -89,7 +92,7 @@ export default function ProfileHeader({ mode }) {
       </Box>
 
       {/* 프로필 info */}
-      <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Text variant='h4' fontWeight={700}>
             User Name
@@ -124,13 +127,13 @@ export default function ProfileHeader({ mode }) {
 
         {/* 컨택 URL */}
         <List sx={{ display: 'inline-flex', paddingTop: 2, gap: 3 }}>
-          <ListItem sx={{ padding: 0 }}>
+          <ListItem sx={{ padding: 0, width: 'auto' }}>
             <EmailIcon fontSize='small' />
             <Text component={'a'} href={null} variant='Subtitle1'>
               portfoliop@gmail.com
             </Text>
           </ListItem>
-          <ListItem sx={{ padding: 0 }}>
+          <ListItem sx={{ padding: 0, width: 'auto' }}>
             <LinkIcon fontSize='small' />
             <Text component={'a'} href={null} variant='Subtitle1'>
               https://www.linkedin.com/in/portfolioplus/

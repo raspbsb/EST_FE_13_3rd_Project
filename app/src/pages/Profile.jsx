@@ -5,6 +5,8 @@ import MyProjects from '../components/mypage/MyProjects';
 import BookmarkSection from '../components/mypage/BookmarkSection';
 import ContactSection from '../components/mypage/ContactSection';
 
+import Container from '@mui/material/Container';
+
 export default function Profile({ mode }) {
   return (
     <>
@@ -18,10 +20,10 @@ export default function Profile({ mode }) {
         <MyProjects />
 
         {mode === 'mypage' && (
-          <>
+          <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
             <BookmarkSection />
             <ContactSection />
-          </>
+          </Container>
         )}
       </main>
     </>
