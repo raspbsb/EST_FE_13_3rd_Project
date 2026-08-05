@@ -5,7 +5,7 @@ import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } 
 
 export default function Portfolio() {
   return (
-    <Container>
+    <Container maxWidth={"desktopContainer"}>
       <Text component={"p"} variant="h4">
         포트폴리오 상세
       </Text>

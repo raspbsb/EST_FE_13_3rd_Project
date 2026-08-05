@@ -6,6 +6,7 @@ const theme = createTheme({
       mobile: 0,
       tablet: 768,
       desktop: 1440,
+      desktopContainer: 1272,
     },
   },
   palette: {
