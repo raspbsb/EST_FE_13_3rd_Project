@@ -19,20 +19,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
+import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Text from "@mui/material/Typography";
 
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import Switch from "@mui/material/Switch";
-
 // Material Icons
-import PublicIcon from "@mui/icons-material/Public";
-import LockIcon from "@mui/icons-material/Lock";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import ErrorOutlinedIcon from "@mui/icons-material/ErrorOutlined";
+import { PublicIcon, LockIcon, VisibilityOutlinedIcon, ErrorOutlinedIcon, OutlinedInput } from "../lib/icons";
 
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
@@ -127,25 +119,67 @@ export default function PortfolioEditor({ data }) {
                     프로젝트 기본 정보
                   </Text>
                 </Box>
-                <FormControl variant="standard">
-                  <InputLabel htmlFor="title">
+
+                <FormControl fullWidth required>
+                  <Text component="label" htmlFor="title" sx={{ mb: 1 }}>
                     프로젝트명
                     <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
-                      *
+                      {" *"}
                     </Box>
-                  </InputLabel>
+                  </Text>
 
-                  <Input
-                    id="title"
-                    name="title"
-                    required
-                    fullWidth
-                    slotProps={{
-                      htmlInput: {
-                        "aria-required": true,
-                      },
-                    }}
-                  />
+                  <OutlinedInput id="title" name="title" size="small" />
+                </FormControl>
+
+                {/* 기간/배포 그룹 */}
+                <Box>
+                  <FormControl fullWidth>
+                    <Text component="label" htmlFor="started_at" sx={{ mb: 1 }}>
+                      프로젝트 기간
+                    </Text>
+                    <OutlinedInput id="started_at" name="started_at" size="small" />
+                  </FormControl>
+                  {" ~ "}
+                  <FormControl fullWidth>
+                    <OutlinedInput id="ended_at" name="ended_at" size="small" />
+                  </FormControl>
+                  <FormControl fullWidth required>
+                    <Text component="label" htmlFor="deploy_url" sx={{ mb: 1 }}>
+                      배포 URL
+                    </Text>
+                    <OutlinedInput id="deploy_url" name="deploy_url" size="small" />
+                  </FormControl>
+                </Box>
+
+                {/* 역할/레포 그룹 */}
+                <Box>
+                  <FormControl fullWidth required>
+                    <Text component="label" htmlFor="author_role" sx={{ mb: 1 }}>
+                      담당 역할
+                    </Text>
+
+                    <OutlinedInput id="author_role" name="author_role" size="small" />
+                  </FormControl>
+                  <FormControl fullWidth required>
+                    <Text component="label" htmlFor="repository_url" sx={{ mb: 1 }}>
+                      GitHub 저장소 URL
+                      <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
+                        {" *"}
+                      </Box>
+                    </Text>
+
+                    <OutlinedInput id="repository_url" name="repository_url" size="small" />
+                  </FormControl>
+                </Box>
+                <FormControl fullWidth required>
+                  <Text component="label" htmlFor="description" sx={{ mb: 1 }}>
+                    프로젝트 설명
+                    <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
+                      {" *"}
+                    </Box>
+                  </Text>
+
+                  <OutlinedInput id="description" name="description" size="small" />
                 </FormControl>
               </Box>
 

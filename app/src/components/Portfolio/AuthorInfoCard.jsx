@@ -7,7 +7,7 @@ import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 
-import { EmailIcon, CodeIcon, LinkIcon } from "../icons";
+import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
 
 export default function AuthorInfoCard({}) {
   return (

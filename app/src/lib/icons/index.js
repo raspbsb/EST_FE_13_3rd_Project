@@ -10,3 +10,8 @@ export { default as AiIcon } from "@mui/icons-material/AutoAwesome";
 export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as DropDownIcon } from "@mui/icons-material/ArrowDropDown";
 export { default as DropUpIcon } from "@mui/icons-material/ArrowDropUp";
+import { default as PublicIcon } from "@mui/icons-material/Public";
+import { default as LockIcon } from "@mui/icons-material/Lock";
+import { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
+import { default as ErrorOutlinedIcon } from "@mui/icons-material/ErrorOutlined";
+import { default as OutlinedInput } from "@mui/material/OutlinedInput";
