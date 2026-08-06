@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import TagChip from '../TagChip';
+
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -25,7 +27,41 @@ export default function EditDialog({ open, onClose }) {
 
   // 소개글 글자 수 상태관리
   const [bio, setBio] = useState('');
+  // 기술 스택 상태관리
+  const [skillInput, setSkillInput] = useState('');
+  const [skills, setSkills] = useState([]);
 
+  // 스택 입력값
+  const handleSkillChange = e => {
+    setSkillInput(e.target.value);
+  };
+
+  //엔터 누르면 chip 추가
+  const handleSkillKeyDown = e => {
+    if (e.key !== 'Enter') return;
+
+    e.preventDefault();
+
+    const value = skillInput.trim();
+
+    if (!value) return;
+
+    // 중복 방지
+    if (skills.includes(value)) {
+      setSkillInput('');
+      return;
+    }
+
+    setSkills(prev => [...prev, value]);
+    setSkillInput('');
+  };
+
+  //chip 삭제
+  const handleDeleteSkill = skill => {
+    setSkills(prev => prev.filter(item => item !== skill));
+  };
+
+  // 폼 전송 이벤트 (MUI 예제 임시로 복붙)
   const handleSubmit = e => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -91,8 +127,20 @@ export default function EditDialog({ open, onClose }) {
             </Box>
 
             <Box>
-              <FormLabel>기술 스택</FormLabel>
-              <TextField label='기술 스택' placeholder='기술을 입력하고 엔터를 눌러주세요.' fullWidth required />
+              <FormLabel sx={{ p: '10px' }}>기술 스택</FormLabel>
+              <TextField
+                label='기술 스택'
+                placeholder='기술을 입력하고 엔터를 눌러주세요.'
+                fullWidth
+                value={skillInput}
+                onChange={handleSkillChange}
+                onKeyDown={handleSkillKeyDown}
+              />
+              <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap' sx={{ pt: '10px' }}>
+                {skills.map(skill => (
+                  <TagChip key={skill} label={skill} onDelete={() => handleDeleteSkill(skill)} />
+                ))}
+              </Stack>
             </Box>
 
             <Box>
@@ -140,4 +188,5 @@ export default function EditDialog({ open, onClose }) {
 // 기존 프로필 내용 불러오기
 // 입력값 저장
 // 적용 버튼 클릭하면 수정된 데이터 화면에 출력
-// sx={{ color: 'background.default' }}
+
+// 기술 스택 항목 공통 컴포넌트로 분리
