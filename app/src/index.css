@@ -16,3 +16,13 @@ a {
 button {
   font-family: inherit;
 }
+
+ul,
+ol,
+li,
+dl,
+dt,
+dd {
+  margin: 0;
+  padding: 0;
+}
