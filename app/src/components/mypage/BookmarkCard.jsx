@@ -10,15 +10,16 @@ export default function BookmarkCard({ title, total, handleClick }) {
     <ListItem>
       <ListItemButton onClick={handleClick}>
         <Box
+          component='img'
+          src={''}
+          alt='최근 북마크 한 프로젝트 썸네일'
           sx={{
-            width: `100%`,
+            maxWidth: `262px`,
             height: `100%`,
             borderRadius: 2,
-            overflow: 'hidden',
+            objectFit: 'cover',
           }}
-        >
-          {/* <img src='{}' alt='{}' /> */}
-        </Box>
+        ></Box>
         <ListItemText
           sx={{
             width: `100%`,

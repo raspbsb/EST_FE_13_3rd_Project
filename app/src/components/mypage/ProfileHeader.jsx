@@ -1,14 +1,19 @@
 import { styled } from '@mui/material/styles';
+import theme from '../../styles/theme';
+
 import Box from '@mui/material/Box';
-import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
+import Text from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+
+import EditIcon from '@mui/icons-material/Edit';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
-import Text from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import Chip from '@mui/material/Chip';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -35,10 +40,12 @@ export default function ProfileHeader({ mode }) {
 
   return (
     <Box component='section' sx={{ display: 'flex', gap: 2 }}>
+      {/* 프로필 이미지 업로드 */}
       <Box
         sx={{
+          width: '191px',
+          height: '192px',
           position: 'relative',
-          height: '100%',
         }}
       >
         {image ? (
@@ -47,18 +54,20 @@ export default function ProfileHeader({ mode }) {
             src={''}
             alt='프로필 이미지'
             sx={{
-              width: 191,
-              height: 191,
-              borderRadius: 9999,
-              border: '1px solid #aaa', //색상 나중에 수정
+              width: '191px',
+              height: '192px',
+              borderRadius: '50%',
+              border: '1px solid #e0e0e0',
               objectFit: 'cover',
             }}
           />
         ) : (
           <AccountCircleIcon
             sx={{
-              width: 191,
-              height: 191,
+              width: '191px',
+              height: '192px',
+              borderRadius: '50%',
+              border: '1px solid #e0e0e0',
             }}
           />
         )}
@@ -82,7 +91,8 @@ export default function ProfileHeader({ mode }) {
         </IconButton>
       </Box>
 
-      <Box>
+      {/* 프로필 info */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Text variant='h4' fontWeight={700}>
             User Name
@@ -99,11 +109,14 @@ export default function ProfileHeader({ mode }) {
           ecosystems and scalable design systems for creative professionals.
         </Text>
 
-        <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
+        {/* 기술 스택 */}
+        <Stack direction='row' spacing={1} useFlexGap flexwrap='wrap' color='primary'>
           {skills.map(s => (
             <Chip
               key={s}
               label={s}
+              variant='caption'
+              color='primary'
               sx={{
                 borderRadius: '12px',
                 height: 30,
@@ -111,18 +124,22 @@ export default function ProfileHeader({ mode }) {
             />
           ))}
         </Stack>
-        <Box>
-          <Stack direction='row' spacing={1}>
-            <Text variant='Subtitle1'>
-              <EmailIcon />
-              이메일
+
+        {/* 컨택 URL */}
+        <List sx={{ display: 'inline-flex', paddingTop: 2, gap: 3 }}>
+          <ListItem sx={{ padding: 0, width: 'auto' }}>
+            <EmailIcon fontSize='small' />
+            <Text component={'a'} href={null} variant='Subtitle1'>
+              portfoliop@gmail.com
             </Text>
-            <Text variant='Subtitle1'>
-              <LinkIcon />
-              개인 사이트 링크
+          </ListItem>
+          <ListItem sx={{ padding: 0, width: 'auto' }}>
+            <LinkIcon fontSize='small' />
+            <Text component={'a'} href={null} variant='Subtitle1'>
+              https://www.linkedin.com/in/portfolioplus/
             </Text>
-          </Stack>
-        </Box>
+          </ListItem>
+        </List>
       </Box>
     </Box>
   );
