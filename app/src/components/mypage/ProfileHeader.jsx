@@ -47,7 +47,7 @@ export default function ProfileHeader({ mode }) {
         {/* 기술 스택 */}
         <Stack direction='row' spacing={1} useFlexGap flexwrap='wrap' color='primary'>
           {skills.map(skill => (
-            <TagChip key={skill} label={skill} />
+            <TagChip key={skill} label={skill} color='primary' />
           ))}
         </Stack>
 
