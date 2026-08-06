@@ -13,7 +13,7 @@ export default function AuthorInfoSection({}) {
       <Text component={"h2"} variant="h4">
         작성자 정보
       </Text>
-      <Grid container spacing={3} columns={{ mobile: 4, tablet: 8, desktop: 12 }}>
+      <Grid container spacing={3} columns={{ mobile: 4, tablet: 8, desktop: 12 }} sx={{ mt: 3 }}>
         <Grid size={{ mobile: 4, tablet: 3, desktop: 4 }}>
           <AuthorInfoCard />
         </Grid>

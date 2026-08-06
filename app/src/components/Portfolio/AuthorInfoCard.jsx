@@ -11,14 +11,28 @@ import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
 
 export default function AuthorInfoCard({}) {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative" }}>
-      <Avatar sx={{ width: "128px", height: "128px" }} alt="author" />
-      <Text component={"h3"} variant="h5">
-        author
-      </Text>
-      <Text component={"p"} variant="subtitle1">
-        Frontend Developer
-      </Text>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 2,
+        p: 3,
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderColor: "divider",
+        position: "relative",
+      }}
+    >
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+        <Avatar sx={{ width: "128px", height: "128px" }} alt="author" />
+        <Text component={"h3"} variant="h5">
+          author
+        </Text>
+        <Text component={"p"} variant="subtitle1">
+          Frontend Developer
+        </Text>
+      </Box>
       <Button
         component={Link}
         to="/profiles/:userId"

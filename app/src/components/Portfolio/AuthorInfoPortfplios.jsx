@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
+import Grid from "@mui/material/Grid";
 
 export default function AuthorInfoPortfolios({}) {
   return (
@@ -15,14 +15,14 @@ export default function AuthorInfoPortfolios({}) {
           View all 4
         </Text>
       </Box>
-      <Stack component={"ul"} direction={"row"}>
-        <Box component={"li"}>
+      <Grid component={"ul"} container columns={2} sx={{ width: "100%" }}>
+        <Grid component={"li"} size={1}>
           <Box component={"article"}></Box>
-        </Box>
-        <Box component={"li"}>
+        </Grid>
+        <Grid component={"li"} size={1}>
           <Box component={"article"}></Box>
-        </Box>
-      </Stack>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
