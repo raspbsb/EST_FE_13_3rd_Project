@@ -1,4 +1,5 @@
 import ProfileAvatar from './ProfileAvatar';
+import EditDialog from './EditDialog';
 import TagChip from '../TagChip';
 
 import Box from '@mui/material/Box';
@@ -12,14 +13,23 @@ import ListItem from '@mui/material/ListItem';
 import EditIcon from '@mui/icons-material/Edit';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
+import { useState } from 'react';
 
 export default function ProfileHeader({ mode }) {
+  // 임시 데이터
   const skills = ['React', 'TypeScript', 'Supabase', 'Tailwind', 'Next.js'];
-
   const image = null;
 
-  //수정 모달 함수 띄우기
-  const handleEdit = () => {};
+  //dialog 상태 관리
+  const [open, setOpen] = useState(false);
+
+  //dialog 열고 닫기
+  const handleEdit = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Box component='section' sx={{ display: 'flex', gap: 2 }}>
@@ -32,11 +42,14 @@ export default function ProfileHeader({ mode }) {
           <Text variant='h4' fontWeight={700}>
             User Name
           </Text>
+          {/* Edit Dialog 띄우기 */}
           {mode === 'mypage' && (
             <IconButton onClick={handleEdit}>
               <EditIcon />
             </IconButton>
           )}
+          {/* Dialog 컴포넌트*/}
+          <EditDialog open={open} onClose={handleClose} />
         </Box>
         <Text variant='h6'>Frontend Developer</Text>
         <Text variant='body1'>
