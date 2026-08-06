@@ -12,8 +12,8 @@ export default function AiSummarySection({}) {
     <Box component={"section"} id="ai-analysis">
       <Box component={"div"} onClick={() => setIsOpen(prev => !prev)}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Text component={"h2"} variant="h4">
-            <AiIcon />
+          <Text component={"h2"} variant="h4" sx={{ fontWeight: "700" }}>
+            <AiIcon sx={{ mr: 1 }} />
             AI 분석결과
           </Text>
           {isOpen ? <DropUpIcon /> : <DropDownIcon />}

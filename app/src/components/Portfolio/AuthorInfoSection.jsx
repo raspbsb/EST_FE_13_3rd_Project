@@ -10,7 +10,7 @@ import AuthorInfoPortfolios from "./AuthorInfoPortfplios";
 export default function AuthorInfoSection({}) {
   return (
     <Box component={"section"}>
-      <Text component={"h2"} variant="h4">
+      <Text component={"h2"} variant="h4" sx={{ fontWeight: "700" }}>
         작성자 정보
       </Text>
       <Grid container spacing={3} columns={{ mobile: 4, tablet: 8, desktop: 12 }} sx={{ mt: 3 }}>

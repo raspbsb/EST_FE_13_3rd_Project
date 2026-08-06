@@ -9,7 +9,7 @@ import { EditIcon } from "../../lib/icons";
 export default function HeroHeading({}) {
   return (
     <Box>
-      <Text component={"h1"} variant="h3">
+      <Text component={"h1"} variant="h3" sx={{ fontWeight: "700" }}>
         Project Title
       </Text>
       <Button
