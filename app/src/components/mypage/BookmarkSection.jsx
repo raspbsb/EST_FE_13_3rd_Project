@@ -1,6 +1,10 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import BookmarkCard from './BookmarkCard';
+
 import List from '@mui/material/List';
+import Box from '@mui/material/Box';
+import Text from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 export default function BookmarkSection() {
   const navigate = useNavigate();
@@ -25,13 +29,16 @@ export default function BookmarkSection() {
   ];
 
   return (
-    <section>
-      <div>
-        <h2>북마크</h2>
-        <nav>
-          <NavLink to='/mypage/collections'>View all</NavLink>
-        </nav>
-      </div>
+    <Box component='section' sx={{}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <Text variant='h6' align=''>
+          북마크
+        </Text>
+
+        <Link href='/mypage/collections' underline='hover' variant='subtitle2'>
+          View all
+        </Link>
+      </Box>
       <List>
         {collections.map(c => (
           <BookmarkCard
@@ -42,6 +49,6 @@ export default function BookmarkSection() {
           />
         ))}
       </List>
-    </section>
+    </Box>
   );
 }

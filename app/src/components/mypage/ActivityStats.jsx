@@ -25,7 +25,11 @@ export default function ActivityStats() {
     },
   ];
   return (
-    <Grid container spacing={3} sx={{ justifyContent: 'center', bgcolor: 'text.primary', borderRadius: 3, py: 3 }}>
+    <Grid
+      container
+      spacing={3}
+      sx={{ justifyContent: 'space-around', bgcolor: 'text.primary', borderRadius: 3, py: 3 }}
+    >
       {stats.map(item => (
         <Grid
           key={item.idx}
