@@ -6,7 +6,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Avatar from "@mui/material/Avatar";
 
-import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../icons";
+import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 
 export default function HeroMeta({}) {
   const isLiked = false;

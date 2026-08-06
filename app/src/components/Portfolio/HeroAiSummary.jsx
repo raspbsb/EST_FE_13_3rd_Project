@@ -1,7 +1,7 @@
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
-import { AiIcon } from "../icons";
+import { AiIcon } from "../../lib/icons";
 
 export default function HeroAiSummary({}) {
   return (

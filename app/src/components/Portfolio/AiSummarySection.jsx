@@ -3,7 +3,7 @@ import { useState } from "react";
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
-import { AiIcon, DropDownIcon, DropUpIcon } from "../icons";
+import { AiIcon, DropDownIcon, DropUpIcon } from "../../lib/icons";
 
 export default function AiSummarySection({}) {
   const [isOpen, setIsOpen] = useState(false);

@@ -4,7 +4,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
 
-import { LinkIcon, CodeIcon } from "../icons";
+import { LinkIcon, CodeIcon } from "../../lib/icons";
 
 import HeroSpecsItem from "./HeroSpecsItem";
 
