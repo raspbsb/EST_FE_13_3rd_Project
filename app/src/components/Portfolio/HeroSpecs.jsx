@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 
-import { LinkIcon, CodeIcon } from "../icons";
+import { LinkIcon, CodeIcon } from "../../lib/icons";
 
 export default function HeroSpecs({}) {
   return (
