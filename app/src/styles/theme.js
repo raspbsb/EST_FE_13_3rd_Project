@@ -7,6 +7,13 @@ const theme = createTheme({
       tablet: 768,
       desktop: 1440,
       desktopContainer: 1272,
+
+      // 깨짐 방지용 (사용을 권장하지 않음)
+      xs: 0,
+      sm: 768,
+      md: 768,
+      lg: 1272,
+      xl: 1440,
     },
   },
   palette: {
