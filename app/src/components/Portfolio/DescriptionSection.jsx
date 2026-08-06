@@ -7,7 +7,19 @@ export default function DescriptionSection({}) {
       <Text component={"h2"} variant="h4">
         프로젝트 설명
       </Text>
-      <Box>
+      <Box
+        sx={{
+          borderStyle: "solid",
+          borderWidth: "1px",
+          borderColor: "divider",
+          borderRadius: "8px",
+          bgcolor: "surface",
+          p: 3,
+          mt: 2,
+          minHeight: "192px",
+          maxHeight: "400px",
+        }}
+      >
         <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
       </Box>
     </Box>
