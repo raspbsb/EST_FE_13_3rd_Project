@@ -1,5 +1,5 @@
-import { styled } from '@mui/material/styles';
-import theme from '../../styles/theme';
+import ProfileAvatar from './ProfileAvatar';
+import TagChip from '../TagChip';
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -10,22 +10,8 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 
 import EditIcon from '@mui/icons-material/Edit';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
-
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
 
 export default function ProfileHeader({ mode }) {
   const skills = ['React', 'TypeScript', 'Supabase', 'Tailwind', 'Next.js'];
@@ -35,61 +21,10 @@ export default function ProfileHeader({ mode }) {
   //수정 모달 함수 띄우기
   const handleEdit = () => {};
 
-  //프로필 이미지 업로드 부분 컴포넌트 분리 할 예정.
-  //프로필 임시데이터 하나 생성하기.
-
   return (
     <Box component='section' sx={{ display: 'flex', gap: 2 }}>
       {/* 프로필 이미지 업로드 */}
-      <Box
-        sx={{
-          width: '191px',
-          height: '192px',
-          position: 'relative',
-        }}
-      >
-        {image ? (
-          <Box
-            component='img'
-            src={''}
-            alt='프로필 이미지'
-            sx={{
-              width: '191px',
-              height: '192px',
-              borderRadius: '50%',
-              border: '1px solid #e0e0e0',
-              objectFit: 'cover',
-            }}
-          />
-        ) : (
-          <AccountCircleIcon
-            sx={{
-              width: '191px',
-              height: '192px',
-              borderRadius: '50%',
-              border: '1px solid #e0e0e0',
-            }}
-          />
-        )}
-
-        {/* <img src='' alt='' /> */}
-        <IconButton
-          component='label'
-          aria-label='add Profile image'
-          sx={{
-            width: 45,
-            height: 45,
-            background: '#fff',
-            border: '1px solid #aaa', //색상 나중에 수정
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-          }}
-        >
-          <VisuallyHiddenInput type='file' onChange={event => console.log(event.target.files)} multiple />
-          <AddAPhotoIcon />
-        </IconButton>
-      </Box>
+      <ProfileAvatar />
 
       {/* 프로필 info */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -111,17 +46,8 @@ export default function ProfileHeader({ mode }) {
 
         {/* 기술 스택 */}
         <Stack direction='row' spacing={1} useFlexGap flexwrap='wrap' color='primary'>
-          {skills.map(s => (
-            <Chip
-              key={s}
-              label={s}
-              variant='caption'
-              color='primary'
-              sx={{
-                borderRadius: '12px',
-                height: 30,
-              }}
-            />
+          {skills.map(skill => (
+            <TagChip key={skill} label={skill} color='primary' />
           ))}
         </Stack>
 
