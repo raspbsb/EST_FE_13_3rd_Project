@@ -1,24 +1,33 @@
-import Text from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
+import { useState } from "react";
 
-import { AiIcon } from "../icons";
+import Text from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+
+import { AiIcon, DropDownIcon, DropUpIcon } from "../../lib/icons";
 
 export default function AiSummarySection({}) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <Box component={"section"} id="ai-analysis">
-      <Box>
-        <Text component={"h2"} variant="h4">
-          <AiIcon />
-          AI 분석결과
-        </Text>
-        <Text component={"p"} variant="caption">
-          &#8251; AI로 생성된 내용입니다.
-        </Text>
+      <Box component={"div"} onClick={() => setIsOpen(prev => !prev)}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Text component={"h2"} variant="h4">
+            <AiIcon />
+            AI 분석결과
+          </Text>
+          {isOpen ? <DropUpIcon /> : <DropDownIcon />}
+        </Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Text component={"p"} variant="caption">
+            &#8251; AI로 생성된 내용입니다.
+          </Text>
+          <Text component={"p"} variant="caption">
+            분석 시점: <time dateTime="2026-07-23 02:13">2026-07-23 02:13</time>
+          </Text>
+        </Box>
       </Box>
-      <Box>
+      <Box sx={{ maxHeight: `${isOpen ? "2048px" : "0px"}`, overflow: "hidden" }}>
         <Box component={"dl"}>
           <Text component={"dt"} variant="h6">
             프로젝트 요약
@@ -62,7 +71,9 @@ export default function AiSummarySection({}) {
             <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
           </Box>
         </Box>
-        <Box>분석 근거</Box>
+        <Box>
+          <Text>분석 근거</Text>
+        </Box>
       </Box>
     </Box>
   );
