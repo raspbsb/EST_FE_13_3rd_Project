@@ -17,7 +17,9 @@ export default function DescriptionSection({}) {
           borderRadius: "12px",
           bgcolor: "surface",
           minHeight: "192px",
-          maxHeight: "400px",
+          maxHeight: "600px",
+          overflowY: "scroll",
+          scrollbarWidth: "none",
         }}
       >
         <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
