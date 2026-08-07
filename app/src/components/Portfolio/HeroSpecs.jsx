@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
+import MuiLink from "@mui/material/Link";
 
 import { LinkIcon, CodeIcon } from "../../lib/icons";
 
@@ -11,7 +12,7 @@ import HeroSpecsItem from "./HeroSpecsItem";
 export default function HeroSpecs({}) {
   return (
     <Grid component={"dl"} container rowSpacing={1} columnSpacing={1} columns={8} sx={{ alignItems: "center" }}>
-      <HeroSpecsItem label="카테고리">
+      <HeroSpecsItem label="카테고리" noBox>
         <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
           <Chip component={"li"} label="Lorem Ipsum" />
           <Chip component={"li"} label="Dolor Sit Amet" />
@@ -21,7 +22,7 @@ export default function HeroSpecs({}) {
         </Stack>
       </HeroSpecsItem>
 
-      <HeroSpecsItem label="기술 스택">
+      <HeroSpecsItem label="기술 스택" noBox>
         <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
           <Chip component={"li"} label="HTML" />
           <Chip component={"li"} label="CSS" />
@@ -33,12 +34,16 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <Text variant="body1">https://deploy-url.com/project</Text>
+        <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary">
+          https://deploy-url.com/project
+        </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <Text variant="body1">https://github.com/author/project</Text>
+        <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary">
+          https://github.com/author/project
+        </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" size={3}>
