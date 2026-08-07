@@ -18,3 +18,6 @@ export { default as CalendarIcon } from "@mui/icons-material/CalendarMonthOutlin
 export { default as AwesomeIcon } from "@mui/icons-material/AutoAwesomeOutlined";
 export { default as ErrorCircleIcon } from "@mui/icons-material/ErrorOutlineOutlined";
 export { default as CloudUploadIcon } from "@mui/icons-material/CloudUploadOutlined";
+export { default as PushPinIcon } from "@mui/icons-material/PushPin";
+export { default as OpenWithIcon } from "@mui/icons-material/OpenWith";
+export { default as CancelIcon } from "@mui/icons-material/Cancel";
