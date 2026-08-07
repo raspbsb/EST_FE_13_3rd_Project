@@ -135,7 +135,11 @@ export default function PortfolioEditor({ data }) {
                   sectionCardSx={sectionCardSx}
                   thumbnailActionButtonSx={thumbnailActionButtonSx}
                 />
-                <ProjectMetaSection sectionCardSx={sectionCardSx} fieldLabelSx={fieldLabelSx} formInputSx={formInputSx} />
+                <ProjectMetaSection
+                  sectionCardSx={sectionCardSx}
+                  fieldLabelSx={fieldLabelSx}
+                  formInputSx={formInputSx}
+                />
               </Stack>
             </Box>
 

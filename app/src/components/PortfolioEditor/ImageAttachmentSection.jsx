@@ -141,7 +141,10 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
                   }}
                 />
                 <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
-                  <ImageActionButton aria-label={`이미지 ${imageNumber} 대표 이미지로 고정`} sx={thumbnailActionButtonSx}>
+                  <ImageActionButton
+                    aria-label={`이미지 ${imageNumber} 대표 이미지로 고정`}
+                    sx={thumbnailActionButtonSx}
+                  >
                     <PushPinIcon />
                   </ImageActionButton>
                   <ImageActionButton aria-label={`이미지 ${imageNumber} 이동`} sx={thumbnailActionButtonSx}>
