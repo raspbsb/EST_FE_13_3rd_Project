@@ -97,18 +97,17 @@ export default function EditDialog({ open, onClose }) {
           <Stack spacing={2}>
             <Box>
               <FormLabel required>이름</FormLabel>
-              <TextField label='이름' placeholder='이름을 작성해주세요.' fullWidth required />
+              <TextField placeholder='이름을 작성해주세요.' fullWidth required />
             </Box>
 
             <Box>
               <FormLabel required>직군</FormLabel>
-              <TextField label='직군' placeholder='직군을 입력해주세요.' fullWidth required />
+              <TextField placeholder='직군을 입력해주세요.' fullWidth required />
             </Box>
 
             <Box>
               <FormLabel>소개글</FormLabel>
               <TextField
-                label='소개글'
                 placeholder='소개글을 입력해주세요. (최대 100자)'
                 multiline
                 rows={5}
@@ -126,7 +125,7 @@ export default function EditDialog({ open, onClose }) {
             </Box>
 
             <Box>
-              <FormLabel sx={{ p: '10px' }}>기술 스택</FormLabel>
+              <FormLabel>기술 스택</FormLabel>
               <TextField
                 label='기술 스택'
                 placeholder='기술을 입력하고 엔터를 눌러주세요.'
@@ -144,14 +143,14 @@ export default function EditDialog({ open, onClose }) {
 
             <Box>
               <FormLabel>이메일</FormLabel>
-              <TextField label='이메일' placeholder='이메일을 작성해주세요.' fullWidth />
+              <TextField placeholder='이메일을 작성해주세요.' fullWidth />
             </Box>
 
             <Box>
               <FormLabel>개인 사이트</FormLabel>
               <Stack direction='row' spacing={2}>
-                <TextField label='개인 사이트1' placeholder='사이트 URL을 입력해주세요.' fullWidth />
-                <TextField label='개인 사이트2' placeholder='사이트 URL을 입력해주세요.' fullWidth />
+                <TextField label='사이트1' placeholder='사이트 URL을 입력해주세요.' fullWidth />
+                <TextField label='사이트2' placeholder='사이트 URL을 입력해주세요.' fullWidth />
               </Stack>
             </Box>
 
