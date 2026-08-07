@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import ContactCard from './ContactCard';
+import ContactDialog from './ContactDialog';
 
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { useState } from 'react';
 
 export default function ContactSection() {
   //임시데이터
@@ -27,17 +29,22 @@ export default function ContactSection() {
     },
   ];
 
+  // dialog 열기
+  const [openContact, setOpenContact] = useState(false);
+
   return (
-    <Box component='section' sx={{}}>
+    <Box component="section">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <Text variant='h6'>관심 & 연락</Text>
-        <Link component='button' underline='hover' variant='subtitle2'>
+        <Text variant="h6">관심 & 연락</Text>
+        <Link component="button" underline="hover" variant="subtitle2" onClick={() => setOpenContact(true)}>
           View all
         </Link>
+        {/* Dialog 컴포넌트*/}
+        <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
       </Box>
       <List>
         {notifications.map(item => (
-          <ContactCard key={item.id} item={item} />
+          <ContactCard key={item.id} item={item} onClick={() => handleMessage(item)} />
         ))}
       </List>
     </Box>
