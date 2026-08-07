@@ -9,13 +9,13 @@ export default function DescriptionSection({}) {
       </Text>
       <Box
         sx={{
+          p: 3,
+          mt: 2,
           borderStyle: "solid",
           borderWidth: "1px",
           borderColor: "divider",
-          borderRadius: "8px",
+          borderRadius: "12px",
           bgcolor: "surface",
-          p: 3,
-          mt: 2,
           minHeight: "192px",
           maxHeight: "400px",
         }}

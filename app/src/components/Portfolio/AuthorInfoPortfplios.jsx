@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
   return (
@@ -11,9 +12,9 @@ export default function AuthorInfoPortfolios({}) {
         <Text component={"h3"} variant="h5">
           author의 다른 프로젝트
         </Text>
-        <Text component={Link} to="/profiles/:userId">
+        <MuiLink component={Link} to="/profiles/:userId">
           View all 4
-        </Text>
+        </MuiLink>
       </Box>
       <Grid component={"ul"} container columns={2} sx={{ width: "100%" }}>
         <Grid component={"li"} size={1}>
