@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <AppBar position="sticky" color="inherit" elevation={1}>
-      <Toolbar sx={{ maxWidth: 1200, width: "100%", mx: "auto", position: "relative" }}>
+      <Toolbar disableGutters sx={{ maxWidth: 1272, width: "100%", mx: "auto", position: "relative" }}>
         {/* 1. 좌측: 로고 */}
         <Typography
           variant="h6"
