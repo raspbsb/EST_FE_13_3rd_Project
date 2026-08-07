@@ -1,7 +1,7 @@
 /**
  * GitHub 저장소 분석 결과, 수정 제한 안내, 분석 근거 아코디언 섹션
- * @param {{ cardSx: object }} props - 섹션 외곽 카드 공통 MUI sx 스타일 객체
- * @returns {JSX.Element} AI 분석 결과 카드 목록, 분석 근거 아코디언 포함 섹션 UI
+ * @param {{ sectionCardSx: object }} props - sectionCardSx: 분석 결과 섹션 외곽 박스 sx
+ * @returns {JSX.Element} GitHub AI 분석 결과 카드 목록, 수정 제한 안내, 분석 근거 아코디언
  */
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -48,12 +48,12 @@ const analysisResultItems = [
   },
 ];
 
-export default function GithubAiAnalysisSection({ cardSx }) {
+export default function GithubAiAnalysisSection({ sectionCardSx }) {
   return (
     <Box
       component="section"
       sx={{
-        ...cardSx,
+        ...sectionCardSx,
         borderColor: "primary.main",
         borderStyle: "dashed",
         background: "linear-gradient(117deg, #f0f7ff 0%, #ffffff 100%)",

@@ -1,6 +1,6 @@
 /**
  * 프로젝트명, 기간, 배포 URL, 담당 역할, 저장소 URL, 프로젝트 설명 입력 섹션
- * @param {{ cardSx: object, labelSx: object, inputSx: object, projectDescription: string }} props - 공통 카드/라벨/입력 스타일, 설명 기본값 문자열
+ * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object, projectDescription: string }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: OutlinedInput 공통 sx, projectDescription: 프로젝트 설명 입력 기본값
  * @returns {JSX.Element} 프로젝트 기본 정보 입력 폼 섹션
  */
 import Box from "@mui/material/Box";
@@ -12,9 +12,9 @@ import Text from "@mui/material/Typography";
 import { CalendarIcon, ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
 
-export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, projectDescription }) {
+export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, projectDescription }) {
   return (
-    <Box component="section" sx={cardSx}>
+    <Box component="section" sx={sectionCardSx}>
       {/* 섹션 타이틀 */}
       <Box sx={{ mb: 3 }}>
         <Text component="h2" variant="h5" fontWeight={700} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -25,11 +25,11 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
 
       <Stack spacing={2}>
         <FormControl fullWidth required>
-          <FieldLabel htmlFor="title" required sx={labelSx}>
+          <FieldLabel htmlFor="title" required sx={fieldLabelSx}>
             프로젝트명
           </FieldLabel>
 
-          <OutlinedInput id="title" name="title" size="small" defaultValue="Portfolio+" sx={inputSx} />
+          <OutlinedInput id="title" name="title" size="small" defaultValue="Portfolio+" sx={formInputSx} />
         </FormControl>
 
         {/* 기간/배포 그룹 */}
@@ -44,7 +44,7 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
             component="fieldset"
             sx={{ border: 0, p: 0, m: 0, minWidth: 0, display: "flex", flexDirection: "column" }}
           >
-            <FieldLabel htmlFor="started_at" sx={labelSx}>
+            <FieldLabel htmlFor="started_at" sx={fieldLabelSx}>
               프로젝트 기간
             </FieldLabel>
             <Box
@@ -66,7 +66,7 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
                     <CalendarIcon />
                   </InputAdornment>
                 }
-                sx={inputSx}
+                sx={formInputSx}
               />
               <Text color="text.secondary" textAlign="center">
                 ~
@@ -82,12 +82,12 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
                     <CalendarIcon />
                   </InputAdornment>
                 }
-                sx={inputSx}
+                sx={formInputSx}
               />
             </Box>
           </Box>
           <FormControl fullWidth required>
-            <FieldLabel htmlFor="deploy_url" sx={labelSx}>
+            <FieldLabel htmlFor="deploy_url" sx={fieldLabelSx}>
               배포 URL
             </FieldLabel>
             <OutlinedInput
@@ -95,7 +95,7 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
               name="deploy_url"
               size="small"
               defaultValue="https://react-mission-eight.vercel.app/"
-              sx={inputSx}
+              sx={formInputSx}
             />
           </FormControl>
         </Box>
@@ -103,7 +103,7 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
         {/* 역할/레포 그룹 */}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", tablet: "1fr 1fr" }, gap: 2 }}>
           <FormControl fullWidth required>
-            <FieldLabel htmlFor="author_role" sx={labelSx}>
+            <FieldLabel htmlFor="author_role" sx={fieldLabelSx}>
               담당 역할
             </FieldLabel>
 
@@ -112,11 +112,11 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
               name="author_role"
               size="small"
               defaultValue="서비스 기획 · 스토리보드 · 디자인 · 프론트엔드 개발"
-              sx={inputSx}
+              sx={formInputSx}
             />
           </FormControl>
           <FormControl fullWidth required>
-            <FieldLabel htmlFor="repository_url" sx={labelSx}>
+            <FieldLabel htmlFor="repository_url" sx={fieldLabelSx}>
               GitHub 저장소 URL (저장소 분석 시 필수)
             </FieldLabel>
 
@@ -125,12 +125,12 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
               name="repository_url"
               size="small"
               defaultValue="https://github.com/alikerock/estfe13-react-bbs-server/blob/main/index.js"
-              sx={inputSx}
+              sx={formInputSx}
             />
           </FormControl>
         </Box>
         <FormControl fullWidth required>
-          <FieldLabel htmlFor="description" required sx={labelSx}>
+          <FieldLabel htmlFor="description" required sx={fieldLabelSx}>
             프로젝트 설명
           </FieldLabel>
 
@@ -141,7 +141,7 @@ export default function ProjectBasicInfoSection({ cardSx, labelSx, inputSx, proj
             multiline
             minRows={5}
             defaultValue={projectDescription}
-            sx={inputSx}
+            sx={formInputSx}
           />
         </FormControl>
       </Stack>

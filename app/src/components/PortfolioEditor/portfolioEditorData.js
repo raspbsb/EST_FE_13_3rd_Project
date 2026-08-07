@@ -4,7 +4,8 @@
  * 각 배열은 ProjectMetaSection에서 Select의 MenuItem 목록을 map으로 생성
  */
 
-const sortOptionsByLabel = options => [...options].sort((a, b) => a.label.localeCompare(b.label, "en"));
+const sortSelectOptionsByLabel = selectOptions =>
+  [...selectOptions].sort((a, b) => a.label.localeCompare(b.label, "en"));
 
 // ProjectMetaSection의 "참여 형태" Select 고정 옵션 목록
 export const participationTypeOptions = [
@@ -35,7 +36,7 @@ export const progressEnvironmentOptions = [
 ];
 
 // ProjectMetaSection의 "카테고리" 검색/추가 Select 고정 후보 목록
-const categoryCandidateOptions = [
+const categorySelectCandidateOptions = [
   { value: "ai-data", label: "AI & Data" },
   { value: "algorithm", label: "Algorithm" },
   { value: "backend", label: "Backend" },
@@ -56,11 +57,11 @@ const categoryCandidateOptions = [
 
 export const categoryOptions = [
   { value: "search-web", label: "검색 중: Web" },
-  ...sortOptionsByLabel(categoryCandidateOptions),
+  ...sortSelectOptionsByLabel(categorySelectCandidateOptions),
 ];
 
 // ProjectMetaSection의 "기술 스택" 직접 입력/추가 Select 고정 후보 목록
-const techStackCandidateOptions = [
+const techStackSelectCandidateOptions = [
   { value: "angular", label: "Angular" },
   { value: "aws", label: "AWS" },
   { value: "css", label: "CSS" },
@@ -115,5 +116,5 @@ const techStackCandidateOptions = [
 
 export const techStackOptions = [
   { value: "typing-vercel", label: "직접 입력 중: Vercel" },
-  ...sortOptionsByLabel(techStackCandidateOptions),
+  ...sortSelectOptionsByLabel(techStackSelectCandidateOptions),
 ];

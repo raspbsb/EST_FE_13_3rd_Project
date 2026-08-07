@@ -1,7 +1,7 @@
 /**
  * 참여 형태, 참여 규모, 진행 환경, 카테고리, 기술 스택 선택 섹션
- * @param {{ cardSx: object, labelSx: object, inputSx: object }} props - 공통 카드/라벨/셀렉트 스타일 객체
- * @returns {JSX.Element} 데이터 배열을 map으로 렌더링한 선택 폼, 칩 목록
+ * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: Select 공통 sx
+ * @returns {JSX.Element} 참여 정보 Select, 카테고리/기술 스택 선택 Select, 선택된 항목 Chip 목록
  */
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -19,10 +19,10 @@ import {
 } from "./portfolioEditorData";
 import FieldLabel from "./FieldLabel";
 
-const categoryChips = ["Web", "Frontend"];
-const techStackChips = ["Sass", "javaScript", "React", "TypeScript", "Next.js", "Supabase"];
+const selectedCategoryLabels = ["Web", "Frontend"];
+const selectedTechStackLabels = ["Sass", "javaScript", "React", "TypeScript", "Next.js", "Supabase"];
 
-function renderOptions(options) {
+function renderSelectMenuItems(options) {
   return options.map(option => (
     <MenuItem key={option.value} value={option.value}>
       {option.label}
@@ -30,35 +30,35 @@ function renderOptions(options) {
   ));
 }
 
-export default function ProjectMetaSection({ cardSx, labelSx, inputSx }) {
+export default function ProjectMetaSection({ sectionCardSx, fieldLabelSx, formInputSx }) {
   return (
-    <Paper elevation={0} sx={cardSx}>
+    <Paper elevation={0} sx={sectionCardSx}>
       <Stack spacing={2}>
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <FormControl fullWidth>
-            <FieldLabel sx={labelSx}>참여 형태</FieldLabel>
-            <Select size="small" defaultValue="team" sx={inputSx}>
-              {renderOptions(participationTypeOptions)}
+            <FieldLabel sx={fieldLabelSx}>참여 형태</FieldLabel>
+            <Select size="small" defaultValue="team" sx={formInputSx}>
+              {renderSelectMenuItems(participationTypeOptions)}
             </Select>
           </FormControl>
 
           <FormControl fullWidth>
-            <FieldLabel sx={labelSx}>참여 규모</FieldLabel>
-            <Select size="small" defaultValue="small-team" sx={inputSx}>
-              {renderOptions(participationScaleOptions)}
+            <FieldLabel sx={fieldLabelSx}>참여 규모</FieldLabel>
+            <Select size="small" defaultValue="small-team" sx={formInputSx}>
+              {renderSelectMenuItems(participationScaleOptions)}
             </Select>
           </FormControl>
         </Box>
 
         <FormControl fullWidth>
-          <FieldLabel sx={labelSx}>진행 환경</FieldLabel>
-          <Select size="small" defaultValue="course" sx={inputSx}>
-            {renderOptions(progressEnvironmentOptions)}
+          <FieldLabel sx={fieldLabelSx}>진행 환경</FieldLabel>
+          <Select size="small" defaultValue="course" sx={formInputSx}>
+            {renderSelectMenuItems(progressEnvironmentOptions)}
           </Select>
         </FormControl>
 
         <FormControl fullWidth required>
-          <FieldLabel required sx={labelSx}>
+          <FieldLabel required sx={fieldLabelSx}>
             카테고리
           </FieldLabel>
           <Stack
@@ -73,17 +73,17 @@ export default function ProjectMetaSection({ cardSx, labelSx, inputSx }) {
               "& .MuiChip-root": { maxWidth: "100%" },
             }}
           >
-            {categoryChips.map(chip => (
+            {selectedCategoryLabels.map(chip => (
               <Chip key={chip} label={chip} color="primary" size="small" sx={{ fontWeight: 700 }} />
             ))}
           </Stack>
-          <Select size="small" defaultValue="search-web" sx={inputSx}>
-            {renderOptions(categoryOptions)}
+          <Select size="small" defaultValue="search-web" sx={formInputSx}>
+            {renderSelectMenuItems(categoryOptions)}
           </Select>
         </FormControl>
 
         <FormControl fullWidth required>
-          <FieldLabel required sx={labelSx}>
+          <FieldLabel required sx={fieldLabelSx}>
             기술 스택
           </FieldLabel>
           <Stack
@@ -98,12 +98,12 @@ export default function ProjectMetaSection({ cardSx, labelSx, inputSx }) {
               "& .MuiChip-root": { maxWidth: "100%" },
             }}
           >
-            {techStackChips.map(chip => (
+            {selectedTechStackLabels.map(chip => (
               <Chip key={chip} label={chip} size="small" sx={{ bgcolor: "#ededed", color: "#212121" }} />
             ))}
           </Stack>
-          <Select size="small" defaultValue="typing-vercel" sx={inputSx}>
-            {renderOptions(techStackOptions)}
+          <Select size="small" defaultValue="typing-vercel" sx={formInputSx}>
+            {renderSelectMenuItems(techStackOptions)}
           </Select>
         </FormControl>
       </Stack>

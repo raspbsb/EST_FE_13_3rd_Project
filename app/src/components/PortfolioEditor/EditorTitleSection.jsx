@@ -1,14 +1,14 @@
 /**
  * 포트폴리오 등록/수정 페이지 상단 제목, 임시저장 안내 영역
- * @param {{ isEdit: boolean, temp: Array<{ id: unknown }> }} props - 수정 모드 여부, 임시저장 데이터 배열
- * @returns {JSX.Element} 페이지 제목, 설명, 임시저장 안내 박스 포함 상단 UI
+ * @param {{ isEdit: boolean, temporaryDrafts: Array<{ id: unknown }> }} props - isEdit: 수정 페이지 여부, temporaryDrafts: 임시저장 항목 목록
+ * @returns {JSX.Element} 등록/수정 제목, 안내 문구, 임시저장 불러오기 박스
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 
-export default function EditorTitleSection({ isEdit, temp }) {
+export default function EditorTitleSection({ isEdit, temporaryDrafts }) {
   return (
     <Stack spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       {/* 타이틀 & 페이지 설명 */}
@@ -25,7 +25,7 @@ export default function EditorTitleSection({ isEdit, temp }) {
       </Box>
 
       {/* 임시저장 */}
-      {temp[0].id ? (
+      {temporaryDrafts[0].id ? (
         <Stack
           direction="row"
           sx={{

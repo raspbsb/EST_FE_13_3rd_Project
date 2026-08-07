@@ -1,7 +1,7 @@
 /**
  * 프로젝트 설명, AI 추천 초안, 한 줄 요약 확인 섹션
- * @param {{ cardSx: object, inputSx: object }} props - 공통 카드 스타일, 입력 필드 스타일 객체
- * @returns {JSX.Element} 현재 설명, AI 추천 초안, 한 줄 요약 입력 영역 UI
+ * @param {{ sectionCardSx: object, formInputSx: object }} props - sectionCardSx: 섹션 외곽 박스 sx, formInputSx: OutlinedInput 공통 sx
+ * @returns {JSX.Element} 현재 설명 비교 카드, AI 추천 초안 카드, AI 추천 한 줄 요약 입력 영역
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -11,10 +11,10 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { EditIcon } from "../../lib/icons";
 
-export default function DraftGuideSection({ cardSx, inputSx }) {
+export default function DraftGuideSection({ sectionCardSx, formInputSx }) {
   return (
     <Box>
-      <Box component="section" aria-labelledby="draft-guide-title" sx={cardSx}>
+      <Box component="section" aria-labelledby="draft-guide-title" sx={sectionCardSx}>
         <Stack
           direction={{ xs: "column", tablet: "row" }}
           justifyContent="space-between"
@@ -114,7 +114,7 @@ export default function DraftGuideSection({ cardSx, inputSx }) {
             minRows={4}
             defaultValue="GitHub 분석을 통해 프로젝트 정보를 보완하고 작품 탐색부터 채용·협업 문의까지 연결하는 포트폴리오 갤러리"
             sx={{
-              ...inputSx,
+              ...formInputSx,
               border: "1px dashed",
               borderColor: "primary.main",
               bgcolor: "background.paper",

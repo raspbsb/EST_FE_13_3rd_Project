@@ -25,14 +25,14 @@ export default function PortfolioEditor({ data }) {
   const isEdit = Boolean(id);
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
-  const [temp, setTemp] = useState([{ id: null }]);
+  const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: null }]);
 
   // 공개/비공개 토글 스위치 체크여부 상태
-  const [switchChecked, setSwitchChecked] = useState(false);
+  const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
   // 공개/비공개 토글 스위치 핸들링 함수
-  const handleSwitch = e => {
-    setSwitchChecked(e.target.checked);
+  const handlePortfolioVisibilityChange = e => {
+    setIsPortfolioPublic(e.target.checked);
   };
 
   // 폼 전송 함수
@@ -42,12 +42,12 @@ export default function PortfolioEditor({ data }) {
 
   // 실험용 콘솔로그 끝나면 지울것
   useEffect(() => {
-    console.log(switchChecked);
-  }, [switchChecked]);
+    console.log(isPortfolioPublic);
+  }, [isPortfolioPublic]);
 
   // AI 분석 결과 데이터 객체
 
-  const cardSx = {
+  const sectionCardSx = {
     border: "1px solid",
     borderColor: "#c2c6d8",
     borderRadius: 2,
@@ -55,7 +55,7 @@ export default function PortfolioEditor({ data }) {
     p: { xs: 2, tablet: 3 },
   };
 
-  const labelSx = {
+  const fieldLabelSx = {
     mb: 1,
     color: "#757575",
     fontSize: 14,
@@ -64,7 +64,7 @@ export default function PortfolioEditor({ data }) {
     display: "block",
   };
 
-  const inputSx = {
+  const formInputSx = {
     borderRadius: 2,
     bgcolor: "background.paper",
     "& .MuiOutlinedInput-notchedOutline": {
@@ -79,7 +79,7 @@ export default function PortfolioEditor({ data }) {
     },
   };
 
-  const imageActionButtonSx = {
+  const thumbnailActionButtonSx = {
     width: 32,
     height: 32,
     p: 0.75,
@@ -108,7 +108,7 @@ export default function PortfolioEditor({ data }) {
           maxWidth: "1272px",
         }}
       >
-        <EditorTitleSection isEdit={isEdit} temp={temp} />
+        <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} />
 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={4} sx={{ pb: 14 }}>
@@ -122,22 +122,29 @@ export default function PortfolioEditor({ data }) {
             >
               <Stack className="left-side primary-info" spacing={3}>
                 <ProjectBasicInfoSection
-                  cardSx={cardSx}
-                  labelSx={labelSx}
-                  inputSx={inputSx}
+                  sectionCardSx={sectionCardSx}
+                  fieldLabelSx={fieldLabelSx}
+                  formInputSx={formInputSx}
                   projectDescription={projectDescription}
                 />
-                <GithubAiAnalysisSection cardSx={cardSx} />
+                <GithubAiAnalysisSection sectionCardSx={sectionCardSx} />
               </Stack>
 
               <Stack spacing={3}>
-                <ImageAttachmentSection cardSx={cardSx} imageActionButtonSx={imageActionButtonSx} />
-                <ProjectMetaSection cardSx={cardSx} labelSx={labelSx} inputSx={inputSx} />
+                <ImageAttachmentSection
+                  sectionCardSx={sectionCardSx}
+                  thumbnailActionButtonSx={thumbnailActionButtonSx}
+                />
+                <ProjectMetaSection sectionCardSx={sectionCardSx} fieldLabelSx={fieldLabelSx} formInputSx={formInputSx} />
               </Stack>
             </Box>
 
-            <DraftGuideSection cardSx={cardSx} inputSx={inputSx} />
-            <EditorActionBar isEdit={isEdit} switchChecked={switchChecked} onSwitchChange={handleSwitch} />
+            <DraftGuideSection sectionCardSx={sectionCardSx} formInputSx={formInputSx} />
+            <EditorActionBar
+              isEdit={isEdit}
+              isPortfolioPublic={isPortfolioPublic}
+              onVisibilityChange={handlePortfolioVisibilityChange}
+            />
           </Stack>
         </Box>
       </Container>
