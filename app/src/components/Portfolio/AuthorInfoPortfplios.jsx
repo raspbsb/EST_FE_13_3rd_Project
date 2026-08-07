@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
+import Grid from "@mui/material/Grid";
+import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
   return (
@@ -11,18 +12,18 @@ export default function AuthorInfoPortfolios({}) {
         <Text component={"h3"} variant="h5">
           author의 다른 프로젝트
         </Text>
-        <Text component={Link} to="/profiles/:userId">
+        <MuiLink component={Link} to="/profiles/:userId">
           View all 4
-        </Text>
+        </MuiLink>
       </Box>
-      <Stack component={"ul"} direction={"row"}>
-        <Box component={"li"}>
+      <Grid component={"ul"} container columns={2} sx={{ width: "100%" }}>
+        <Grid component={"li"} size={1}>
           <Box component={"article"}></Box>
-        </Box>
-        <Box component={"li"}>
+        </Grid>
+        <Grid component={"li"} size={1}>
           <Box component={"article"}></Box>
-        </Box>
-      </Stack>
+        </Grid>
+      </Grid>
     </Box>
   );
 }
