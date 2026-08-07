@@ -10,9 +10,8 @@ import Chip from '@mui/material/Chip';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 
-import EditIcon from '@mui/icons-material/Edit';
-import EmailIcon from '@mui/icons-material/Email';
-import LinkIcon from '@mui/icons-material/Link';
+import { EditIcon, EmailIcon, LinkIcon } from '../../lib/icons';
+
 import { useState } from 'react';
 
 export default function ProfileHeader({ mode }) {

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import EmailIcon from '@mui/icons-material/Email';
+import { FavoriteIcon, EmailIcon } from '../../lib/icons';
+
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
