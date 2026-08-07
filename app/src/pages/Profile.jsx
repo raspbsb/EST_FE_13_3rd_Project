@@ -17,7 +17,7 @@ export default function Profile({ mode }) {
 
         <ActivityStats />
 
-        <MyProjects />
+        <MyProjects mode={mode} />
 
         {mode === 'mypage' && (
           <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
