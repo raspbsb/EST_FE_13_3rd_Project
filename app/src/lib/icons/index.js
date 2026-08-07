@@ -15,3 +15,6 @@ export { default as LockIcon } from "@mui/icons-material/Lock";
 export { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
 export { default as ErrorOutlinedIcon } from "@mui/icons-material/ErrorOutlined";
 export { default as OutlinedInput } from "@mui/material/OutlinedInput";
+export { default as PersonIcon } from "@mui/icons-material/Person";
+export { default as PersonOutlinedIcon } from "@mui/icons-material/PersonOutlined";
+export { default as ShareIcon } from "@mui/icons-material/Share";
