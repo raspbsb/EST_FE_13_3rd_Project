@@ -1,9 +1,10 @@
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Text from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+
+import { ChevronRightIcon } from '../../lib/icons';
 
 export default function BookmarkCard({ title, total, handleClick }) {
   return (

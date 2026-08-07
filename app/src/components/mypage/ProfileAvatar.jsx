@@ -2,8 +2,7 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { AccountCircleIcon, AddAPhotoIcon } from '../../lib/icons';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',

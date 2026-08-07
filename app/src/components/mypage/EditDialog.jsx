@@ -18,8 +18,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import FormLabel from '@mui/material/FormLabel';
 
-import CloseIcon from '@mui/icons-material/Close';
-import LockIcon from '@mui/icons-material/Lock';
+import { CloseIcon, LockIcon } from '../../lib/icons';
 
 export default function EditDialog({ open, onClose }) {
   const theme = useTheme();
