@@ -5,6 +5,7 @@ import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import Container from '@mui/material/Container';
 
 export default function BookmarkSection() {
   const navigate = useNavigate();
@@ -29,13 +30,11 @@ export default function BookmarkSection() {
   ];
 
   return (
-    <Box component='section' sx={{}}>
+    <Box component="section" sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <Text variant='h6' align=''>
-          북마크
-        </Text>
+        <Text variant="h6">북마크</Text>
 
-        <Link href='/mypage/collections' underline='hover' variant='subtitle2'>
+        <Link href="/mypage/collections" underline="hover" variant="subtitle2">
           View all
         </Link>
       </Box>
