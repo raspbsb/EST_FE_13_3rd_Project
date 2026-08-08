@@ -1,24 +1,25 @@
-import { useState } from "react";
+import { alpha, useTheme } from "@mui/material/styles";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 
 import { AiIcon, DropDownIcon, DropUpIcon } from "../../lib/icons";
-import { alpha, useTheme } from "@mui/material/styles";
 import AiSummaryItem from "./AiSummaryItem";
 
 export default function AiSummarySection({}) {
   const theme = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Box
+    <Accordion
       component={"section"}
       id="ai-analysis"
       sx={{
         px: 3,
-        py: 3,
+        pb: 2,
         borderStyle: "solid",
         borderWidth: "1px",
         borderColor: "primary.main",
@@ -26,33 +27,31 @@ export default function AiSummarySection({}) {
         bgcolor: alpha(theme.palette.primary.light, 0.1),
       }}
     >
-      <Box
+      <AccordionSummary
         component={"div"}
-        onClick={() => setIsOpen(prev => !prev)}
         sx={{
-          pb: 1,
           borderStyle: "solid",
           borderWidth: "0px 0px 1px",
           borderColor: "primary.dark",
         }}
+        expandIcon={<DropDownIcon color="primary" />}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box>
           <Text component={"h2"} variant="h4" sx={{ fontWeight: "700" }} color="primary">
             <AiIcon sx={{ mr: 1 }} />
             AI 분석결과
           </Text>
-          <DropDownIcon color="primary" sx={{ rotate: isOpen ? "180deg" : "0deg" }} />
-        </Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          {/*
           <Text component={"p"} variant="caption">
             &#8251; AI로 생성된 내용입니다.
           </Text>
+          */}
           <Text component={"p"} variant="caption">
             분석 시점: <time dateTime="2026-07-23 02:13">2026-07-23 02:13</time>
           </Text>
         </Box>
-      </Box>
-      <Box component={"dl"} sx={{ maxHeight: `${isOpen ? "8192px" : "0px"}`, overflow: "hidden" }}>
+      </AccordionSummary>
+      <AccordionDetails>
         <Box component={"dl"} sx={{ pt: 1 }}>
           <AiSummaryItem label="프로젝트 요약">
             프로젝트 등록과 작품 탐색, 제작자 프로필 확인, 채용·협업 문의 과정을 하나의 흐름으로 연결한 포트폴리오
@@ -86,7 +85,7 @@ export default function AiSummarySection({}) {
           <Text>분석 근거</Text>
         </Box>
         */}
-      </Box>
-    </Box>
+      </AccordionDetails>
+    </Accordion>
   );
 }
