@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
+import ContactDialog from './ContactDialog';
 import theme from '../../styles/theme';
 
 import Tabs from '@mui/material/Tabs';
@@ -8,6 +9,7 @@ import Box from '@mui/material/Box';
 
 export default function ProfileNav() {
   const [value, setValue] = useState(0);
+  const [openContact, setOpenContact] = useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -19,9 +21,9 @@ export default function ProfileNav() {
         <Tabs
           value={value}
           onChange={handleChange}
-          textColor='text.primary'
-          indicatorColor='primary'
-          aria-label='마이페이지 메뉴'
+          textColor="text.primary"
+          indicatorColor="primary"
+          aria-label="마이페이지 메뉴"
           sx={{
             '& .MuiTabs-flexContainer': {
               gap: 2,
@@ -29,45 +31,48 @@ export default function ProfileNav() {
           }}
         >
           <Tab
-            label='Profile'
+            label="Profile"
             sx={{
               textTransform: 'none',
               typography: 'h6',
               py: 0,
             }}
             component={NavLink}
-            to='/mypage'
+            to="/mypage"
           />
           <Tab
-            label='My Projects'
+            label="My Projects"
             sx={{
               textTransform: 'none',
               typography: 'h6',
               py: 0,
             }}
             component={NavLink}
-            to='/mypage/projects'
+            to="/mypage/projects"
           />
           <Tab
-            label='Bookmarks'
+            label="Bookmarks"
             sx={{
               textTransform: 'none',
               typography: 'h6',
               py: 0,
             }}
             component={NavLink}
-            to='/mypage/collections'
+            to="/mypage/collections"
           />
           {/* 컨택 클릭 시 모달 띄우기 */}
           <Tab
-            label='Interest & Contect'
+            label="Interest & Contect"
             sx={{
               textTransform: 'none',
               typography: 'h6',
               py: 0,
             }}
+            onClick={() => setOpenContact(true)}
           />
         </Tabs>
+        {/* Dialog 컴포넌트*/}
+        <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
       </Box>
     </>
   );
