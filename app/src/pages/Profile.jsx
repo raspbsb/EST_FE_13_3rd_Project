@@ -9,7 +9,7 @@ export default function Profile() {
     <>
       <MyProjectsSection mode="mypage" />
 
-      <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
+      <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }} disableGutters>
         <BookmarkSection />
         <ContactSection />
       </Container>

@@ -45,7 +45,7 @@ export default function ContactSection() {
   };
 
   return (
-    <Container component="section">
+    <Box component="section" sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Text variant="h6">관심 & 연락</Text>
         <Link component="button" underline="hover" variant="subtitle2" onClick={() => setOpenContact(true)}>
@@ -60,6 +60,6 @@ export default function ContactSection() {
         ))}
       </List>
       <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />
-    </Container>
+    </Box>
   );
 }

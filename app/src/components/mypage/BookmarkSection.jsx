@@ -30,7 +30,7 @@ export default function BookmarkSection() {
   ];
 
   return (
-    <Container component="section">
+    <Box component="section" sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Text variant="h6">북마크</Text>
 
@@ -48,6 +48,6 @@ export default function BookmarkSection() {
           />
         ))}
       </List>
-    </Container>
+    </Box>
   );
 }
