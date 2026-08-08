@@ -1,10 +1,16 @@
+import { useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+
 import Text from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 
+import { setLoading, setPortfolio, resetPortfolio } from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
+  const { id } = useParams();
+
   return (
     <Container maxWidth={"desktopContainer"}>
       <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>
