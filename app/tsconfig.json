@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "skipLibCheck": true,
+
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx", // React 17+ 방식의 JSX 변환
+
+    "allowJs": true, // .jsx/.js 파일도 TS 언어 서버가 인식
+    "checkJs": false, // JS 파일까지 타입 체크 끄기
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["src"] //	src/ 안의 모든 파일을 하나의 프로젝트로 인식
+}
