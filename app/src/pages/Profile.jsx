@@ -7,14 +7,12 @@ import Container from '@mui/material/Container';
 export default function Profile() {
   return (
     <>
-      <main>
-        <MyProjectsSection mode='mypage' />
+      <MyProjectsSection mode="mypage" />
 
-        <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
-          <BookmarkSection />
-          <ContactSection />
-        </Container>
-      </main>
+      <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }}>
+        <BookmarkSection />
+        <ContactSection />
+      </Container>
     </>
   );
 }

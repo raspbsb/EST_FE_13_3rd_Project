@@ -3,6 +3,7 @@ import ContactCard from './ContactCard';
 import ContactDialog from './ContactDialog';
 import MessageDialog from './MessageDialog';
 
+import Container from '@mui/material/Container';
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
@@ -44,7 +45,7 @@ export default function ContactSection() {
   };
 
   return (
-    <Box component="section">
+    <Container component="section">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Text variant="h6">관심 & 연락</Text>
         <Link component="button" underline="hover" variant="subtitle2" onClick={() => setOpenContact(true)}>
@@ -59,6 +60,6 @@ export default function ContactSection() {
         ))}
       </List>
       <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />
-    </Box>
+    </Container>
   );
 }
