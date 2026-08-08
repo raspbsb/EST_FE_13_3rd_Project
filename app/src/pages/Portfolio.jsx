@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { supabase } from "../utils/supabase";
 
 import Text from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -10,6 +12,15 @@ import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } 
 
 export default function Portfolio() {
   const { id } = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setLoading());
+
+    return () => {
+      dispatch(resetPortfolio());
+    };
+  }, []);
 
   return (
     <Container maxWidth={"desktopContainer"}>
