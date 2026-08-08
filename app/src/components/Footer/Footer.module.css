@@ -1,0 +1,139 @@
+.footer {
+  background-color: #222; /* 어두운 배경 (이미지 참고) */
+  color: #f5f5f5;
+  padding: 48px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 520px;
+  gap: 24px;
+  align-items: start;
+  position: relative;
+}
+
+/* 왼쪽 블록: 로고 / 설명 / 소셜 */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.description {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: 360px;
+}
+
+.social {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.iconButton {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  padding: 6px;
+}
+
+.iconButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* 오른쪽 블록: 3개 컬럼 */
+.columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.col {
+  min-width: 120px;
+}
+
+.colTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+}
+
+.colList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.colLink {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.colLink:hover,
+.colLink:focus-visible {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* copyright (작게 오른쪽 하단에) */
+.copy {
+  position: absolute;
+  right: 24px;
+  bottom: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .columns {
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+
+  .copy {
+    position: static;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .description {
+    max-width: 100%;
+    font-size: 0.92rem;
+  }
+
+  .colTitle {
+    font-size: 0.92rem;
+  }
+
+  .colLink {
+    font-size: 0.88rem;
+  }
+}

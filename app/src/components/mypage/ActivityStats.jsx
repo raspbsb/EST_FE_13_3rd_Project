@@ -1,5 +1,3 @@
-import theme from '../../styles/theme';
-
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -27,11 +25,20 @@ export default function ActivityStats() {
     },
   ];
   return (
-    <Grid container spacing={3} sx={{ justifyContent: 'center', bgcolor: '#000', borderRadius: 3, py: 3 }}>
+    <Grid
+      container
+      spacing={3}
+      sx={{ justifyContent: 'space-around', bgcolor: 'text.primary', borderRadius: 3, py: 3 }}
+    >
       {stats.map(item => (
-        <Grid key={item.idx}>
+        <Grid
+          key={item.idx}
+          sx={{
+            color: 'background.default',
+          }}
+        >
           <Text variant='h6'>{item.title}</Text>
-          <Box sx={{ display: 'flex' }}>
+          <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
             <Text variant='h4'>{item.count}</Text>
             <Text variant='h5'>개</Text>
           </Box>
@@ -40,14 +47,3 @@ export default function ActivityStats() {
     </Grid>
   );
 }
-// <section>
-//   {stats.map(stat => (
-//     <div className='' key={stat.title}>
-//       <h3>{stat.title}</h3>
-
-//       <p>{stat.count}</p>
-//     </div>
-//   ))}
-// </section>
-//   );
-// }

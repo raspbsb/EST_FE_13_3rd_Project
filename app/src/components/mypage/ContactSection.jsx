@@ -1,6 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import ContactCard from './ContactCard';
+
 import List from '@mui/material/List';
+import Box from '@mui/material/Box';
+import Text from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 export default function ContactSection() {
   //임시데이터
@@ -24,18 +28,18 @@ export default function ContactSection() {
   ];
 
   return (
-    <section>
-      <div>
-        <h2>관심 & 연락</h2>
-        <nav>
-          <NavLink to=''>View all</NavLink>
-        </nav>
-      </div>
+    <Box component='section' sx={{}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <Text variant='h6'>관심 & 연락</Text>
+        <Link component='button' underline='hover' variant='subtitle2'>
+          View all
+        </Link>
+      </Box>
       <List>
         {notifications.map(item => (
           <ContactCard key={item.id} item={item} />
         ))}
       </List>
-    </section>
+    </Box>
   );
 }
