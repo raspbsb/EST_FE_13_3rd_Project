@@ -31,6 +31,17 @@ const theme = createTheme({
       primary: "#212121",
     },
   },
+  components: {
+    MuiContainer: {
+      defaultProps: {
+        maxWidth: "desktopContainer",
+        sx: {
+          minHeight: (window.innerHeight * 4) / 5,
+          py: 6,
+        },
+      },
+    },
+  },
 });
 
 export default theme;

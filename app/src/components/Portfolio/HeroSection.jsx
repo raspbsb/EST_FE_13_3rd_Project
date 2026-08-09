@@ -18,7 +18,12 @@ export default function HeroSection({}) {
     >
       <Grid size={{ mobile: 4, tablet: 3, desktop: 4 }}></Grid>
 
-      <Grid container rowSpacing={2} size={{ mobile: 4, tablet: 5, desktop: 8 }}>
+      <Grid
+        container
+        rowSpacing={2}
+        size={{ mobile: 4, tablet: 5, desktop: 8 }}
+        sx={{ display: "flex", flexDirection: "column" }}
+      >
         <HeroHeading />
         <HeroMeta />
         <HeroSpecs />
