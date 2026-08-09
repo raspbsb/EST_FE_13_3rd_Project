@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { alpha, useTheme } from "@mui/material/styles";
 
 import Text from "@mui/material/Typography";
@@ -12,6 +13,7 @@ import AiSummaryItem from "./AiSummaryItem";
 
 export default function AiSummarySection({}) {
   const theme = useTheme();
+  const { data, status, error } = useSelector(state => state.portfolio);
 
   return (
     <Accordion

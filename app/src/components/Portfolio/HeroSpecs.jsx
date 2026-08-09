@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -10,6 +12,8 @@ import { LinkIcon, CodeIcon } from "../../lib/icons";
 import HeroSpecsItem from "./HeroSpecsItem";
 
 export default function HeroSpecs({}) {
+  const { data, status, error } = useSelector(state => state.portfolio);
+
   return (
     <Grid component={"dl"} container rowSpacing={1} columnSpacing={1} columns={8} sx={{ alignItems: "center" }}>
       <HeroSpecsItem label="카테고리" noBox>
@@ -35,23 +39,31 @@ export default function HeroSpecs({}) {
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
         <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary">
-          https://deploy-url.com/project
+          {data?.deploy_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
         <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary">
-          https://github.com/author/project
+          {data?.repository_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" size={3}>
-        <Text variant="body1">Frontend Lead</Text>
+        <Text variant="body1">{data?.author_role ?? "-"}</Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="프로젝트 형태" size={3}>
-        <Text variant="body1">Team Project</Text>
+        <Text variant="body1">{data?.project_type ?? "-"}</Text>
+      </HeroSpecsItem>
+
+      <HeroSpecsItem label="개발 환경" size={3}>
+        <Text variant="body1">{data?.environment ?? "-"}</Text>
+      </HeroSpecsItem>
+
+      <HeroSpecsItem label="팀 규모" size={3}>
+        <Text variant="body1">{data?.team_size ?? "-"}</Text>
       </HeroSpecsItem>
     </Grid>
   );
