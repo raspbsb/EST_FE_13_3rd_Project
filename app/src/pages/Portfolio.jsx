@@ -13,14 +13,20 @@ import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } 
 export default function Portfolio() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { data, status, error } = useSelector(state => state.portfolio);
+
+  async function fetchPortfolio() {
+    dispatch(setLoading());
+    const result = await supabase.schema("public").from("portfolios").select().eq("project_id", id).maybeSingle();
+    dispatch(setPortfolio(result));
+  }
 
   useEffect(() => {
-    dispatch(setLoading());
-
+    fetchPortfolio();
     return () => {
       dispatch(resetPortfolio());
     };
-  }, []);
+  }, [id]);
 
   return (
     <Container maxWidth={"desktopContainer"}>
