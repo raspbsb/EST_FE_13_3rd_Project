@@ -13,8 +13,9 @@ import { LockIcon, PublicIcon, VisibilityIcon } from "../../lib/icons";
 export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange }) {
   return (
     <Box
+      className="portfolio-editor-action-bar"
       sx={{
-        position: "fixed",
+        position: "sticky",
         left: 0,
         right: 0,
         bottom: 0,

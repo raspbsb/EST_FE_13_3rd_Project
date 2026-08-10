@@ -51,6 +51,7 @@ const analysisResultItems = [
 export default function GithubAiAnalysisSection({ sectionCardSx }) {
   return (
     <Box
+      className="portfolio-editor-ai-section"
       component="section"
       sx={{
         ...sectionCardSx,
@@ -69,15 +70,28 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
           alignItems: { xs: "flex-start", tablet: "center" },
         }}
       >
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-          <AwesomeIcon color="primary" sx={{ fontSize: 24 }} aria-hidden="true" />
-          <Text component="h2" variant="h5" color="primary" fontWeight={700}>
+        <Stack
+          className="portfolio-editor-ai-section__heading"
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: "center" }}
+        >
+          <AwesomeIcon sx={{ color: "#0d6efd", fontSize: 22 }} aria-hidden="true" />
+          <Text
+            className="portfolio-editor-ai-section__title"
+            component="h2"
+            variant="h5"
+            sx={{ color: "#0d6efd", fontSize: 24, fontWeight: 700, lineHeight: "32px" }}
+          >
             GitHub AI 분석 결과
           </Text>
         </Stack>
 
         <Stack spacing={0.5} sx={{ alignItems: { xs: "flex-start", tablet: "flex-end" } }}>
-          <Text color="text.secondary" fontSize={12}>
+          <Text
+            className="portfolio-editor-ai-section__analyzed-at"
+            sx={{ color: "#757575", fontSize: 12, fontWeight: 300, lineHeight: "16px" }}
+          >
             최종 분석: 2026-07-26 14:30
           </Text>
           <Button variant="contained" disabled size="medium">
@@ -87,16 +101,27 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
       </Stack>
 
       <Alert
+        className="portfolio-editor-ai-section__notice"
         severity="info"
         sx={{
           mb: 2,
-          bgcolor: "transparent",
-          px: 0,
-          color: "text.primary",
+          minHeight: 56,
+          alignItems: "center",
+          bgcolor: "#ffffff",
+          borderRadius: "12px",
+          px: "17px",
+          py: "14px",
+          color: "#212121",
+          "& .MuiAlert-icon": { color: "#444", p: 0, mr: 1 },
           "& .MuiAlert-message": { p: 0 },
         }}
       >
-        <Text>※ AI로 생성된 내용 중 일부는 임의로 수정할 수 없습니다.</Text>
+        <Text
+          className="portfolio-editor-ai-section__notice-text"
+          sx={{ color: "#212121", fontSize: 16, fontWeight: 500, lineHeight: "26px" }}
+        >
+          ※ AI로 생성된 내용 중 일부는 임의로 수정할 수 없습니다.
+        </Text>
       </Alert>
 
       <Box
@@ -113,11 +138,12 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
       </Box>
 
       <Accordion
+        className="portfolio-editor-analysis-evidence"
         defaultExpanded
         elevation={0}
         sx={{
           bgcolor: "#f2f3ff",
-          borderRadius: "8px !important",
+          borderRadius: "8px",
           overflow: "hidden",
           "&::before": {
             display: "none",
@@ -137,7 +163,7 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
             },
           }}
         >
-          <Text component="h3" variant="h6" fontWeight={700}>
+          <Text className="portfolio-editor-analysis-evidence__title" component="h3" variant="h6" fontWeight={700}>
             분석 근거
           </Text>
         </AccordionSummary>
@@ -154,6 +180,7 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
           </Stack>
 
           <Paper
+            className="portfolio-editor-analysis-evidence__prompt"
             variant="outlined"
             sx={{
               p: 2,
@@ -163,13 +190,32 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
               borderRadius: 1,
             }}
           >
-            <Text color="primary" fontWeight={500}>
+            <Text
+              className="portfolio-editor-analysis-evidence__prompt-text"
+              sx={{ color: "#0d6efd", fontSize: 14, fontWeight: 500, letterSpacing: "0.28px", lineHeight: "20px" }}
+            >
               영역을 펼쳐 분석 근거를 확인하세요.
             </Text>
           </Paper>
 
-          <Alert severity="warning" sx={{ bgcolor: "#fff4e0", color: "#8a4b00" }}>
-            <Text fontSize={12} fontWeight={500} lineHeight={1.5}>
+          <Alert
+            className="portfolio-editor-analysis-evidence__limit"
+            severity="warning"
+            sx={{
+              alignItems: "center",
+              bgcolor: "#fff4e0",
+              borderRadius: "8px",
+              color: "#d32f2f",
+              px: 1.5,
+              py: 1.25,
+              "& .MuiAlert-icon": { color: "#d32f2f", p: 0, mr: 1 },
+              "& .MuiAlert-message": { p: 0 },
+            }}
+          >
+            <Text
+              className="portfolio-editor-analysis-evidence__limit-text"
+              sx={{ color: "#d32f2f", fontSize: 12, fontWeight: 500, letterSpacing: "0.28px", lineHeight: "18px" }}
+            >
               분석 한계 : 커밋 작성자 정보가 실제 작업자와 다르거나 하나의 계정을 공동으로 사용했다면, 개인별 참여
               내역을 정확하게 구분하기 어렵습니다.
             </Text>

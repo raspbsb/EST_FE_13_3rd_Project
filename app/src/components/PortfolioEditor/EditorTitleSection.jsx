@@ -10,13 +10,13 @@ import Text from "@mui/material/Typography";
 
 export default function EditorTitleSection({ isEdit, temporaryDrafts }) {
   return (
-    <Stack spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
+    <Stack className="portfolio-editor-title" spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       {/* 타이틀 & 페이지 설명 */}
       <Box>
         <Text component="h1" variant="h4" fontWeight={700} sx={{ mb: 1 }}>
           포트폴리오 {isEdit ? "수정" : "등록"}
         </Text>
-        <Text color="text.secondary">
+        <Text className="portfolio-editor-title__description" color="text.secondary">
           프로젝트 정보를
           {isEdit
             ? " 최신으로 유지하고 AI 분석을 통해 디테일을 강화하세요."
