@@ -1,4 +1,15 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { supabase } from "../../utils/supabase";
+
+export const fetchPortfolio = createAsyncThunk("portfolioData", async (portfolioId, thunkAPI) => {
+  const result = await supabase
+    .schema("public")
+    .from("portfolios")
+    .select("*, portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)")
+    .eq("project_id", portfolioId)
+    .maybeSingle();
+  return await result;
+});
 
 const portfolioSlice = createSlice({
   name: "portfolio",
@@ -8,32 +19,26 @@ const portfolioSlice = createSlice({
     error: null,
   },
   reducers: {
-    setLoading: state => {
-      // "loading" - 스켈레톤 출력하기
-      state.data = null;
-      state.status = "loading";
-      state.error = null;
-    },
-    setPortfolio: (state, action) => {
-      state.data = action.payload.data;
-      state.error = action.payload.error;
-
-      if (state.error) {
-        // "failed" - 안내 문구 출력하기
-        state.status = "failed";
-      } else if (!state.data) {
-        // "notFound" - 안내 문구 출력하기
-        state.status = "notFound";
-      } else {
-        // "succeeded" - 포트폴리오 출력하기
-        state.status = "succeeded";
-      }
-    },
     resetPortfolio: state => {
       state.data = null;
       state.status = "idle";
       state.error = null;
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(fetchPortfolio.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(fetchPortfolio.fulfilled, (state, action) => {
+      state.data = action.payload.data;
+      state.status = action.payload ? "succeeded" : "notFound";
+      console.log(state.data);
+    });
+    builder.addCase(fetchPortfolio.rejected, (state, action) => {
+      state.data = action.payload.data;
+      state.status = "failed";
+      state.error = action.payload.error;
+    });
   },
 });
 

@@ -13,25 +13,23 @@ import TagChip from "../TagChip";
 
 export default function HeroSpecs({}) {
   const { data, status } = useSelector(state => state.portfolio);
-  // const categories = data.portfolio_categories;
-  const categories = [];
-  // const techStacks = data.portfolio_tech_stacks;
-  const techStacks = [];
+  const categories = data?.portfolio_categories;
+  const techStacks = data?.portfolio_tech_stacks;
 
   return (
     <Grid component={"dl"} container rowSpacing={1} columnSpacing={1} columns={12} sx={{ alignItems: "center" }}>
       <HeroSpecsItem label="카테고리" noBox>
         <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
-          {categories?.map(c => (
-            <TagChip component={"li"} label={c.category} />
+          {categories?.map((c, idx) => (
+            <TagChip key={idx} component={"li"} label={c.category} />
           ))}
         </Stack>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="기술 스택" noBox>
         <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
-          {techStacks?.map(c => (
-            <TagChip component={"li"} label={c.tech_stack} />
+          {techStacks?.map((ts, idx) => (
+            <TagChip key={idx} component={"li"} label={ts.tech_stack} />
           ))}
         </Stack>
       </HeroSpecsItem>

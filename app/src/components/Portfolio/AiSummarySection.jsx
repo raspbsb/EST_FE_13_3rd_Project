@@ -14,8 +14,7 @@ import AiSummaryItem from "./AiSummaryItem";
 export default function AiSummarySection({}) {
   const theme = useTheme();
   const { data, status } = useSelector(state => state.portfolio);
-  // const aiCreated = data.portfolio_ai_created;
-  const aiCreated = null;
+  const aiCreated = data?.portfolio_ai_created;
 
   if (!aiCreated) {
     return <></>;

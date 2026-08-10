@@ -8,7 +8,7 @@ import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 
-import { setLoading, setPortfolio, resetPortfolio } from "../components/Portfolio/portfolioSlice";
+import { setLoading, setPortfolio, resetPortfolio, fetchPortfolio } from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
@@ -16,20 +16,8 @@ export default function Portfolio() {
   const dispatch = useDispatch();
   const { data, status, error } = useSelector(state => state.portfolio);
 
-  async function fetchPortfolio() {
-    dispatch(setLoading());
-    const result = await supabase
-      .schema("public")
-      .from("portfolios")
-      .select("*, portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)")
-      .eq("project_id", id)
-      .maybeSingle();
-    console.log(result);
-    dispatch(setPortfolio(result));
-  }
-
   useEffect(() => {
-    fetchPortfolio();
+    dispatch(fetchPortfolio(id));
     return () => {
       dispatch(resetPortfolio());
     };
@@ -45,7 +33,7 @@ export default function Portfolio() {
           DB와 통신에 실패했습니다.
         </Text>
         <Text component={"p"} variant="h5">
-          {error.message}
+          {error?.message}
         </Text>
         <Text component={"p"} variant="body1">
           <MuiLink component={Link} to={"/"}>
