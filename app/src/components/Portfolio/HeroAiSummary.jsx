@@ -9,7 +9,9 @@ import { alpha, useTheme } from "@mui/material/styles";
 
 export default function HeroAiSummary({}) {
   const theme = useTheme();
-  const { data, status, dataAiCreated } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
+  // const aiCreated = data.portfolio_ai_created;
+  const aiCreated = null;
 
   return (
     <Box
@@ -28,10 +30,10 @@ export default function HeroAiSummary({}) {
         <AiIcon fontSize="small" sx={{ mr: 0.5 }} />
         AI 분석 미리보기
       </Text>
-      {dataAiCreated ? (
+      {aiCreated ? (
         <>
           <Text component={"p"} variant="body1" sx={{ my: 0.5 }} noWrap>
-            {dataAiCreated?.project_summary}
+            {aiCreated?.project_summary}
           </Text>
           <Text align="right" variant="body2">
             <MuiLink href="#ai-analysis">전체 AI 분석 보기</MuiLink>
