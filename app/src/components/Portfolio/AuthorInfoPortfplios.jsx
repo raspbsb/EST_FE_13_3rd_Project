@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -6,6 +7,8 @@ import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
+  const { data, status } = useSelector(state => state.portfolio);
+
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -9,11 +10,13 @@ import Avatar from "@mui/material/Avatar";
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 
 export default function HeroMeta({}) {
+  const { data, status } = useSelector(state => state.portfolio);
+
   const isLiked = false;
   const isBookmarked = false;
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: { mobile: 1, tablet: 2, desktop: 3 } }}>
       <Chip
         component={Link}
         to="/profiles/:userId"
@@ -25,7 +28,7 @@ export default function HeroMeta({}) {
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <ViewsIcon fontSize="small" />
         <Text component={"span"} variant="body2">
-          65535
+          {data?.view_count ?? 0}
         </Text>
       </Box>
       <Button

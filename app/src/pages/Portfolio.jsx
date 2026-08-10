@@ -8,7 +8,15 @@ import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 
-import { setLoading, setPortfolio, resetPortfolio } from "../components/Portfolio/portfolioSlice";
+import {
+  setLoading,
+  setPortfolio,
+  resetPortfolio,
+  setImages,
+  setCategories,
+  setTechStacks,
+  setAiCreated,
+} from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
@@ -20,6 +28,27 @@ export default function Portfolio() {
     dispatch(setLoading());
     const result = await supabase.schema("public").from("portfolios").select().eq("project_id", id).maybeSingle();
     dispatch(setPortfolio(result));
+
+    const resultImages = await supabase.schema("public").from("portfolio_images").select().eq("project_id", id);
+    dispatch(setImages(resultImages));
+
+    const resultCategories = await supabase.schema("public").from("portfolio_categories").select().eq("project_id", id);
+    dispatch(setCategories(resultCategories));
+
+    const resultTechStacks = await supabase
+      .schema("public")
+      .from("portfolio_tech_stacks")
+      .select()
+      .eq("project_id", id);
+    dispatch(setTechStacks(resultTechStacks));
+
+    const resultAiCreated = await supabase
+      .schema("public")
+      .from("portfolio_ai_created")
+      .select()
+      .eq("project_id", id)
+      .maybeSingle();
+    dispatch(setAiCreated(resultAiCreated));
   }
 
   useEffect(() => {
@@ -56,7 +85,7 @@ export default function Portfolio() {
       </Container>
     );
   }
-  /*
+
   if (status === "notFound") {
     return (
       <Container>
@@ -79,7 +108,7 @@ export default function Portfolio() {
       </Container>
     );
   }
-  */
+
   return (
     <Container>
       <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>

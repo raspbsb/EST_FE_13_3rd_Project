@@ -2,13 +2,13 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Text from "@mui/material/Typography";
 
-export default function HeroSpecsItem({ label = "", size = 7, children, noBox }) {
+export default function HeroSpecsItem({ label = "", half, children, noBox }) {
   return (
     <>
-      <Grid component={"dt"} size={1}>
-        <Text variant="subtitle1">{label}</Text>
+      <Grid component={"dt"} size={{ mobile: 4, tablet: 3, desktop: 2 }}>
+        <Text variant="subtitle2">{label}</Text>
       </Grid>
-      <Grid component={"dd"} size={size}>
+      <Grid component={"dd"} size={{ mobile: 8, tablet: 9, desktop: half ? 4 : 10 }}>
         <Box
           sx={{
             display: "flex",
