@@ -14,9 +14,9 @@ import { EditIcon, EmailIcon, LinkIcon } from '../../lib/icons';
 
 import { useState } from 'react';
 
-export default function ProfileHeader({ mode }) {
+export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
   // 임시 데이터
-  const skills = ['React', 'TypeScript', 'Supabase', 'Tailwind', 'Next.js'];
+
   const image = null;
 
   //Edit Dialog 상태 관리
@@ -31,7 +31,7 @@ export default function ProfileHeader({ mode }) {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Text variant="h4" fontWeight={700}>
-            User Name
+            {profile.user_name}
           </Text>
           {/* Edit Dialog 띄우기 */}
           {mode === 'mypage' && (
@@ -40,17 +40,19 @@ export default function ProfileHeader({ mode }) {
             </IconButton>
           )}
           {/* Dialog 컴포넌트*/}
-          <EditDialog open={openEdit} onClose={() => setOpenEdit(false)} />
+          <EditDialog
+            open={openEdit}
+            onClose={() => setOpenEdit(false)}
+            profile={profile}
+            onProfileUpdate={onProfileUpdate}
+          />
         </Box>
-        <Text variant="h6">Frontend Developer</Text>
-        <Text variant="body1">
-          Crafting highly performant, accessible, and delightful web experiences. Specializing in modern React
-          ecosystems and scalable design systems for creative professionals.
-        </Text>
+        <Text variant="h6">{profile.user_category}</Text>
+        <Text variant="body1">{profile.bio}</Text>
 
         {/* 기술 스택 */}
         <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" color="primary">
-          {skills.map(skill => (
+          {profile.skills.map(skill => (
             <TagChip key={skill} label={skill} color="primary" />
           ))}
         </Stack>

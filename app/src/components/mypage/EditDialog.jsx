@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TagChip from '../TagChip';
 
 import Button from '@mui/material/Button';
@@ -20,15 +20,38 @@ import FormLabel from '@mui/material/FormLabel';
 
 import { CloseIcon, LockIcon } from '../../lib/icons';
 
-export default function EditDialog({ open, onClose }) {
+export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  // 소개글 글자 수 상태관리
-  const [bio, setBio] = useState('');
+  //dialog form 관리
+  const [form, setForm] = useState({
+    user_name: '',
+    user_category: '',
+    bio: '',
+    skills: [],
+    email: '',
+    github_url: '',
+    is_public: true,
+  });
+
   // 기술 스택 상태관리
   const [skillInput, setSkillInput] = useState('');
-  const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    if (open) {
+      setForm({
+        user_name: profile.user_name,
+        user_category: profile.user_category,
+        bio: profile.bio,
+        skills: profile.skills ?? [],
+        email: profile.email,
+        github_url: profile.github_url ?? '',
+        is_public: profile.is_public,
+      });
+      setSkillInput('');
+    }
+  }, [open, profile]);
 
   // 스택 입력값
   const handleSkillChange = e => {
@@ -46,27 +69,49 @@ export default function EditDialog({ open, onClose }) {
     if (!value) return;
 
     // 중복 방지
-    if (skills.includes(value)) {
+    if (form.skills.includes(value)) {
       setSkillInput('');
       return;
     }
 
-    setSkills(prev => [...prev, value]);
+    setForm(prev => ({
+      ...prev,
+      skills: [...prev.skills, value],
+    }));
+
     setSkillInput('');
   };
 
   //chip 삭제
   const handleDeleteSkill = skill => {
-    setSkills(prev => prev.filter(item => item !== skill));
+    setForm(prev => ({
+      ...prev,
+      skills: prev.skills.filter(item => item !== skill),
+    }));
   };
 
-  // 폼 전송 이벤트 (MUI 예제 임시로 복붙)
+  //활동내역 이벤트
+  const handlePublicChange = e => {
+    setForm(prev => ({
+      ...prev,
+      is_public: e.target.checked,
+    }));
+  };
+
+  // 깃허브 url 입력값
+  const handleChange = e => {
+    const { name, value } = e.target;
+
+    setForm(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // 폼 전송 이벤트
   const handleSubmit = e => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const formJson = Object.fromEntries(formData.entries());
-    const email = formJson.email;
-    console.log(email);
+    onProfileUpdate(form);
     onClose();
   };
 
@@ -75,9 +120,9 @@ export default function EditDialog({ open, onClose }) {
       fullScreen={fullScreen}
       open={open}
       onClose={onClose}
-      maxWidth='sm'
+      maxWidth="sm"
       fullWidth
-      aria-labelledby='프로필 수정 모달'
+      aria-labelledby="프로필 수정 모달"
     >
       <DialogTitle
         sx={{
@@ -93,49 +138,63 @@ export default function EditDialog({ open, onClose }) {
       </DialogTitle>
 
       <DialogContent dividers>
-        <form onSubmit={handleSubmit} id='profile-form' variant='subtitle2'>
+        <form onSubmit={handleSubmit} id="profile-form" variant="subtitle2">
           <Stack spacing={2}>
             <Box>
               <FormLabel required>이름</FormLabel>
-              <TextField placeholder='이름을 작성해주세요.' fullWidth required />
+              <TextField
+                name="user_name"
+                value={form.user_name}
+                onChange={handleChange}
+                placeholder="이름을 작성해주세요."
+                fullWidth
+                required
+              />
             </Box>
 
             <Box>
               <FormLabel required>직군</FormLabel>
-              <TextField placeholder='직군을 입력해주세요.' fullWidth required />
+              <TextField
+                name="user_category"
+                value={form.user_category}
+                onChange={handleChange}
+                placeholder="직군을 입력해주세요."
+                fullWidth
+                required
+              />
             </Box>
 
             <Box>
               <FormLabel>소개글</FormLabel>
               <TextField
-                placeholder='소개글을 입력해주세요. (최대 100자)'
+                placeholder="소개글을 입력해주세요. (최대 100자)"
                 multiline
                 rows={5}
-                inputProps={{ maxLength: 100 }}
                 fullWidth
-                value={bio}
-                onChange={e => setBio(e.target.value)}
+                name="bio"
+                value={form.bio}
+                onChange={handleChange}
                 inputProps={{
                   maxLength: 100,
                 }}
               />
-              <Text variant='caption' align='right' sx={{ display: 'block' }}>
-                {bio.length}/100
+              <Text variant="caption" align="right" sx={{ display: 'block' }}>
+                {form.bio.length}/100
               </Text>
             </Box>
 
             <Box>
               <FormLabel>기술 스택</FormLabel>
               <TextField
-                label='기술 스택'
-                placeholder='기술을 입력하고 엔터를 눌러주세요.'
+                label="기술 스택"
+                placeholder="기술을 입력하고 엔터를 눌러주세요."
                 fullWidth
                 value={skillInput}
                 onChange={handleSkillChange}
                 onKeyDown={handleSkillKeyDown}
               />
-              <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap' sx={{ pt: '10px' }}>
-                {skills.map(skill => (
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ pt: '10px' }}>
+                {form.skills.map(skill => (
                   <TagChip key={skill} label={skill} onDelete={() => handleDeleteSkill(skill)} />
                 ))}
               </Stack>
@@ -143,14 +202,26 @@ export default function EditDialog({ open, onClose }) {
 
             <Box>
               <FormLabel>이메일</FormLabel>
-              <TextField placeholder='이메일을 작성해주세요.' fullWidth />
+              <TextField
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="이메일을 작성해주세요."
+                fullWidth
+              />
             </Box>
 
             <Box>
               <FormLabel>개인 사이트</FormLabel>
-              <Stack direction='row' spacing={2}>
-                <TextField label='사이트1' placeholder='사이트 URL을 입력해주세요.' fullWidth />
-                <TextField label='사이트2' placeholder='사이트 URL을 입력해주세요.' fullWidth />
+              <Stack direction="row" spacing={2}>
+                <TextField
+                  name="github_url"
+                  value={form.github_url}
+                  onChange={handleChange}
+                  placeholder="사이트를 입력해주세요."
+                  fullWidth
+                />
+                <TextField label="사이트2" placeholder="사이트 URL을 입력해주세요." fullWidth />
               </Stack>
             </Box>
 
@@ -166,8 +237,11 @@ export default function EditDialog({ open, onClose }) {
                   border: '1px solid #f0f0f0',
                 }}
               >
-                <FormControlLabel control={<Switch />} label='활동 내역 비공개 설정' />
-                <LockIcon color='primary' />
+                <FormControlLabel
+                  control={<Switch checked={form.is_public} onChange={handlePublicChange} />}
+                  label="활동 내역 비공개 설정"
+                />
+                <LockIcon color="primary" />
               </Box>
             </Box>
           </Stack>
@@ -175,16 +249,10 @@ export default function EditDialog({ open, onClose }) {
       </DialogContent>
 
       <DialogActions>
-        <Button variant='contained' type='submit' form='profile-form' onClick={onClose} autoFocus>
+        <Button variant="contained" type="submit" form="profile-form" autoFocus>
           적용하기
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
-
-// 기존 프로필 내용 불러오기
-// 입력값 저장
-// 적용 버튼 클릭하면 수정된 데이터 화면에 출력
-
-// 기술 스택 항목 공통 컴포넌트로 분리
