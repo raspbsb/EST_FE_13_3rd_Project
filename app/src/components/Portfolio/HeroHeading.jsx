@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import { EditIcon } from "../../lib/icons";
 
 export default function HeroHeading({}) {
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
 
   return (
     <Box>
@@ -30,16 +30,23 @@ export default function HeroHeading({}) {
       }
       <Box sx={{ display: "flex", gap: 3 }}>
         <Text component={"p"}>
-          작성일: <time dateTime={data?.created_at}>{data?.created_at ?? "-"}</time>
+          작성일:{" "}
+          <time dateTime={data?.created_at}>
+            {data?.created_at ? new Date(data.created_at).toISOString().slice(0, 10) : "-"}
+          </time>
         </Text>
 
         <Text component={"p"}>
           작업기간:{" "}
           {data?.started_at === null && data?.ended_at === null ? (
             <>
-              <time dateTime={data?.started_at}>{data?.started_at}</time>
+              <time dateTime={data?.started_at}>
+                {data?.started_at ? new Date(data.started_at).toISOString().slice(0, 10) : ""}
+              </time>
               <span> ~ </span>
-              <time dateTime={data?.ended_at}>{data?.ended_at}</time>
+              <time dateTime={data?.ended_at}>
+                {data?.ended_at ? new Date(data.ended_at).toISOString().slice(0, 10) : ""}
+              </time>
             </>
           ) : (
             "-"

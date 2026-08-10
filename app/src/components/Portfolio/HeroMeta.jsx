@@ -10,13 +10,13 @@ import Avatar from "@mui/material/Avatar";
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 
 export default function HeroMeta({}) {
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
 
   const isLiked = false;
   const isBookmarked = false;
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: { mobile: 1, tablet: 2, desktop: 3 } }}>
       <Chip
         component={Link}
         to="/profiles/:userId"
