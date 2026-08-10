@@ -84,7 +84,7 @@ export default function MessageDialog({ open, onClose, message }) {
         <Divider sx={{ mb: 3 }} />
         <Box>
           <Text variant="subtitle2" sx={{ color: 'primary.main' }} gutterBottom>
-            (아이콘 추가) 이 메시지는 비공개 제안을 포함하고 있습니다.
+            ⓘ 이 메시지는 비공개 제안을 포함하고 있습니다.
           </Text>
         </Box>
       </DialogContent>
