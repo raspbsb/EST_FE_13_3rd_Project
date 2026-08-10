@@ -24,7 +24,7 @@ export default function Portfolio() {
   }, [id]);
 
   /*
-  뷰포트보다 큰 요소 검출하기
+  // 뷰포트보다 큰 요소 검출하기
   useEffect(() => {
     document.querySelectorAll("*").forEach(el => {
       if (el.scrollWidth > document.documentElement.clientWidth) {
@@ -99,7 +99,7 @@ export default function Portfolio() {
 
   return (
     <Container>
-      <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>
+      <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
         <Text component={"p"} variant="h4">
           포트폴리오 상세
         </Text>

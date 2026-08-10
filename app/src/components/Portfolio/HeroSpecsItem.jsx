@@ -19,6 +19,7 @@ export default function HeroSpecsItem({ label = "", half, children, noBox }) {
             px: noBox ? 0 : 2,
             py: 0.5,
             minWidth: "0px",
+            maxWidth: "100%",
             minHeight: "40px",
             borderStyle: "solid",
             borderWidth: noBox ? "0px" : "1px",

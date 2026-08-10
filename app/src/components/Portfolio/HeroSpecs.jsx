@@ -23,7 +23,7 @@ export default function HeroSpecs({}) {
       rowSpacing={1}
       columnSpacing={{ mobile: 0, tablet: 1, desktop: 1 }}
       columns={12}
-      sx={{ alignItems: "center", minWidth: "0px" }}
+      sx={{ alignItems: "center", minWidth: "0px", maxWidth: "100%" }}
     >
       <HeroSpecsItem label="카테고리" noBox>
         <Stack
@@ -51,40 +51,32 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary" noWrap>
+        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap sx={{ maxWidth: "100%" }}>
           {data?.deploy_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary" noWrap>
+        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap sx={{ maxWidth: "100%" }}>
           {data?.repository_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" half>
-        <Text variant="body1" noWrap>
-          {data?.author_role ?? "-"}
-        </Text>
+        <Text variant="body1">{data?.author_role ?? "-"}</Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="프로젝트 형태" half>
-        <Text variant="body1" noWrap>
-          {data?.project_type ?? "-"}
-        </Text>
+        <Text variant="body1">{data?.project_type ?? "-"}</Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="개발 환경" half>
-        <Text variant="body1" noWrap>
-          {data?.environment ?? "-"}
-        </Text>
+        <Text variant="body1">{data?.environment ?? "-"}</Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="팀 규모" half>
-        <Text variant="body1" noWrap>
-          {data?.team_size ?? "-"}
-        </Text>
+        <Text variant="body1">{data?.team_size ?? "-"}</Text>
       </HeroSpecsItem>
     </Grid>
   );

@@ -21,7 +21,12 @@ export default function HeroHeading({}) {
         <Button
           component={Link}
           to={`/portfolios/${data?.project_id}/edit`}
-          sx={{ position: "absolute", top: "0px", right: "0px" }}
+          sx={{
+            position: "absolute",
+            top: { mobile: "unset", tablet: "0px", desktop: "0px" },
+            bottom: { mobile: "100%", tablet: "unset", desktop: "unset" },
+            right: "0px",
+          }}
           color="secondary"
           variant="contained"
           startIcon={<EditIcon />}
