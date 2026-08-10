@@ -34,6 +34,7 @@ export default function MyPageLayout() {
         sx={{
           maxWidth: '1272px',
           mx: 'auto',
+          py: 6,
         }}
       >
         <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />

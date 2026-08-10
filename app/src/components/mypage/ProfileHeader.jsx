@@ -32,7 +32,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
       {/* 프로필 info */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Text variant="h4" fontWeight={700}>
+          <Text component="h2" variant="h4" fontWeight={700}>
             {profile.user_name}
           </Text>
           {/* Edit Dialog 버튼 */}
@@ -49,8 +49,12 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
             onProfileUpdate={onProfileUpdate}
           />
         </Box>
-        <Text variant="h6">{profile.user_category}</Text>
-        <Text variant="body1">{profile.bio}</Text>
+        <Text component="h2" variant="h6" sx={{ color: 'primary.main' }}>
+          {profile.user_category}
+        </Text>
+        <Text component="p" variant="body1">
+          {profile.bio}
+        </Text>
 
         {/* 기술 스택 */}
         <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" color="primary">
