@@ -37,7 +37,7 @@ export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilit
       >
         {/* 공개/비공개 토글 그룹 */}
         <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
-          <Switch checked={isPortfolioPublic} onChange={onVisibilityChange} />
+          <Switch id="is_public" name="is_public" checked={isPortfolioPublic} onChange={onVisibilityChange} />
           {/* 공개/비공개 텍스트 */}
           <Box>
             <Text>{isPortfolioPublic ? "공개 설정" : "비공개 설정"}</Text>

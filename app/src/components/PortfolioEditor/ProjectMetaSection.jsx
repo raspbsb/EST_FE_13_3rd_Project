@@ -37,14 +37,14 @@ export default function ProjectMetaSection({ sectionCardSx, fieldLabelSx, formIn
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
           <FormControl fullWidth>
             <FieldLabel sx={fieldLabelSx}>참여 형태</FieldLabel>
-            <Select size="small" defaultValue="team" sx={formInputSx}>
+            <Select id="project_type" name="project_type" size="small" defaultValue="team" sx={formInputSx}>
               {renderSelectMenuItems(participationTypeOptions)}
             </Select>
           </FormControl>
 
           <FormControl fullWidth>
             <FieldLabel sx={fieldLabelSx}>참여 규모</FieldLabel>
-            <Select size="small" defaultValue="small-team" sx={formInputSx}>
+            <Select id="team_size" name="team_size" size="small" defaultValue="small-team" sx={formInputSx}>
               {renderSelectMenuItems(participationScaleOptions)}
             </Select>
           </FormControl>
@@ -52,7 +52,7 @@ export default function ProjectMetaSection({ sectionCardSx, fieldLabelSx, formIn
 
         <FormControl fullWidth>
           <FieldLabel sx={fieldLabelSx}>진행 환경</FieldLabel>
-          <Select size="small" defaultValue="course" sx={formInputSx}>
+          <Select id="environment" name="environment" size="small" defaultValue="course" sx={formInputSx}>
             {renderSelectMenuItems(progressEnvironmentOptions)}
           </Select>
         </FormControl>
