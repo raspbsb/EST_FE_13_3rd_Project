@@ -22,6 +22,8 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
   //Edit Dialog 상태 관리
   const [openEdit, setOpenEdit] = useState(false);
 
+  console.log('profile:', profile);
+  console.log('skills:', profile?.skills);
   return (
     <Box component="section" sx={{ display: 'flex', gap: 2 }}>
       {/* 프로필 이미지 업로드 */}
@@ -52,7 +54,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
 
         {/* 기술 스택 */}
         <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" color="primary">
-          {profile.skills.map(skill => (
+          {profile.skills?.map(skill => (
             <TagChip key={skill} label={skill} color="primary" />
           ))}
         </Stack>
