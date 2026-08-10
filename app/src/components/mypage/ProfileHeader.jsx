@@ -19,61 +19,53 @@ export default function ProfileHeader({ mode }) {
   const skills = ['React', 'TypeScript', 'Supabase', 'Tailwind', 'Next.js'];
   const image = null;
 
-  //dialog 상태 관리
-  const [open, setOpen] = useState(false);
-
-  //dialog 열고 닫기
-  const handleEdit = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  //Edit Dialog 상태 관리
+  const [openEdit, setOpenEdit] = useState(false);
 
   return (
-    <Box component='section' sx={{ display: 'flex', gap: 2 }}>
+    <Box component="section" sx={{ display: 'flex', gap: 2 }}>
       {/* 프로필 이미지 업로드 */}
       <ProfileAvatar />
 
       {/* 프로필 info */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Text variant='h4' fontWeight={700}>
+          <Text variant="h4" fontWeight={700}>
             User Name
           </Text>
           {/* Edit Dialog 띄우기 */}
           {mode === 'mypage' && (
-            <IconButton onClick={handleEdit}>
+            <IconButton onClick={() => setOpenEdit(true)}>
               <EditIcon />
             </IconButton>
           )}
           {/* Dialog 컴포넌트*/}
-          <EditDialog open={open} onClose={handleClose} />
+          <EditDialog open={openEdit} onClose={() => setOpenEdit(false)} />
         </Box>
-        <Text variant='h6'>Frontend Developer</Text>
-        <Text variant='body1'>
+        <Text variant="h6">Frontend Developer</Text>
+        <Text variant="body1">
           Crafting highly performant, accessible, and delightful web experiences. Specializing in modern React
           ecosystems and scalable design systems for creative professionals.
         </Text>
 
         {/* 기술 스택 */}
-        <Stack direction='row' spacing={1} useFlexGap flexwrap='wrap' color='primary'>
+        <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" color="primary">
           {skills.map(skill => (
-            <TagChip key={skill} label={skill} color='primary' />
+            <TagChip key={skill} label={skill} color="primary" />
           ))}
         </Stack>
 
         {/* 컨택 URL */}
         <List sx={{ display: 'inline-flex', paddingTop: 2, gap: 3 }}>
           <ListItem sx={{ padding: 0, width: 'auto' }}>
-            <EmailIcon fontSize='small' />
-            <Text component={'a'} href={null} variant='Subtitle1'>
+            <EmailIcon fontSize="small" />
+            <Text component={'a'} href={null} variant="Subtitle1">
               portfoliop@gmail.com
             </Text>
           </ListItem>
           <ListItem sx={{ padding: 0, width: 'auto' }}>
-            <LinkIcon fontSize='small' />
-            <Text component={'a'} href={null} variant='Subtitle1'>
+            <LinkIcon fontSize="small" />
+            <Text component={'a'} href={null} variant="Subtitle1">
               https://www.linkedin.com/in/portfolioplus/
             </Text>
           </ListItem>
