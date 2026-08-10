@@ -7,7 +7,7 @@ import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
 
   return (
     <Box>

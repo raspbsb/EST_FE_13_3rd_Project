@@ -14,7 +14,7 @@ import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
 export default function AuthorInfoCard({}) {
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
 
   return (
     <Box

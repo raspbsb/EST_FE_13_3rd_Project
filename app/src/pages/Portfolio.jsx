@@ -85,7 +85,7 @@ export default function Portfolio() {
       </Container>
     );
   }
-  /*
+
   if (status === "notFound") {
     return (
       <Container>
@@ -108,7 +108,7 @@ export default function Portfolio() {
       </Container>
     );
   }
-  */
+
   return (
     <Container>
       <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>
