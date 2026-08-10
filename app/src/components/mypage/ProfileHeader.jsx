@@ -15,9 +15,9 @@ import { EditIcon, EmailIcon, LinkIcon } from '../../lib/icons';
 import { useState } from 'react';
 
 export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
-  // 임시 데이터
-
-  const image = null;
+  const handleAvatarChange = file => {
+    console.log('선택 이미지:', file);
+  };
 
   //Edit Dialog 상태 관리
   const [openEdit, setOpenEdit] = useState(false);
@@ -25,7 +25,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
   return (
     <Box component="section" sx={{ display: 'flex', gap: 2 }}>
       {/* 프로필 이미지 업로드 */}
-      <ProfileAvatar />
+      <ProfileAvatar avatarPath={profile.avatar_path} editable={mode === 'mypage'} onChange={handleAvatarChange} />
 
       {/* 프로필 info */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
