@@ -32,6 +32,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
     skills: [],
     email: '',
     github_url: '',
+    personal_url: '',
     is_public: true,
   });
 
@@ -47,6 +48,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         skills: profile.skills ?? [],
         email: profile.email,
         github_url: profile.github_url ?? '',
+        personal_url: profile.personal_url ?? '',
         is_public: profile.is_public,
       });
       setSkillInput('');
@@ -98,7 +100,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
     }));
   };
 
-  // 깃허브 url 입력값
+  // 입력값 변경
   const handleChange = e => {
     const { name, value } = e.target;
 
@@ -215,13 +217,21 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
               <FormLabel>개인 사이트</FormLabel>
               <Stack direction="row" spacing={2}>
                 <TextField
+                  label="사이트1"
                   name="github_url"
                   value={form.github_url}
                   onChange={handleChange}
                   placeholder="사이트를 입력해주세요."
                   fullWidth
                 />
-                <TextField label="사이트2" placeholder="사이트 URL을 입력해주세요." fullWidth />
+                <TextField
+                  label="사이트2"
+                  name="personal_url"
+                  value={form.personal_url}
+                  onChange={handleChange}
+                  placeholder="사이트를 입력해주세요."
+                  fullWidth
+                />
               </Stack>
             </Box>
 
