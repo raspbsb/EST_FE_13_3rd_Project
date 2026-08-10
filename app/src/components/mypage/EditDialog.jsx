@@ -25,7 +25,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
-  //dialog form 관리
+  //Edit dialog form 관리
   const [form, setForm] = useState({
     user_name: '',
     user_category: '',
@@ -33,7 +33,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
     skills: [],
     email: '',
     github_url: '',
-    personal_url: '',
+    url2: '',
     is_public: true,
   });
 
@@ -49,7 +49,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         skills: profile.skills ?? [],
         email: profile.email,
         github_url: profile.github_url ?? '',
-        personal_url: profile.personal_url ?? '',
+        url2: profile.personal_url ?? '',
         is_public: profile.is_public,
       });
       setSkillInput('');
@@ -139,7 +139,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
           skills: form.skills,
           email: form.email,
           github_url: form.github_url,
-          personal_url: form.profile.personal_url,
+          url2: form.profile.personal_url,
           is_public: form.is_public,
         })
         .eq('user_id', user.id)
@@ -271,7 +271,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 <TextField
                   label="사이트2"
                   name="personal_url"
-                  value={form.personal_url}
+                  value={form.url2}
                   onChange={handleChange}
                   placeholder="사이트를 입력해주세요."
                   fullWidth

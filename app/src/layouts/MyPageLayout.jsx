@@ -19,7 +19,7 @@ export default function MyPageLayout() {
     email: 'portfolio@gmail.com',
     is_public: true,
     github_url: 'https://github.com/portfolio',
-    personal_url: '',
+    url2: '',
     profile_view: 0,
   });
 
