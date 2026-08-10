@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { supabase } from "../../utils/supabase";
 
 import Text from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -11,8 +12,8 @@ export default function HeroHeading({}) {
   const { data, status } = useSelector(state => state.portfolio);
 
   return (
-    <Box>
-      <Text component={"h1"} variant="h3" sx={{ fontWeight: "700" }}>
+    <Box sx={{ minWidth: "0px" }}>
+      <Text component={"h1"} variant="h3" sx={{ fontWeight: "700", minWidth: "0px" }}>
         {data?.title ?? "제목 없음"}
       </Text>
       {
@@ -28,7 +29,14 @@ export default function HeroHeading({}) {
           수정하기
         </Button>
       }
-      <Box sx={{ display: "flex", gap: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: { mobile: 0, tablet: 2, desktop: 3 },
+          flexDirection: { mobile: "column", tablet: "row", desktop: "row" },
+          minWidth: "0px",
+        }}
+      >
         <Text component={"p"}>
           작성일:{" "}
           <time dateTime={data?.created_at}>

@@ -17,9 +17,20 @@ export default function HeroSpecs({}) {
   const techStacks = data?.portfolio_tech_stacks;
 
   return (
-    <Grid component={"dl"} container rowSpacing={1} columnSpacing={1} columns={12} sx={{ alignItems: "center" }}>
+    <Grid
+      component={"dl"}
+      container
+      rowSpacing={1}
+      columnSpacing={{ mobile: 0, tablet: 1, desktop: 1 }}
+      columns={12}
+      sx={{ alignItems: "center", minWidth: "0px" }}
+    >
       <HeroSpecsItem label="카테고리" noBox>
-        <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
+        <Stack
+          component={"ul"}
+          direction="row"
+          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+        >
           {categories?.map((c, idx) => (
             <TagChip key={idx} component={"li"} label={c.category} />
           ))}
@@ -27,7 +38,11 @@ export default function HeroSpecs({}) {
       </HeroSpecsItem>
 
       <HeroSpecsItem label="기술 스택" noBox>
-        <Stack component={"ul"} direction="row" sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none" }}>
+        <Stack
+          component={"ul"}
+          direction="row"
+          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+        >
           {techStacks?.map((ts, idx) => (
             <TagChip key={idx} component={"li"} label={ts.tech_stack} />
           ))}
@@ -36,32 +51,40 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary">
+        <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary" noWrap>
           {data?.deploy_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary">
+        <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary" noWrap>
           {data?.repository_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" half>
-        <Text variant="body1">{data?.author_role ?? "-"}</Text>
+        <Text variant="body1" noWrap>
+          {data?.author_role ?? "-"}
+        </Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="프로젝트 형태" half>
-        <Text variant="body1">{data?.project_type ?? "-"}</Text>
+        <Text variant="body1" noWrap>
+          {data?.project_type ?? "-"}
+        </Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="개발 환경" half>
-        <Text variant="body1">{data?.environment ?? "-"}</Text>
+        <Text variant="body1" noWrap>
+          {data?.environment ?? "-"}
+        </Text>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="팀 규모" half>
-        <Text variant="body1">{data?.team_size ?? "-"}</Text>
+        <Text variant="body1" noWrap>
+          {data?.team_size ?? "-"}
+        </Text>
       </HeroSpecsItem>
     </Grid>
   );

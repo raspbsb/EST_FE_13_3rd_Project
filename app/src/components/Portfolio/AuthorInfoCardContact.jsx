@@ -10,7 +10,7 @@ export default function AuthorInfoCardContact({ href, icon = <LinkIcon />, email
   return (
     <ListItem>
       {renderedIcon}
-      <MuiLink href={email ? `mailto:${href}` : href} color="textPrimary" variant="body2">
+      <MuiLink href={email ? `mailto:${href}` : href} color="textPrimary" variant="body2" noWrap>
         {href}
       </MuiLink>
     </ListItem>

@@ -23,6 +23,31 @@ export default function Portfolio() {
     };
   }, [id]);
 
+  /*
+  뷰포트보다 큰 요소 검출하기
+  useEffect(() => {
+    document.querySelectorAll("*").forEach(el => {
+      if (el.scrollWidth > document.documentElement.clientWidth) {
+        console.log(el, el.scrollWidth);
+      }
+    });
+  }, [document.documentElement.clientWidth]);
+  */
+
+  // 후에 스켈레톤으로 변경
+  if (status === "idle" || status === "loading") {
+    return (
+      <Container>
+        <Text component={"p"} variant="h4">
+          포트폴리오 상세
+        </Text>
+        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
+          로딩중...
+        </Text>
+      </Container>
+    );
+  }
+
   if (status === "failed") {
     return (
       <Container>
