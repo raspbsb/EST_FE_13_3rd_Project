@@ -1,5 +1,8 @@
+import { supabase } from '../../utils/supabase';
 import { useState, useEffect } from 'react';
 import TagChip from '../TagChip';
+
+import { CloseIcon, LockIcon } from '../../lib/icons';
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -17,8 +20,6 @@ import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import FormLabel from '@mui/material/FormLabel';
-
-import { CloseIcon, LockIcon } from '../../lib/icons';
 
 export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
@@ -111,10 +112,53 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
   };
 
   // 폼 전송 이벤트
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    onProfileUpdate(form);
-    onClose();
+
+    // Auth 서버에 요청해서 현재 사용자 인증
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError) {
+        throw userError;
+      }
+      if (!user) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+      // Supabase 업데이트
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          user_name: form.user_name,
+          user_category: form.user_category,
+          bio: form.bio,
+          skills: form.skills,
+          email: form.email,
+          github_url: form.github_url,
+          personal_url: form.profile.personal_url,
+          is_public: form.is_public,
+        })
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+      console.log('프로필 수정 완료:', data);
+
+      // DB 수정 성공 후 화면도 변경
+      onProfileUpdate(data);
+
+      onClose();
+    } catch (error) {
+      console.error('프로필 수정 실패:', error);
+      alert('프로필 수정에 실패했습니다.');
+    }
   };
 
   return (
