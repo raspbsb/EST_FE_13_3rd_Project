@@ -4,15 +4,17 @@ import ContactSection from '../components/mypage/ContactSection';
 
 import Container from '@mui/material/Container';
 
-export default function Profile() {
+export default function Profile({ mode }) {
   return (
-    <>
-      <MyProjectsSection mode="mypage" />
+    <main>
+      <MyProjectsSection mode={mode} />
 
-      <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }} disableGutters>
-        <BookmarkSection />
-        <ContactSection />
-      </Container>
-    </>
+      {mode === 'mypage' && (
+        <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }} disableGutters>
+          <BookmarkSection />
+          <ContactSection />
+        </Container>
+      )}
+    </main>
   );
 }

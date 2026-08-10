@@ -5,7 +5,7 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Text from '@mui/material/Typography';
 
-export default function ActivityStats() {
+export default function ActivityStats({ mode, profile }) {
   const stats = [
     {
       title: '프로젝트',
@@ -37,10 +37,10 @@ export default function ActivityStats() {
             color: 'background.default',
           }}
         >
-          <Text variant='h6'>{item.title}</Text>
+          <Text variant="h6">{item.title}</Text>
           <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
-            <Text variant='h4'>{item.count}</Text>
-            <Text variant='h5'>개</Text>
+            <Text variant="h4">{item.count}</Text>
+            <Text variant="h5">개</Text>
           </Box>
         </Grid>
       ))}

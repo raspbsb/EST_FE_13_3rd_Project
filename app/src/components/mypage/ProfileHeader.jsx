@@ -33,7 +33,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
           <Text variant="h4" fontWeight={700}>
             {profile.user_name}
           </Text>
-          {/* Edit Dialog 띄우기 */}
+          {/* Edit Dialog 버튼 */}
           {mode === 'mypage' && (
             <IconButton onClick={() => setOpenEdit(true)}>
               <EditIcon />
