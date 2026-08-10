@@ -15,7 +15,7 @@ export default function AuthorInfoPortfolios({}) {
         <Text component={"h3"} variant="h5">
           author의 다른 프로젝트
         </Text>
-        <MuiLink component={Link} to="/profiles/:userId">
+        <MuiLink component={Link} to={`/profiles/${data?.author_id}`}>
           View all 4
         </MuiLink>
       </Box>

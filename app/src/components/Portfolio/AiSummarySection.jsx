@@ -13,9 +13,10 @@ import AiSummaryItem from "./AiSummaryItem";
 
 export default function AiSummarySection({}) {
   const theme = useTheme();
-  const { data, status, error, dataAiCreated } = useSelector(state => state.portfolio);
+  const { data, status } = useSelector(state => state.portfolio);
+  const aiCreated = data?.portfolio_ai_created;
 
-  if (!dataAiCreated) {
+  if (!aiCreated) {
     return <></>;
   }
 
@@ -48,18 +49,18 @@ export default function AiSummarySection({}) {
             AI 분석결과
           </Text>
           <Text component={"p"} variant="caption">
-            분석 시점: <time dateTime={dataAiCreated?.github_analyzed_at}>{dataAiCreated?.github_analyzed_at}</time>
+            분석 시점: <time dateTime={aiCreated?.github_analyzed_at}>{aiCreated?.github_analyzed_at}</time>
           </Text>
         </Box>
       </AccordionSummary>
       <AccordionDetails>
         <Box component={"dl"} sx={{ pt: 1 }}>
-          <AiSummaryItem label="프로젝트 요약">{dataAiCreated?.project_summary}</AiSummaryItem>
-          <AiSummaryItem label="주요 기능">{dataAiCreated?.main_features}</AiSummaryItem>
-          <AiSummaryItem label="기술적 특징">{dataAiCreated?.technical_features}</AiSummaryItem>
-          <AiSummaryItem label="프로젝트 구조">{dataAiCreated?.project_structure}</AiSummaryItem>
-          <AiSummaryItem label="담당 역할">{dataAiCreated?.analyzed_role}</AiSummaryItem>
-          <AiSummaryItem label="참여 내역">{dataAiCreated?.participation_details}</AiSummaryItem>
+          <AiSummaryItem label="프로젝트 요약">{aiCreated?.project_summary}</AiSummaryItem>
+          <AiSummaryItem label="주요 기능">{aiCreated?.main_features}</AiSummaryItem>
+          <AiSummaryItem label="기술적 특징">{aiCreated?.technical_features}</AiSummaryItem>
+          <AiSummaryItem label="프로젝트 구조">{aiCreated?.project_structure}</AiSummaryItem>
+          <AiSummaryItem label="담당 역할">{aiCreated?.analyzed_role}</AiSummaryItem>
+          <AiSummaryItem label="참여 내역">{aiCreated?.participation_details}</AiSummaryItem>
         </Box>
         {/*
           <Box>

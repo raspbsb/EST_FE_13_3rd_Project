@@ -43,7 +43,7 @@ export default function AuthorInfoCard({}) {
       </Box>
       <Button
         component={Link}
-        to="/profiles/:userId"
+        to={`/profiles/${data?.author_id}`}
         sx={{ position: "absolute", top: "16px", right: "16px" }}
         color="secondary"
         variant="contained"

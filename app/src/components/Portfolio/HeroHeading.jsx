@@ -19,7 +19,7 @@ export default function HeroHeading({}) {
         // 사용자가 작성자일때만 표시
         <Button
           component={Link}
-          to="/portfolios/:id/edit"
+          to={`/portfolios/${data?.project_id}/edit`}
           sx={{ position: "absolute", top: "0px", right: "0px" }}
           color="secondary"
           variant="contained"

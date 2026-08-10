@@ -8,15 +8,7 @@ import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 
-import {
-  setLoading,
-  setPortfolio,
-  resetPortfolio,
-  setImages,
-  setCategories,
-  setTechStacks,
-  setAiCreated,
-} from "../components/Portfolio/portfolioSlice";
+import { setLoading, setPortfolio, resetPortfolio, fetchPortfolio } from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
@@ -24,35 +16,8 @@ export default function Portfolio() {
   const dispatch = useDispatch();
   const { data, status, error } = useSelector(state => state.portfolio);
 
-  async function fetchPortfolio() {
-    dispatch(setLoading());
-    const result = await supabase.schema("public").from("portfolios").select().eq("project_id", id).maybeSingle();
-    dispatch(setPortfolio(result));
-
-    const resultImages = await supabase.schema("public").from("portfolio_images").select().eq("project_id", id);
-    dispatch(setImages(resultImages));
-
-    const resultCategories = await supabase.schema("public").from("portfolio_categories").select().eq("project_id", id);
-    dispatch(setCategories(resultCategories));
-
-    const resultTechStacks = await supabase
-      .schema("public")
-      .from("portfolio_tech_stacks")
-      .select()
-      .eq("project_id", id);
-    dispatch(setTechStacks(resultTechStacks));
-
-    const resultAiCreated = await supabase
-      .schema("public")
-      .from("portfolio_ai_created")
-      .select()
-      .eq("project_id", id)
-      .maybeSingle();
-    dispatch(setAiCreated(resultAiCreated));
-  }
-
   useEffect(() => {
-    fetchPortfolio();
+    dispatch(fetchPortfolio(id));
     return () => {
       dispatch(resetPortfolio());
     };
@@ -67,11 +32,9 @@ export default function Portfolio() {
         <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
           DB와 통신에 실패했습니다.
         </Text>
-        {/*
         <Text component={"p"} variant="h5">
-          {error}
+          {error?.message}
         </Text>
-        */}
         <Text component={"p"} variant="body1">
           <MuiLink component={Link} to={"/"}>
             홈으로 돌아가기

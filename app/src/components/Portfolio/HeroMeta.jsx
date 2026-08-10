@@ -19,7 +19,7 @@ export default function HeroMeta({}) {
     <Box sx={{ display: "flex", alignItems: "center", gap: { mobile: 1, tablet: 2, desktop: 3 } }}>
       <Chip
         component={Link}
-        to="/profiles/:userId"
+        to={`/profiles/${data?.author_id}`}
         label="author"
         variant="outlined"
         avatar={<Avatar alt="author" />}
