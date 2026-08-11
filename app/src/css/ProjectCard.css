@@ -47,13 +47,16 @@
 }
 .project-card-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 8px;
 }
 .project-card-skills {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
 }
 .project-card-skills .MuiChip-root {
   height: 20px;
@@ -61,6 +64,7 @@
   font-size: 12px;
 }
 .project-card-project-level {
+  flex-shrink: 0;
   border-radius: 9999px;
   width: 25px;
   text-align: center;

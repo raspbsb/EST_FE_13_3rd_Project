@@ -60,14 +60,17 @@
 
   &-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 10px;
+    gap: 8px;
   }
 
   &-skills {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+    flex: 1;
 
     .MuiChip-root {
       height: 20px;
@@ -77,6 +80,7 @@
   }
 
   &-project-level {
+    flex-shrink: 0;
     border-radius: 9999px;
     width: 25px;
     text-align: center;
