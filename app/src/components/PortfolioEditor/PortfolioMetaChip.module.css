@@ -1,0 +1,43 @@
+.chip:global(.MuiChip-root) {
+  height: 24px;
+  min-height: 24px;
+  border: 0;
+  border-radius: 9999px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.chip:global(.MuiChip-root) :global(.MuiChip-label) {
+  padding-right: 4px;
+  padding-left: 8px;
+}
+
+.chip:global(.MuiChip-root) :global(.MuiChip-deleteIcon) {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  margin-left: 0;
+  color: currentColor;
+  opacity: 0.8;
+}
+
+.chip:global(.MuiChip-root) :global(.MuiChip-deleteIcon:hover) {
+  color: currentColor;
+  opacity: 1;
+}
+
+.category:global(.MuiChip-root),
+.category:global(.MuiButtonBase-root[role="button"]) {
+  background-color: #0d6efd;
+  color: #ffffff;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+}
+
+.tech:global(.MuiChip-root),
+.tech:global(.MuiButtonBase-root[role="button"]) {
+  background-color: #e2dfde;
+  color: #757575;
+  font-weight: 500;
+}
