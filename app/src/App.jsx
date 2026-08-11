@@ -14,6 +14,7 @@ import NotFound from './pages/NotFound';
 import MyProjects from './pages/MyProjects';
 import Collections from './pages/Collections';
 import PublicProfileLayout from './layouts/PublicProfileLayout';
+import MyProjectsSection from './components/mypage/MyProjectsSection';
 
 export default function App() {
   return (
@@ -33,7 +34,7 @@ export default function App() {
         </Route>
         {/* Public Profile */}
         <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
-          <Route index element={<MyProjects mode="public" />} />
+          <Route index element={<MyProjectsSection mode="public" />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
