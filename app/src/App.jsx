@@ -29,7 +29,7 @@ export default function App() {
         {/* MyPage */}
         <Route path="/mypage" element={<MyPageLayout />}>
           <Route index element={<Profile mode="mypage" />} />
-          <Route path="projects" element={<MyProjects />} />
+          <Route path="projects" element={<MyProjectsSection mode="mypage" />} />
           <Route path="collections" element={<Collections />} />
         </Route>
         {/* Public Profile */}

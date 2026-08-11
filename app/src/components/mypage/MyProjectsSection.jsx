@@ -12,10 +12,11 @@ import Link from '@mui/material/Link';
 export default function MyProjectsSection({ mode }) {
   const { userId } = useParams();
 
-  const { profile } = useOutletContext();
-
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const outletContext = useOutletContext();
+  const profile = outletContext?.profile;
 
   // supabase portfolios 테이블 데이터 가져오기
   useEffect(() => {
@@ -56,20 +57,20 @@ export default function MyProjectsSection({ mode }) {
   }, [userId]);
 
   return (
-    <Box component="section" sx={{ pt: 9 }}>
+    <Box component="section">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         {mode === 'mypage' ? (
           <>
             <Text component="h2" variant="h6">
               내 프로젝트
             </Text>
-            <Link component="button" href="/mypage/projects" underline="hover" variant="subtitle2">
+            <Link component="a" href="/mypage/projects" underline="hover" variant="subtitle2">
               View all
             </Link>
           </>
         ) : (
           <Text component="h2" variant="h6">
-            {profile.user_name}의 프로젝트
+            {profile?.user_name}의 프로젝트
           </Text>
         )}
       </Box>
