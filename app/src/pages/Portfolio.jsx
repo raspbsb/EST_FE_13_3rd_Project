@@ -23,17 +23,6 @@ export default function Portfolio() {
     };
   }, [id]);
 
-  /*
-  // 뷰포트보다 큰 요소 검출하기
-  useEffect(() => {
-    document.querySelectorAll("*").forEach(el => {
-      if (el.scrollWidth > document.documentElement.clientWidth) {
-        console.log(el, el.scrollWidth);
-      }
-    });
-  }, [document.documentElement.clientWidth]);
-  */
-
   // 후에 스켈레톤으로 변경
   if (status === "idle" || status === "loading") {
     return (

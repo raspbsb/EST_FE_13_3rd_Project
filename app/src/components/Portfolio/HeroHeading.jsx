@@ -12,7 +12,7 @@ export default function HeroHeading({}) {
   const { data, status } = useSelector(state => state.portfolio);
 
   return (
-    <Box sx={{ minWidth: "0px" }}>
+    <>
       <Text component={"h1"} variant="h3" sx={{ fontWeight: "700", minWidth: "0px" }}>
         {data?.title ?? "제목 없음"}
       </Text>
@@ -66,6 +66,6 @@ export default function HeroHeading({}) {
           )}
         </Text>
       </Box>
-    </Box>
+    </>
   );
 }
