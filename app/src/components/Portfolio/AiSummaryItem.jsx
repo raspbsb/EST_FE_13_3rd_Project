@@ -1,5 +1,6 @@
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import styles from "./AiSummaryItem.module.css";
 
 export default function AiSummaryItem({ label = "", children }) {
   return (
@@ -8,22 +9,7 @@ export default function AiSummaryItem({ label = "", children }) {
         {label}
       </Text>
 
-      <Box
-        component={"dd"}
-        sx={{
-          mt: 0.5,
-          px: 1.5,
-          py: 1.5,
-          mb: 2,
-          maxHeight: "500px",
-          borderStyle: "solid",
-          borderWidth: "1px 1px 1px 8px",
-          borderColor: "primary.main",
-          borderRadius: "4px",
-          overflowY: "scroll",
-          scrollbarWidth: "none",
-        }}
-      >
+      <Box component={"dd"} className={`${styles["ai-summary-item"]}`}>
         <Text variant="body1">{children}</Text>
       </Box>
     </>

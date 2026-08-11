@@ -51,14 +51,14 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap sx={{ maxWidth: "100%" }}>
+        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap>
           {data?.deploy_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap sx={{ maxWidth: "100%" }}>
+        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap>
           {data?.repository_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
