@@ -1,11 +1,7 @@
-import { useSelector } from "react-redux";
-
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
 export default function DescriptionSection({}) {
-  const { data, status } = useSelector(state => state.portfolio);
-
   return (
     <Box component={"section"}>
       <Text component={"h2"} variant="h4" sx={{ fontWeight: "700" }}>
@@ -26,7 +22,7 @@ export default function DescriptionSection({}) {
           scrollbarWidth: "none",
         }}
       >
-        <Text variant="body1">{data?.description}</Text>
+        <Text variant="body1">Lorem ipsum dolor sit amet consectetur adipisicing elit.</Text>
       </Box>
     </Box>
   );

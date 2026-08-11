@@ -1,47 +1,32 @@
 import { Link } from "react-router-dom";
 
-import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 
 import HeroHeading from "./HeroHeading";
 import HeroMeta from "./HeroMeta";
 import HeroSpecs from "./HeroSpecs";
 import HeroAiSummary from "./HeroAiSummary";
-import HeroImage from "./HeroImage";
 
 export default function HeroSection({}) {
   return (
-    <Box
+    <Grid
       component={"section"}
-      sx={{
-        display: "grid",
-        gridTemplateAreas: {
-          mobile: `"h" "i" "m" "s" "a"`,
-          tablet: `"i h" "i m" "i s" "i a"`,
-          desktop: `"i h" "i m" "i s" "i a"`,
-        },
-        gridTemplateColumns: { mobile: "1fr", tablet: "3fr 5fr", desktop: "1fr 2fr" },
-        rowGap: 2,
-        columnGap: 3,
-        position: "relative",
-        minWidth: "0px",
-        maxWidth: "100%",
-      }}
+      container
+      columnSpacing={3}
+      columns={{ mobile: 4, tablet: 8, desktop: 12 }}
+      sx={{ position: "relative" }}
     >
-      <Box sx={{ gridArea: "i", minWidth: "0px", maxWidth: "100%", height: "100%" }}>
-        <HeroImage />
-      </Box>
-      <Box sx={{ gridArea: "h", minWidth: "0px", maxWidth: "100%" }}>
+      <Grid size={{ mobile: 4, tablet: 3, desktop: 4 }}></Grid>
+
+      <Grid container rowSpacing={2} size={{ mobile: 4, tablet: 5, desktop: 8 }}>
         <HeroHeading />
-      </Box>
-      <Box sx={{ gridArea: "m", minWidth: "0px", maxWidth: "100%" }}>
         <HeroMeta />
-      </Box>
-      <Box sx={{ gridArea: "s", minWidth: "0px", maxWidth: "100%" }}>
         <HeroSpecs />
-      </Box>
-      <Box sx={{ gridArea: "a", minWidth: "0px", maxWidth: "100%" }}>
-        <HeroAiSummary />
-      </Box>
-    </Box>
+        <HeroAiSummary>
+          프로젝트 등록과 작품 탐색, 제작자 프로필 확인, 채용·협업 문의 과정을 하나의 흐름으로 연결한 포트폴리오 갤러리
+          플랫폼입니다.
+        </HeroAiSummary>
+      </Grid>
+    </Grid>
   );
 }

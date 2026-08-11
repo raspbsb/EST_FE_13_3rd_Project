@@ -3,27 +3,16 @@ import BookmarkSection from '../components/mypage/BookmarkSection';
 import ContactSection from '../components/mypage/ContactSection';
 
 import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
 
-export default function Profile({ mode }) {
+export default function Profile() {
   return (
-    <Box
-      component="main"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 9,
-        pt: 9,
-      }}
-    >
-      <MyProjectsSection mode={mode} />
+    <>
+      <MyProjectsSection mode="mypage" />
 
-      {mode === 'mypage' && (
-        <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }} disableGutters>
-          <BookmarkSection />
-          <ContactSection />
-        </Container>
-      )}
-    </Box>
+      <Container sx={{ display: 'flex', gap: 3, justifyContent: 'center' }} disableGutters>
+        <BookmarkSection />
+        <ContactSection />
+      </Container>
+    </>
   );
 }

@@ -14,12 +14,7 @@ import { EditIcon } from "../../lib/icons";
 export default function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide }) {
   return (
     <Box>
-      <Box
-        className="portfolio-editor-draft-guide"
-        component="section"
-        aria-labelledby="draft-guide-title"
-        sx={sectionCardSx}
-      >
+      <Box component="section" aria-labelledby="draft-guide-title" sx={sectionCardSx}>
         <Stack
           direction={{ xs: "column", tablet: "row" }}
           spacing={2}
@@ -44,7 +39,6 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx, draftGui
 
         <Stack direction={{ xs: "column", tablet: "row" }} spacing={3} sx={{ mb: 3 }}>
           <Paper
-            className="portfolio-editor-draft-guide__card portfolio-editor-draft-guide__card--current"
             component="article"
             variant="outlined"
             sx={{
@@ -72,7 +66,6 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx, draftGui
           </Paper>
 
           <Paper
-            className="portfolio-editor-draft-guide__card portfolio-editor-draft-guide__card--ai"
             component="article"
             variant="outlined"
             sx={{

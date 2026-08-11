@@ -72,7 +72,6 @@ const techStackSelectCandidateOptions = [
   { value: "fastapi", label: "FastAPI" },
   { value: "figma", label: "Figma" },
   { value: "firebase", label: "Firebase" },
-  { value: "github", label: " Github" },
   { value: "go", label: "Go" },
   { value: "graphql", label: "GraphQL" },
   { value: "html", label: "HTML" },

@@ -1,22 +1,16 @@
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import ContactCard from './ContactCard';
 import ContactDialog from './ContactDialog';
 import MessageDialog from './MessageDialog';
 
+import Container from '@mui/material/Container';
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { useState } from 'react';
 
 export default function ContactSection() {
-  const navigate = useNavigate;
-
-  // dialog 상태 관리
-  const [openContact, setOpenContact] = useState(false); //view all 클릭 시 띄우는 dialog
-  const [openMessage, setOpenMessage] = useState(false); // 메세지 dialog
-  const [selectedMessage, setSelectedMessage] = useState(null);
-
   //임시데이터
   const notifications = [
     {
@@ -39,8 +33,13 @@ export default function ContactSection() {
     },
   ];
 
-  // 메세지 클릭 (item 저장 -> dialog 오픈)
-  const handleMessageClick = item => {
+  // dialog 열기
+  const [openContact, setOpenContact] = useState(false);
+  const [openMessage, setOpenMessage] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // 메세지 클릭
+  const handleMessage = item => {
     setSelectedMessage(item);
     setOpenMessage(true);
   };
@@ -57,7 +56,7 @@ export default function ContactSection() {
       </Box>
       <List>
         {notifications.map(item => (
-          <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
+          <ContactCard key={item.id} item={item} onClick={() => handleMessage(item)} />
         ))}
       </List>
       <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />

@@ -1,11 +1,8 @@
-import { useState } from 'react';
-
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import { styled } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 
-import { AccountCircleIcon, AddAPhotoIcon, CloseIcon } from '../../lib/icons';
+import { AccountCircleIcon, AddAPhotoIcon } from '../../lib/icons';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -19,26 +16,11 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-export default function ProfileAvatar({ avatarPath, editable = false, onChange }) {
-  const [image, setImage] = useState(avatarPath || null);
-  const [isHover, setIsHover] = useState(false);
-
-  // 파일 선택 함수
-  const handleChange = e => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    const imageUrl = URL.createObjectURL(file);
-
-    setImage(imageUrl);
-    onChange?.(file);
-  };
-
-  const handleDelete = () => {
-    setImage(null);
-    onChange?.(null);
-  };
+{
+  /* 프로필 이미지 업로드 */
+}
+export default function ProfileAvatar() {
+  const image = null;
 
   return (
     <Box
@@ -47,15 +29,12 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
         height: '192px',
         position: 'relative',
       }}
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
     >
-      {/* 프로필 이미지 */}
       {image ? (
         <Box
-          component="img"
-          src={image}
-          alt="프로필 이미지"
+          component='img'
+          src={''}
+          alt='프로필 이미지'
           sx={{
             width: '191px',
             height: '192px',
@@ -75,52 +54,23 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
         />
       )}
 
-      {/* 이미지가 있고, hover 했을 때 삭제 버튼 */}
-      {editable && image && isHover && (
-        <Button
-          onClick={handleDelete}
-          startIcon={<CloseIcon />}
-          sx={{
-            position: 'absolute',
-            top: '80px',
-            left: '30px',
-            minWidth: 'auto',
-            px: 1,
-            py: 0.5,
-            bgcolor: 'secondary.main',
-            color: 'text.primary',
-            fontSize: '14px',
-            borderRadius: '8px',
-            boxShadow: 1,
-            '&:hover': {
-              bgcolor: '#ccc',
-            },
-          }}
-        >
-          Delete Image
-        </Button>
-      )}
-
-      {/* 이미지 첨부 버튼 */}
-      {editable && (
-        <IconButton
-          component="label"
-          aria-label="add Profile image"
-          sx={{
-            width: 45,
-            height: 45,
-            background: '#fff',
-            border: '1px solid #aaa',
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-          }}
-        >
-          <VisuallyHiddenInput type="file" accept="image/*" onChange={handleChange} />
-
-          <AddAPhotoIcon />
-        </IconButton>
-      )}
+      {/* <img src='' alt='' /> */}
+      <IconButton
+        component='label'
+        aria-label='add Profile image'
+        sx={{
+          width: 45,
+          height: 45,
+          background: '#fff',
+          border: '1px solid #aaa', //색상 나중에 수정
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+        }}
+      >
+        <VisuallyHiddenInput type='file' onChange={event => console.log(event.target.files)} multiple />
+        <AddAPhotoIcon />
+      </IconButton>
     </Box>
   );
 }

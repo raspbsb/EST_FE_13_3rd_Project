@@ -27,7 +27,6 @@ export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResul
 
   return (
     <Box
-      className="portfolio-editor-ai-section"
       component="section"
       sx={{
         ...sectionCardSx,
@@ -88,7 +87,6 @@ export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResul
       </Box>
 
       <Accordion
-        className="portfolio-editor-analysis-evidence"
         defaultExpanded
         elevation={0}
         sx={{
@@ -111,7 +109,7 @@ export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResul
             },
           }}
         >
-          <Text className="portfolio-editor-analysis-evidence__title" component="h3" variant="h6" fontWeight={700}>
+          <Text component="h3" variant="h6" fontWeight={700}>
             분석 근거
           </Text>
         </AccordionSummary>
@@ -128,7 +126,6 @@ export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResul
           </Stack>
 
           <Paper
-            className="portfolio-editor-analysis-evidence__prompt"
             variant="outlined"
             sx={{
               p: 2,

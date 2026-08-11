@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -12,13 +11,7 @@ export default function AuthorInfoPortfolios({}) {
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { mobile: "column", tablet: "row", desktop: "row" },
-          justifyContent: "space-between",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Text component={"h3"} variant="h5">
           {author?.user_name ?? "-"}의 다른 프로젝트
         </Text>

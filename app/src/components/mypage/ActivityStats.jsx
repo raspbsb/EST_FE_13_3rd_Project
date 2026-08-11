@@ -5,7 +5,7 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import Text from '@mui/material/Typography';
 
-export default function ActivityStats({ mode, profile }) {
+export default function ActivityStats() {
   const stats = [
     {
       title: '프로젝트',
@@ -25,33 +25,25 @@ export default function ActivityStats({ mode, profile }) {
     },
   ];
   return (
-    <Box sx={{ pt: 6 }}>
-      <Grid
-        container
-        spacing={3}
-        sx={{ justifyContent: 'space-around', bgcolor: 'text.primary', borderRadius: 3, py: 3 }}
-      >
-        {stats.map(item => (
-          <Grid
-            key={item.idx}
-            sx={{
-              color: 'background.default',
-            }}
-          >
-            <Text component="h3" variant="h6">
-              {item.title}
-            </Text>
-            <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
-              <Text component="span" variant="h4">
-                {item.count}
-              </Text>
-              <Text component="span" variant="h5">
-                개
-              </Text>
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+    <Grid
+      container
+      spacing={3}
+      sx={{ justifyContent: 'space-around', bgcolor: 'text.primary', borderRadius: 3, py: 3 }}
+    >
+      {stats.map(item => (
+        <Grid
+          key={item.idx}
+          sx={{
+            color: 'background.default',
+          }}
+        >
+          <Text variant='h6'>{item.title}</Text>
+          <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
+            <Text variant='h4'>{item.count}</Text>
+            <Text variant='h5'>개</Text>
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
   );
 }

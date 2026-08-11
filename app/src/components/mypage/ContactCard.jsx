@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+
 import { FavoriteIcon, EmailIcon } from '../../lib/icons';
 
 import List from '@mui/material/List';
@@ -8,16 +9,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Text from '@mui/material/Typography';
 
-export default function ContactCard({ item, onMessageClick }) {
+export default function ContactCard({ item, onClick }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
     if (item.type === 'like') {
       navigate(`/portfolios/${item.projectId}`);
-      return;
+    } else {
+      onClick(item);
     }
-
-    onMessageClick(item);
   };
 
   return (
@@ -33,7 +33,7 @@ export default function ContactCard({ item, onMessageClick }) {
           }}
         >
           <ListItemIcon>
-            {item.type === 'like' ? <FavoriteIcon color="primary" /> : <EmailIcon sx={{ color: 'text.primary' }} />}
+            {item.type === 'like' ? <FavoriteIcon color="primary" /> : <EmailIcon color="primary" />}
           </ListItemIcon>
           <ListItemText
             primary={

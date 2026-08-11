@@ -8,8 +8,15 @@ const theme = createTheme({
     values: {
       mobile: 0,
       tablet: 768,
-      desktopContainer: 1272,
       desktop: 1440,
+      desktopContainer: 1272,
+
+      // 깨짐 방지용 (사용을 권장하지 않음)
+      xs: 0,
+      sm: 768,
+      md: 768,
+      lg: 1272,
+      xl: 1440,
     },
   },
   colorSchemes: {
@@ -27,17 +34,6 @@ const theme = createTheme({
         },
         text: {
           primary: "#212121",
-        },
-      },
-    },
-  },
-  components: {
-    MuiContainer: {
-      defaultProps: {
-        maxWidth: "desktopContainer",
-        sx: {
-          minHeight: (window.innerHeight * 4) / 5,
-          py: { mobile: 3, tablet: 4, desktop: 6 },
         },
       },
     },
