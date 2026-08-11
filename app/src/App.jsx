@@ -9,7 +9,7 @@ import Gallery from "./pages/Gallery";
 import Portfolio from "./pages/Portfolio";
 import PortfolioEditor from "./pages/PortfolioEditor";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
+import Login from "./pages/Login/Login.jsx";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import MyProjects from "./pages/MyProjects";
