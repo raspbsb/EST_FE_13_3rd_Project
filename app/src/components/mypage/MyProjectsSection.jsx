@@ -3,6 +3,7 @@ import { useOutletContext, useParams } from 'react-router-dom';
 import { supabase } from '../../utils/supabase';
 
 import ProjectCard from '../ProjectCard';
+import styles from './MyProjectsSection.module.css';
 
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
@@ -37,6 +38,13 @@ export default function MyProjectsSection({ mode }) {
               display_order,
               is_thumbnail,
               alt_text
+            ),
+            portfolio_tech_stacks (
+              tech_stack
+            ),
+            profiles (
+              user_name,
+              avatar_path
             )
           `,
         )
@@ -57,7 +65,12 @@ export default function MyProjectsSection({ mode }) {
   }, [userId]);
 
   return (
-    <Box component="section">
+    <Box
+      component="section"
+      sx={{
+        pt: 9,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         {mode === 'mypage' ? (
           <>
@@ -74,24 +87,11 @@ export default function MyProjectsSection({ mode }) {
           </Text>
         )}
       </Box>
-      <List>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(3, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            },
-            gap: 3,
-            mt: 1,
-          }}
-        >
-          {projects.map(project => (
-            <ProjectCard key={project.project_id} project={project} />
-          ))}
-        </Box>
-      </List>
+      <div className={styles.grid}>
+        {projects.map(project => (
+          <ProjectCard key={project.project_id} project={project} />
+        ))}
+      </div>
     </Box>
   );
 }

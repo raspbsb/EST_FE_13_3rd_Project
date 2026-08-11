@@ -23,10 +23,10 @@ export default function ContactSection() {
       id: 1,
       type: 'message',
       sender: 'employer',
-      job: 'Job position',
+      job: '프론트엔드 개발자',
       createdAt: '1d ago',
-      message: '회원님에게 메세지를 보냈습니다.',
-      roomId: 'room1',
+      content: '안녕하세요.',
+      isRead: false,
     },
     {
       id: 2,
