@@ -40,6 +40,10 @@ export default function MyProjectsSection({ mode }) {
             ),
             portfolio_tech_stacks (
               tech_stack
+            ),
+            profiles (
+              user_name,
+              avatar_path
             )
           `,
         )

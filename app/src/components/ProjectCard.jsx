@@ -13,8 +13,21 @@ export default function ProjectCard({ project }) {
 
   const thumbnail = project.portfolio_images?.find(image => image.is_thumbnail);
 
+  // 프로젝트 카드 클릭-> 포트폴리오 상세 페이지로 이동
   const handleClick = () => {
     navigate(`/portfolios/${project.project_id}`);
+  };
+  // 날짜 출력
+  const formatDate = date => {
+    if (!date) return '';
+
+    const dateObj = new Date(date);
+
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+
+    return `${year}.${month}.${day}`;
   };
 
   return (
@@ -38,9 +51,6 @@ export default function ProjectCard({ project }) {
             {project.portfolio_tech_stacks?.map(({ tech_stack }) => (
               <TagChip key={tech_stack} label={tech_stack} />
             ))}
-
-            {/* <TagChip label="React" />
-            <TagChip label="D3.js" /> */}
           </div>
 
           <span className="project-card-project-level">{/* 프로젝트 난이도 */}중</span>
@@ -53,7 +63,7 @@ export default function ProjectCard({ project }) {
           </Text>
 
           <Text component="time" variant="overline" className="project-card-date">
-            {project.ended_at || project.started_at}
+            {formatDate(project.created_at)}
           </Text>
         </div>
 
@@ -68,13 +78,12 @@ export default function ProjectCard({ project }) {
         <div className="project-card-footer">
           <div className="project-card-author">
             <AccountCircleIcon />
-            <span>author</span>
+            <span>{project.profiles?.user_name || 'Unknown'}</span>
           </div>
 
           <div className="project-card-stats">
             <span className="project-card-like">
-              <FavoriteBorderIcon />
-              120
+              <FavoriteBorderIcon />0
             </span>
 
             <span className="project-card-view">
