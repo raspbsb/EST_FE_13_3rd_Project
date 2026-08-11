@@ -135,9 +135,9 @@ export default function ProjectMetaSection({
             </FieldLabel>
 
             <Text
+              className="portfolio-editor-meta-limit-text"
               component="span"
               sx={{
-                color: "#757575",
                 fontSize: 10,
                 fontWeight: 500,
                 letterSpacing: "1.5px",
@@ -191,9 +191,9 @@ export default function ProjectMetaSection({
             </FieldLabel>
 
             <Text
+              className="portfolio-editor-meta-limit-text"
               component="span"
               sx={{
-                color: "#757575",
                 fontSize: 10,
                 fontWeight: 500,
                 letterSpacing: "1.5px",

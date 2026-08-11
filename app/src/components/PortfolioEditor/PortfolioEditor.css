@@ -182,7 +182,7 @@ body {
 }
 
 .portfolio-editor-page .MuiButton-root {
-  min-height: 42px;
+  min-height: 32px;
   border-radius: 8px;
   padding: 8px 24px;
   font-size: 16px;
@@ -298,6 +298,69 @@ body {
 .portfolio-editor-page > form,
 .portfolio-editor-page form {
   color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-temporary-draft.MuiStack-root {
+  width: fit-content;
+  max-width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: clamp(16px, 4vw, 64px);
+  padding: 24px;
+  border: 1px solid #0d6efd;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.portfolio-editor-temporary-draft__text.MuiStack-root {
+  gap: 0px;
+  min-width: 0;
+}
+
+.portfolio-editor-temporary-draft__line.MuiTypography-root {
+  color: #0d6efd;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-editor-temporary-draft__actions.MuiStack-root {
+  flex-shrink: 0;
+}
+
+.portfolio-editor-temporary-draft__button.MuiButton-root {
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.portfolio-editor-temporary-draft__button--primary.MuiButton-root {
+  color: #ffffff;
+  background-color: #0d6efd;
+}
+
+.portfolio-editor-temporary-draft__button--secondary.MuiButton-root {
+  color: #212121;
+  border-color: #757575;
+  background-color: #fbfcfd;
+  opacity: 0.6;
+}
+
+@media (max-width: 599px) {
+  .portfolio-editor-temporary-draft.MuiStack-root {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .portfolio-editor-temporary-draft__actions.MuiStack-root {
+    width: 100%;
+  }
 }
 
 .portfolio-editor-title {
@@ -518,6 +581,15 @@ body {
   max-width: 100%;
   overflow: hidden;
   align-items: flex-start;
+}
+
+.portfolio-editor-page .portfolio-editor-meta-limit-text.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  line-height: 16px;
+  white-space: nowrap;
 }
 
 .portfolio-editor-draft-guide.MuiBox-root {
