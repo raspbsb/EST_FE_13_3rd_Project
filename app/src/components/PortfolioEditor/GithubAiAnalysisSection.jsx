@@ -55,6 +55,8 @@ export default function GithubAiAnalysisSection({ sectionCardSx }) {
       component="section"
       sx={{
         ...sectionCardSx,
+        border: "1px dashed",
+        borderColor: "primary.main",
         borderStyle: "dashed",
       }}
     >

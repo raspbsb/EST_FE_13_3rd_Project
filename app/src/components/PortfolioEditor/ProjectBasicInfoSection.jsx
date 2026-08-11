@@ -12,7 +12,13 @@ import Text from "@mui/material/Typography";
 import { CalendarIcon, ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
 
-export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, projectDescription }) {
+export default function ProjectBasicInfoSection({
+  sectionCardSx,
+  fieldLabelSx,
+  formInputSx,
+  formData,
+  handleFormChange,
+}) {
   return (
     <Box component="section" sx={sectionCardSx}>
       {/* 섹션 타이틀 */}
@@ -29,7 +35,14 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
             프로젝트명
           </FieldLabel>
 
-          <OutlinedInput id="title" name="title" size="small" defaultValue="Portfolio+" sx={formInputSx} />
+          <OutlinedInput
+            id="title"
+            name="title"
+            size="small"
+            value={formData.title}
+            onChange={handleFormChange}
+            sx={formInputSx}
+          />
         </FormControl>
 
         {/* 기간/배포 그룹 */}
@@ -60,7 +73,9 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
                 name="started_at"
                 inputProps={{ "aria-label": "프로젝트 시작일" }}
                 size="small"
-                defaultValue="2026/07/15"
+                type="date"
+                value={formData.started_at}
+                onChange={handleFormChange}
                 endAdornment={
                   <InputAdornment position="end">
                     <CalendarIcon />
@@ -76,7 +91,9 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
                 name="ended_at"
                 inputProps={{ "aria-label": "프로젝트 종료일" }}
                 size="small"
-                defaultValue="2026/08/21"
+                type="date"
+                value={formData.ended_at}
+                onChange={handleFormChange}
                 endAdornment={
                   <InputAdornment position="end">
                     <CalendarIcon />
@@ -94,7 +111,8 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
               id="deploy_url"
               name="deploy_url"
               size="small"
-              defaultValue="https://react-mission-eight.vercel.app/"
+              value={formData.deploy_url}
+              onChange={handleFormChange}
               sx={formInputSx}
             />
           </FormControl>
@@ -111,7 +129,8 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
               id="author_role"
               name="author_role"
               size="small"
-              defaultValue="서비스 기획 · 스토리보드 · 디자인 · 프론트엔드 개발"
+              value={formData.author_role}
+              onChange={handleFormChange}
               sx={formInputSx}
             />
           </FormControl>
@@ -124,7 +143,8 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
               id="repository_url"
               name="repository_url"
               size="small"
-              defaultValue="https://github.com/alikerock/estfe13-react-bbs-server/blob/main/index.js"
+              value={formData.repository_url}
+              onChange={handleFormChange}
               sx={formInputSx}
             />
           </FormControl>
@@ -135,12 +155,14 @@ export default function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, f
           </FieldLabel>
 
           <OutlinedInput
+            className="portfolio-editor-description-input"
             id="description"
             name="description"
             size="small"
             multiline
             minRows={5}
-            defaultValue={projectDescription}
+            value={formData.description}
+            onChange={handleFormChange}
             sx={formInputSx}
           />
         </FormControl>

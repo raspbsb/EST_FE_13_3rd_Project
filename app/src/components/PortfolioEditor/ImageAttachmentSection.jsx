@@ -19,7 +19,7 @@ const portfolioPreviewImageUrls = [
   "https://www.figma.com/api/mcp/asset/f87e37eb-22aa-4570-a56a-dcc1a0129bdc.png",
 ];
 
-export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx }) {
+export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handleFormChange }) {
   const [primaryPreviewImageUrl, ...secondaryPreviewImageUrls] = portfolioPreviewImageUrls;
 
   return (

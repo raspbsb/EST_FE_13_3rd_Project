@@ -102,6 +102,14 @@
   line-height: 24px;
 }
 
+.portfolio-editor-page .portfolio-editor-description-input.MuiOutlinedInput-root {
+  padding: 12px 17px;
+}
+
+.portfolio-editor-page .portfolio-editor-description-input textarea.MuiOutlinedInput-input {
+  padding: 0;
+}
+
 .portfolio-editor-page .MuiSvgIcon-root {
   color: var(--portfolio-icon);
 }
@@ -334,8 +342,10 @@
   line-height: 16px;
 }
 
-.portfolio-editor-ai-section.MuiBox-root {
+.portfolio-editor-page .portfolio-editor-ai-section.MuiBox-root {
+  border: 1px dashed var(--portfolio-primary);
   border-color: var(--portfolio-primary);
+  border-radius: 12px;
   background: linear-gradient(117deg, var(--portfolio-surface-blue) 0%, #ffffff 100%);
 }
 
@@ -345,7 +355,7 @@
   color: var(--portfolio-primary);
 }
 
-.portfolio-editor-ai-section__title.MuiTypography-root {
+.portfolio-editor-page h2.MuiTypography-root.portfolio-editor-ai-section__title {
   color: var(--portfolio-primary);
   font-size: 24px;
   font-weight: 700;
@@ -387,9 +397,9 @@
   line-height: 26px;
 }
 
-.portfolio-editor-analysis-card.MuiStack-root {
+.portfolio-editor-page .portfolio-editor-analysis-card.MuiStack-root {
   min-height: 136px;
-  border-color: var(--portfolio-border-soft);
+  border: 1px solid var(--portfolio-border-soft);
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.6);
   padding: 17px;
@@ -472,26 +482,8 @@
   line-height: 18px;
 }
 
-.portfolio-editor-category-chip.MuiChip-root {
-  min-height: 32px;
-  border-radius: 4px;
-  border-color: rgba(255, 255, 255, 0.8);
-  background-color: var(--portfolio-primary);
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-}
-
-.portfolio-editor-tech-chip.MuiChip-root {
-  min-height: 32px;
-  border-radius: 4px;
-  border-color: var(--portfolio-border);
-  background-color: var(--portfolio-chip-muted);
-  color: var(--portfolio-text-primary);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
+.portfolio-editor-meta-chip-list.MuiStack-root {
+  gap: 4px;
 }
 
 .portfolio-editor-draft-guide.MuiBox-root {
@@ -538,16 +530,21 @@
 .portfolio-editor-draft-guide__summary-input.MuiOutlinedInput-root {
   border: 1px dashed var(--portfolio-primary);
   background-color: var(--portfolio-surface);
+  padding: 12px 17px;
+}
+
+.portfolio-editor-draft-guide__summary-input textarea.MuiOutlinedInput-input {
+  padding: 0;
 }
 
 .portfolio-editor-action-bar.MuiBox-root {
-  width: 100vw;
-  margin-right: calc(50% - 50vw);
-  margin-left: calc(50% - 50vw);
+  width: 100%;
   box-sizing: border-box;
   z-index: 1300;
   border-top: 1px solid #ececec;
   background-color: var(--portfolio-surface);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04), 0 0 0 100vmax var(--portfolio-surface);
+  clip-path: inset(0 -100vmax);
 }
 
 .portfolio-editor-image-action-button.MuiIconButton-root {

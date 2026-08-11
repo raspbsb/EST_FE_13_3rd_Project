@@ -93,6 +93,7 @@ export default function PortfolioEditor({ data }) {
   // 공개/비공개 토글 스위치 핸들링 함수
   const handlePortfolioVisibilityChange = e => {
     setIsPortfolioPublic(e.target.checked);
+    handleFormChange(e);
   };
 
   // 폼 전송 함수
@@ -103,20 +104,31 @@ export default function PortfolioEditor({ data }) {
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
-    title: "",
+    title: "Portfolio+",
     summary: "",
-    description: "",
-    started_at: "",
-    ended_at: "",
-    deploy_url: "",
-    repository_url: "",
-    project_type: "",
-    team_size: "",
-    author_role: "",
-    environment: "",
+    description:
+      "창작자와 개발자가 자신의 프로젝트를 등록하고, 방문자와 채용 담당자가 분야와 기술 스택을 기준으로 작품을 탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다. GitHub 저장소 분석을 통해 프로젝트의 주요 기능과 기술적 특징, 참여 내역을 정리하여 제작자의 설명을 보완합니다.",
+    started_at: "2026-07-15",
+    ended_at: "2026-08-21",
+    deploy_url: "https://react-mission-eight.vercel.app/",
+    repository_url: "https://github.com/alikerock/estfe13-react-bbs-server/blob/main/index.js",
+    project_type: "team",
+    team_size: "small-team",
+    author_role: "서비스 기획 · 스토리보드 · 디자인 · 프론트엔드 개발",
+    environment: "course",
     is_public: false,
-    categories: [],
-    tech_stacks: [],
+    categories: [
+      { value: "web", label: "Web" },
+      { value: "frontend", label: "Frontend" },
+    ],
+    tech_stacks: [
+      { value: "sass", label: "Sass" },
+      { value: "javascript", label: "javaScript" },
+      { value: "react", label: "React" },
+      { value: "typescript", label: "TypeScript" },
+      { value: "next-js", label: "Next.js" },
+      { value: "supabase", label: "Supabase" },
+    ],
     images: [],
   });
 
@@ -262,8 +274,8 @@ export default function PortfolioEditor({ data }) {
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  projectDescription={formData.description}
-                  onChange={handleFormChange}
+                  formData={formData}
+                  handleFormChange={handleFormChange}
                 />
                 <GithubAiAnalysisSection sectionCardSx={sectionCardSx} />
               </Stack>
@@ -272,21 +284,32 @@ export default function PortfolioEditor({ data }) {
                 <ImageAttachmentSection
                   sectionCardSx={sectionCardSx}
                   thumbnailActionButtonSx={thumbnailActionButtonSx}
+                  handleFormChange={handleFormChange}
                 />
                 <ProjectMetaSection
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  onChange={handleFormChange}
+                  formData={formData}
+                  handleFormChange={handleFormChange}
+                  handleAddCategory={handleAddCategory}
+                  handleDeleteCategory={handleDeleteCategory}
+                  handleAddTechStack={handleAddTechStack}
+                  handleDeleteTechStack={handleDeleteTechStack}
                 />
               </Stack>
             </Box>
 
-            <DraftGuideSection sectionCardSx={sectionCardSx} formInputSx={formInputSx} />
+            <DraftGuideSection
+              sectionCardSx={sectionCardSx}
+              formInputSx={formInputSx}
+              handleFormChange={handleFormChange}
+            />
             <EditorActionBar
               isEdit={isEdit}
-              isPortfolioPublic={isPortfolioPublic}
+              isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
+              handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>

@@ -11,7 +11,7 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { EditIcon } from "../../lib/icons";
 
-export default function DraftGuideSection({ sectionCardSx, formInputSx }) {
+export default function DraftGuideSection({ sectionCardSx, formInputSx, handleFormChange }) {
   return (
     <Box>
       <Box

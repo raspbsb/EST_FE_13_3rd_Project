@@ -10,7 +10,7 @@ import Switch from "@mui/material/Switch";
 import Text from "@mui/material/Typography";
 import { LockIcon, PublicIcon, VisibilityIcon } from "../../lib/icons";
 
-export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange }) {
+export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, handleFormChange }) {
   return (
     <Box
       className="portfolio-editor-action-bar"
@@ -21,7 +21,6 @@ export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilit
         bottom: 0,
         zIndex: theme => theme.zIndex.appBar,
         bgcolor: "background.paper",
-        boxShadow: "0 -4px 10px rgba(0, 0, 0, 0.04)",
       }}
     >
       <Stack
