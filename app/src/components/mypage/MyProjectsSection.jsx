@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { supabase } from '../../utils/supabase';
 
+import ProjectCard from '../ProjectCard';
+
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
@@ -54,7 +56,7 @@ export default function MyProjectsSection({ mode }) {
   }, [userId]);
 
   return (
-    <Box component="section" sx={{}}>
+    <Box component="section" sx={{ pt: 9 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         {mode === 'mypage' ? (
           <>
@@ -72,14 +74,22 @@ export default function MyProjectsSection({ mode }) {
         )}
       </Box>
       <List>
-        {projects.map(project => {
-          return (
-            <Box key={project.project_id}>
-              <Text>{project.title}</Text>
-              <Text>{project.summary}</Text>
-            </Box>
-          );
-        })}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(3, 1fr)',
+              lg: 'repeat(3, 1fr)',
+            },
+            gap: 3,
+            mt: 1,
+          }}
+        >
+          {projects.map(project => (
+            <ProjectCard key={project.project_id} project={project} />
+          ))}
+        </Box>
       </List>
     </Box>
   );

@@ -54,6 +54,7 @@ export default function PublicProfileLayout() {
         sx={{
           maxWidth: '1272px',
           mx: 'auto',
+          py: 6,
         }}
       >
         <ProfileHeader mode="public" profile={profile} />
