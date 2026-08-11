@@ -5,7 +5,7 @@ dt.hero-specs-item {
 dd.hero-specs-item div {
   display: flex;
   align-items: center;
-  gap: 1;
+  gap: 8px;
   padding: 4px 16px;
   min-width: 0px;
   max-width: 100%;
