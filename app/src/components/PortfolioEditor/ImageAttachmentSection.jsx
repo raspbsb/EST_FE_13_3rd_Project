@@ -23,18 +23,19 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
   const [primaryPreviewImageUrl, ...secondaryPreviewImageUrls] = portfolioPreviewImageUrls;
 
   return (
-    <Paper elevation={0} sx={sectionCardSx}>
+    <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
       <Stack direction="row" sx={{ mb: 3, width: "100%", justifyContent: "space-between", alignItems: "center" }}>
         <Text component="h2" variant="h5" fontWeight={700}>
           이미지 첨부
         </Text>
 
-        <Text color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__limit" color="text.secondary" fontSize={12}>
           최대 5
         </Text>
       </Stack>
 
       <ButtonBase
+        className="portfolio-editor-image-section__dropzone"
         sx={{
           width: "100%",
           minHeight: 194,
@@ -50,9 +51,11 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
         <Stack spacing={1} sx={{ alignItems: "center", justifyContent: "center" }}>
           <CloudUploadIcon sx={{ fontSize: 40, color: "#212121" }} />
 
-          <Text fontWeight={700}>파일을 끌어서 놓거나 클릭하여 업로드</Text>
+          <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
+            파일을 끌어서 놓거나 클릭하여 업로드
+          </Text>
 
-          <Text color="text.secondary" fontSize={12}>
+          <Text className="portfolio-editor-image-section__dropzone-help" color="text.secondary" fontSize={12}>
             PNG, JPG, WebP (최대 10MB)
           </Text>
 
@@ -88,6 +91,7 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
             }}
           />
           <Chip
+            className="portfolio-editor-image-section__thumbnail-badge"
             label="대표 이미지"
             color="primary"
             size="small"
@@ -161,11 +165,11 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
       </Stack>
 
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <Text color="primary" fontWeight={700} fontSize={12}>
+        <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
           {portfolioPreviewImageUrls.length}/5장 업로드됨
         </Text>
 
-        <Text color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>
           980KB
         </Text>
       </Stack>

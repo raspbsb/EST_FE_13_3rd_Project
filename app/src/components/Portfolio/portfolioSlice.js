@@ -14,32 +14,34 @@ export const fetchPortfolio = createAsyncThunk("portfolioData", async (portfolio
 });
 
 const portfolioSlice = createSlice({
-  name: "counter",
+  name: "portfolio",
   initialState: {
     data: null,
-    status: "idle", // idle | loading | succeeded | failed
+    status: "idle", // idle | loading | succeeded | failed | notFound
+    error: null,
   },
   reducers: {
-    setLoading: state => {
-      // "loading" - 스켈레톤 출력하기
-      state.data = null;
-      state.status = "loading";
-    },
-    setPortfolio: (state, action) => {
-      state.data = action.payload;
-
-      if (state.data.error) {
-        // "failed" - 안내 문구 출력하기
-        state.status = "failed";
-      } else {
-        // "succeeded" - 포트폴리오 출력하기
-        state.status = "succeeded";
-      }
-    },
     resetPortfolio: state => {
       state.data = null;
       state.status = "idle";
+      state.error = null;
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(fetchPortfolio.pending, (state, action) => {
+      state.status = "loading";
+    });
+    builder.addCase(fetchPortfolio.fulfilled, (state, action) => {
+      state.data = action.payload.data;
+      state.status = action.payload ? "succeeded" : "notFound";
+      state.data?.portfolio_images.sort((a, b) => a.display_order - b.display_order);
+      console.log(state.data);
+    });
+    builder.addCase(fetchPortfolio.rejected, (state, action) => {
+      state.data = action.payload.data;
+      state.status = "failed";
+      state.error = action.payload.error;
+    });
   },
 });
 

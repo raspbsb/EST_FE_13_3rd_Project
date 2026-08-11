@@ -53,7 +53,7 @@ export default function ProfileNav() {
           <Tab label="My Projects" component={NavLink} to="/mypage/projects" />
           <Tab label="Bookmarks" component={NavLink} to="/mypage/collections" />
           {/* 컨택 클릭 시 모달 띄우기 */}
-          <Tab label="Interest & Contect" onClick={() => setOpenContact(true)} />
+          <Tab label="Interest & Contact" onClick={() => setOpenContact(true)} />
         </Tabs>
         {/* Dialog 컴포넌트*/}
         <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />

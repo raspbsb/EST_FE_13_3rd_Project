@@ -1,6 +1,6 @@
 // React Hooks
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // mui Components
 import Box from "@mui/material/Box";
@@ -15,14 +15,17 @@ import GithubAiAnalysisSection from "../components/PortfolioEditor/GithubAiAnaly
 import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmentSection";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
+import "../components/PortfolioEditor/PortfolioEditor.css";
 
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
+  // 경로에서 현재 위치 받기
+  const editRouteMatch = useMatch({ path: "/portfolios/:id/edit", end: true });
   // 페이지 이동 초기화
   const navigate = useNavigate();
   // 현재 경로가 id/edit이면 true
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: 1 }]);
@@ -38,14 +41,13 @@ export default function PortfolioEditor({ data }) {
     console.log(isPortfolioPublic);
   }, [isPortfolioPublic]);
 
-  // AI 분석 결과 데이터 객체
-
+  // 섹션 카드 스타일 (mui)
   const sectionCardSx = {
     border: "1px solid",
     borderColor: "#c2c6d8",
-    borderRadius: 2,
+    borderRadius: "12px",
     bgcolor: "background.paper",
-    p: { xs: 2, tablet: 3 },
+    p: { xs: "17px", tablet: "25px" },
   };
   // 라벨 스타일 (mui)
   const fieldLabelSx = {
@@ -54,12 +56,16 @@ export default function PortfolioEditor({ data }) {
     fontSize: 14,
     fontWeight: 500,
     letterSpacing: "0.28px",
+    lineHeight: "20px",
     display: "block",
   };
   // 인풋 스타일 (mui)
   const formInputSx = {
-    borderRadius: 2,
+    minHeight: 42,
+    borderRadius: "8px",
     bgcolor: "background.paper",
+    fontSize: 16,
+    lineHeight: "24px",
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: "#c2c6d8",
     },
@@ -68,7 +74,7 @@ export default function PortfolioEditor({ data }) {
     },
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: "primary.main",
-      borderWidth: 2,
+      borderWidth: 1,
     },
     "&.Mui-disabled": {
       bgcolor: "#f5f5f5",
@@ -92,7 +98,7 @@ export default function PortfolioEditor({ data }) {
     height: 32,
     p: 0.75,
     border: "0.2px solid rgba(68, 68, 68, 0.5)",
-    borderRadius: 1.5,
+    borderRadius: "8px",
     bgcolor: "rgba(255, 255, 255, 0.8)",
     color: "#444",
     "&:hover": {
@@ -255,6 +261,7 @@ export default function PortfolioEditor({ data }) {
   return (
     <>
       <Container
+        className="portfolio-editor-page"
         component="main"
         maxWidth={false}
         disableGutters

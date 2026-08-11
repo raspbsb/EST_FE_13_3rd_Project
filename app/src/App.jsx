@@ -1,7 +1,8 @@
-import { Link, Route, Routes } from 'react-router-dom';
-import { useState } from 'react';
-import MainLayout from './layouts/MainLayout';
-import MyPageLayout from './layouts/MyPageLayout';
+import { Link, Route, Routes } from "react-router-dom";
+import { useState } from "react";
+import MainLayout from "./layouts/MainLayout";
+import MyPageLayout from "./layouts/MyPageLayout";
+import PublicProfileLayout from "./layouts/PublicProfileLayout";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -20,7 +21,7 @@ export default function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path='/' element={<Home />} />
+        <Route path="/" element={<Home />} />
 
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/portfolios/new" element={<PortfolioEditor />} />
@@ -37,10 +38,10 @@ export default function App() {
           <Route index element={<MyProjectsSection mode="public" />} />
         </Route>
 
-        <Route path='/login' element={<Login />} />
-        <Route path='/signup' element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-        <Route path='*' element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
