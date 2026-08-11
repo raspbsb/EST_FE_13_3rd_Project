@@ -47,28 +47,19 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx }) {
             variant="outlined"
             sx={{
               flex: 1,
-              p: 2,
               minHeight: 270,
               display: "flex",
               flexDirection: "column",
-              bgcolor: "#f5f7ff",
-              borderColor: "rgba(0, 87, 205, 0.2)",
-              borderRadius: 1,
             }}
           >
-            <Text
-              className="portfolio-editor-draft-guide__card-title"
-              component="h3"
-              variant="h6"
-              sx={{ mb: 1, color: "#0d6efd", fontSize: 16, fontWeight: 700, lineHeight: "24px" }}
-            >
+            <Text className="portfolio-editor-draft-guide__card-title" component="h3" variant="h6">
               현재 내용
             </Text>
 
             <Text
               className="portfolio-editor-draft-guide__card-body"
               component="p"
-              sx={{ flex: 1, color: "#212121", fontSize: 14, fontWeight: 400, lineHeight: "22px", whiteSpace: "pre-line" }}
+              sx={{ flex: 1, whiteSpace: "pre-line" }}
             >
               창작자와 개발자가 자신의 프로젝트를 등록하고, 방문자와 채용 담당자가 분야와 기술 스택을 기준으로 작품을
               탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다. GitHub 저장소 분석을 통해 프로젝트의 주요 기능과
@@ -86,29 +77,16 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx }) {
             variant="outlined"
             sx={{
               flex: 1,
-              p: 2,
               minHeight: 270,
               display: "flex",
               flexDirection: "column",
-              bgcolor: "background.paper",
-              borderColor: "rgba(0, 87, 205, 0.2)",
-              borderRadius: 1,
             }}
           >
-            <Text
-              className="portfolio-editor-draft-guide__card-title"
-              component="h3"
-              variant="h6"
-              sx={{ mb: 1, color: "#0d6efd", fontSize: 16, fontWeight: 700, lineHeight: "24px" }}
-            >
+            <Text className="portfolio-editor-draft-guide__card-title" component="h3" variant="h6">
               AI 추천 초안 (미리보기)
             </Text>
 
-            <Text
-              className="portfolio-editor-draft-guide__card-body"
-              component="p"
-              sx={{ flex: 1, color: "#212121", fontSize: 14, fontWeight: 400, lineHeight: "22px" }}
-            >
+            <Text className="portfolio-editor-draft-guide__card-body" component="p" sx={{ flex: 1 }}>
               Portfolio+는 창작자와 개발자가 자신의 프로젝트를 전시하고, 방문자와 채용 담당자가 분야와 기술 스택을
               기준으로 작품을 탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다. GitHub 저장소에서 확인 가능한
               프로젝트 구조와 참여 내역을 분석해 주요 기능과 기술적 특징을 정리하고, 제작자의 주관적인 소개를 보완하는
@@ -134,15 +112,13 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx }) {
           </Text>
 
           <OutlinedInput
+            className="portfolio-editor-draft-guide__summary-input"
             fullWidth
             multiline
             minRows={4}
             defaultValue="GitHub 분석을 통해 프로젝트 정보를 보완하고 작품 탐색부터 채용·협업 문의까지 연결하는 포트폴리오 갤러리"
             sx={{
               ...formInputSx,
-              border: "1px dashed",
-              borderColor: "primary.main",
-              bgcolor: "background.paper",
             }}
             inputProps={{
               "aria-label": "AI 추천 한 줄 요약",

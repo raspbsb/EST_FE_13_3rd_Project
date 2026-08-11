@@ -142,15 +142,6 @@ export default function ProjectMetaSection({ sectionCardSx, fieldLabelSx, formIn
                 size="small"
                 clickable
                 onDelete={() => handleDeleteCategory(category.value)}
-                sx={{
-                  border: "1px solid rgba(255, 255, 255, 0.8)",
-                  borderRadius: "4px",
-                  bgcolor: "#0d6efd",
-                  color: "#ffffff",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  lineHeight: "16px",
-                }}
               />
             ))}
           </Stack>
@@ -189,15 +180,6 @@ export default function ProjectMetaSection({ sectionCardSx, fieldLabelSx, formIn
                 size="small"
                 clickable
                 onDelete={() => handleDeleteTechStack(techStack.value)}
-                sx={{
-                  border: "1px solid #c2c6d8",
-                  borderRadius: "4px",
-                  bgcolor: "#ededed",
-                  color: "#212121",
-                  fontSize: 12,
-                  fontWeight: 400,
-                  lineHeight: "16px",
-                }}
               />
             ))}
           </Stack>

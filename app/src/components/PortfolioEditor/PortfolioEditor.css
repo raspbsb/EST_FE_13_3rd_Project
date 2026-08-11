@@ -334,6 +334,11 @@
   line-height: 16px;
 }
 
+.portfolio-editor-ai-section.MuiBox-root {
+  border-color: var(--portfolio-primary);
+  background: linear-gradient(117deg, var(--portfolio-surface-blue) 0%, #ffffff 100%);
+}
+
 .portfolio-editor-ai-section .portfolio-editor-ai-section__heading .MuiSvgIcon-root {
   width: 22px;
   height: 22px;
@@ -509,6 +514,7 @@
 }
 
 .portfolio-editor-draft-guide__card-title.MuiTypography-root {
+  margin-bottom: 8px;
   color: var(--portfolio-primary);
   font-size: 16px;
   font-weight: 700;
@@ -529,10 +535,40 @@
   line-height: 22px;
 }
 
+.portfolio-editor-draft-guide__summary-input.MuiOutlinedInput-root {
+  border: 1px dashed var(--portfolio-primary);
+  background-color: var(--portfolio-surface);
+}
+
 .portfolio-editor-action-bar.MuiBox-root {
+  width: 100vw;
+  margin-right: calc(50% - 50vw);
+  margin-left: calc(50% - 50vw);
+  box-sizing: border-box;
   z-index: 1300;
   border-top: 1px solid #ececec;
   background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-image-action-button.MuiIconButton-root {
+  width: 32px;
+  height: 32px;
+  border: 0.2px solid rgba(68, 68, 68, 0.5);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: var(--portfolio-icon);
+}
+
+.portfolio-editor-image-action-button.MuiIconButton-root:hover {
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+.portfolio-editor-image-action-button.MuiIconButton-root .MuiSvgIcon-root {
+  font-size: 18px;
+}
+
+.portfolio-editor-image-action-button--danger.MuiIconButton-root {
+  color: var(--portfolio-danger);
 }
 
 .portfolio-editor-action-bar .MuiTypography-root:first-of-type {
