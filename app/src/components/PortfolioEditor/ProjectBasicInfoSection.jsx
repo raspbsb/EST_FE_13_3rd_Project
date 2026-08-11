@@ -1,16 +1,21 @@
 /**
  * 프로젝트명, 기간, 배포 URL, 담당 역할, 저장소 URL, 프로젝트 설명 입력 섹션
- * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object, projectDescription: string }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: OutlinedInput 공통 sx, projectDescription: 프로젝트 설명 입력 기본값
+ * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object, formData: object, handleFormChange: Function }} props
  * @returns {JSX.Element} 프로젝트 기본 정보 입력 폼 섹션
  */
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
-import InputAdornment from "@mui/material/InputAdornment";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
-import { CalendarIcon, ErrorCircleIcon } from "../../lib/icons";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from "dayjs";
+import "dayjs/locale/ko";
+import { ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
+import { useEffect } from "react";
 
 export default function ProjectBasicInfoSection({
   sectionCardSx,
@@ -19,9 +24,25 @@ export default function ProjectBasicInfoSection({
   formData,
   handleFormChange,
 }) {
+  // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를
+  const handleDateChange = (name, nextDate) => {
+    console.log(name);
+    console.log(nextDate);
+    handleFormChange({
+      target: {
+        name,
+        value: nextDate ? nextDate.format("YYYY-MM-DD") : "",
+      },
+    });
+  };
+
+  // 실험용 콘솔로그 끝나면 지울것
+  // useEffect(() => {
+  //   console.log(handleDateChange);
+  // }, [handleDateChange]);
+
   return (
     <Box component="section" sx={sectionCardSx}>
-      {/* 섹션 타이틀 */}
       <Box sx={{ mb: 3 }}>
         <Text component="h2" variant="h5" fontWeight={700} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <ErrorCircleIcon fontSize="small" />
@@ -45,7 +66,6 @@ export default function ProjectBasicInfoSection({
           />
         </FormControl>
 
-        {/* 기간/배포 그룹 */}
         <Box
           sx={{
             display: "grid",
@@ -60,49 +80,60 @@ export default function ProjectBasicInfoSection({
             <FieldLabel htmlFor="started_at" sx={fieldLabelSx}>
               프로젝트 기간
             </FieldLabel>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <OutlinedInput
-                id="started_at"
-                name="started_at"
-                inputProps={{ "aria-label": "프로젝트 시작일" }}
-                size="small"
-                type="date"
-                value={formData.started_at}
-                onChange={handleFormChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <CalendarIcon />
-                  </InputAdornment>
-                }
-                sx={formInputSx}
-              />
-              <Text color="text.secondary" sx={{ textAlign: "center" }}>
-                ~
-              </Text>
-              <OutlinedInput
-                id="ended_at"
-                name="ended_at"
-                inputProps={{ "aria-label": "프로젝트 종료일" }}
-                size="small"
-                type="date"
-                value={formData.ended_at}
-                onChange={handleFormChange}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <CalendarIcon />
-                  </InputAdornment>
-                }
-                sx={formInputSx}
-              />
-            </Box>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <DatePicker
+                  value={formData.started_at ? dayjs(formData.started_at) : null}
+                  format="YYYY.MM.DD"
+                  onChange={nextDate => handleDateChange("started_at", nextDate)}
+                  slotProps={{
+                    textField: {
+                      id: "started_at",
+                      size: "small",
+                      fullWidth: true,
+                      sx: formInputSx,
+                    },
+                    htmlInput: {
+                      name: "started_at",
+                      "aria-label": "프로젝트 시작일",
+                    },
+                  }}
+                />
+
+                <Text color="text.secondary" sx={{ textAlign: "center" }}>
+                  ~
+                </Text>
+
+                <DatePicker
+                  value={formData.ended_at ? dayjs(formData.ended_at) : null}
+                  minDate={formData.started_at ? dayjs(formData.started_at) : undefined}
+                  format="YYYY.MM.DD"
+                  onChange={nextDate => handleDateChange("ended_at", nextDate)}
+                  slotProps={{
+                    textField: {
+                      id: "ended_at",
+                      size: "small",
+                      fullWidth: true,
+                      sx: formInputSx,
+                    },
+                    htmlInput: {
+                      name: "ended_at",
+                      "aria-label": "프로젝트 종료일",
+                    },
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
           </Box>
+
           <FormControl fullWidth required>
             <FieldLabel htmlFor="deploy_url" sx={fieldLabelSx}>
               배포 URL
@@ -118,7 +149,6 @@ export default function ProjectBasicInfoSection({
           </FormControl>
         </Box>
 
-        {/* 역할/레포 그룹 */}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", tablet: "1fr 1fr" }, gap: 2 }}>
           <FormControl fullWidth required>
             <FieldLabel htmlFor="author_role" sx={fieldLabelSx}>
@@ -134,6 +164,7 @@ export default function ProjectBasicInfoSection({
               sx={formInputSx}
             />
           </FormControl>
+
           <FormControl fullWidth required>
             <FieldLabel htmlFor="repository_url" sx={fieldLabelSx}>
               GitHub 저장소 URL (저장소 분석 시 필수)
@@ -149,6 +180,7 @@ export default function ProjectBasicInfoSection({
             />
           </FormControl>
         </Box>
+
         <FormControl fullWidth required>
           <FieldLabel htmlFor="description" required sx={fieldLabelSx}>
             프로젝트 설명
