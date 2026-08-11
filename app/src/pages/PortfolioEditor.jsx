@@ -28,10 +28,13 @@ export default function PortfolioEditor({ data }) {
   const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
-  const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: null }]);
-
+  const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: 1 }]);
   // 공개/비공개 토글 스위치 체크여부 상태
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
+
+  // 카테고리/기술스택 최대 개수 제한용 상수
+  const MAX_CATEGORY_COUNT = 5;
+  const MAX_TECH_STACK_COUNT = 8;
 
   // 실험용 콘솔로그 끝나면 지울것
   useEffect(() => {
@@ -46,7 +49,6 @@ export default function PortfolioEditor({ data }) {
     bgcolor: "background.paper",
     p: { xs: "17px", tablet: "25px" },
   };
-
   // 라벨 스타일 (mui)
   const fieldLabelSx = {
     mb: 1,
@@ -57,7 +59,6 @@ export default function PortfolioEditor({ data }) {
     lineHeight: "20px",
     display: "block",
   };
-
   // 인풋 스타일 (mui)
   const formInputSx = {
     minHeight: 42,
@@ -75,8 +76,22 @@ export default function PortfolioEditor({ data }) {
       borderColor: "primary.main",
       borderWidth: 1,
     },
+    "&.Mui-disabled": {
+      bgcolor: "#f5f5f5",
+      color: "#9e9e9e",
+      cursor: "not-allowed",
+    },
+    "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#d6d9e3",
+    },
+    "&.Mui-disabled .MuiInputBase-input": {
+      color: "#9e9e9e",
+      WebkitTextFillColor: "#9e9e9e",
+    },
+    "&.Mui-disabled .MuiSvgIcon-root": {
+      color: "#9e9e9e",
+    },
   };
-
   // 이미지 액션 버튼 스타일 (mui)
   const thumbnailActionButtonSx = {
     width: 32,
@@ -97,6 +112,7 @@ export default function PortfolioEditor({ data }) {
   // 공개/비공개 토글 스위치 핸들링 함수
   const handlePortfolioVisibilityChange = e => {
     setIsPortfolioPublic(e.target.checked);
+    handleFormChange(e);
   };
 
   // 폼 전송 함수
@@ -104,7 +120,8 @@ export default function PortfolioEditor({ data }) {
     e.preventDefault();
   };
 
-  // 사용자 입력 데이터 상태 객체
+  // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
+  // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
@@ -123,7 +140,8 @@ export default function PortfolioEditor({ data }) {
     images: [],
   });
 
-  // AI 분석 결과 데이터 상태 객체
+  // AI 분석 결과 데이터 상태 객체. 기본값 모두 빈값. 키 : projectSummary, mainFeatures,
+  // technicalFeatures, projectStructure, analyzedRole, participationDetails, analysisLimitation, analysisEvidence
   const [aiAnalysisResult, setAiAnalysisResult] = useState({
     projectSummary: "",
     mainFeatures: "",
@@ -135,14 +153,14 @@ export default function PortfolioEditor({ data }) {
     analysisEvidence: null,
   });
 
-  // AI 초안 생성 저장 데이터 상태 객체
+  // AI 초안 생성 저장 데이터 상태 객체.
   const [draftGuide, setDraftGuide] = useState({
     originalDescription: "", // AI 초안 생성 전 사용자가 입력했던 기존 설명
     aiDraftDescription: "", // AI가 생성한 설명 초안
     aiShortSummary: "", // AI가 생성한 한 줄 요약
   });
 
-  // 화면 동작 관리용 상태 객체
+  // 화면 동작 관리용 상태 객체.
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
@@ -150,11 +168,13 @@ export default function PortfolioEditor({ data }) {
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
-  // 카테고리 텍스트를 받아서 칩을 생성하는 함수
+  // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleAddCategory = category => {
     if (!category) return;
 
     setFormData(prev => {
+      if (prev.categories.length >= MAX_CATEGORY_COUNT) return prev;
+
       // 기존 카테고리 배열에서 매개변수로 받은 카테고리가 존재하면 true, 없으면 false 반환
       const exists = prev.categories.some(item => item.value === category.value);
 
@@ -178,8 +198,9 @@ export default function PortfolioEditor({ data }) {
     }));
   };
 
-  // 기술 스택 검색 기능으로 선택하거나, 직접 입력한 값을 formData.tech_stacks에 추가하는 함수
-  // freeSolo 입력값은 문자열로 들어올 수 있으므로 value/label 객체 형태로 변환한다.
+  // 기술 스택 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
+  // 기술 스택 검색 기능으로 선택하거나, 직접 입력한 값을 formData.tech_stacks에 추가
+  // freeSolo 입력값은 문자열로 들어올 수 있으므로 value/label 객체 형태로 변환
   // 이미 추가된 기술 스택은 value 또는 대소문자를 무시한 label 기준으로 중복 추가하지 않는다.
   const handleAddTechStack = techStack => {
     if (!techStack) return;
@@ -199,6 +220,8 @@ export default function PortfolioEditor({ data }) {
 
     // 이전 기술스택의 value나 label 중 위에서 저장한 value나 label이 같다면(이미 존재한다면) true, 아니면 false 반환
     setFormData(prev => {
+      if (prev.tech_stacks.length >= MAX_TECH_STACK_COUNT) return prev;
+
       const exists = prev.tech_stacks.some(
         item => item.value === nextTechStack.value || item.label.toLowerCase() === nextTechStack.label.toLowerCase(),
       );
@@ -249,7 +272,7 @@ export default function PortfolioEditor({ data }) {
         <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} />
 
         <Box component="form" onSubmit={handleSubmit}>
-          <Stack spacing={4} sx={{ pb: 14 }}>
+          <Stack spacing={4} sx={{ pb: 0 }}>
             <Box
               sx={{
                 display: "grid",
@@ -263,31 +286,45 @@ export default function PortfolioEditor({ data }) {
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  projectDescription={formData.description}
-                  onChange={handleFormChange}
+                  formData={formData}
+                  handleFormChange={handleFormChange}
                 />
-                <GithubAiAnalysisSection sectionCardSx={sectionCardSx} />
+                <GithubAiAnalysisSection sectionCardSx={sectionCardSx} aiAnalysisResult={aiAnalysisResult} />
               </Stack>
 
               <Stack spacing={3}>
                 <ImageAttachmentSection
                   sectionCardSx={sectionCardSx}
                   thumbnailActionButtonSx={thumbnailActionButtonSx}
+                  handleFormChange={handleFormChange}
                 />
                 <ProjectMetaSection
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  onChange={handleFormChange}
+                  formData={formData}
+                  handleFormChange={handleFormChange}
+                  handleAddCategory={handleAddCategory}
+                  handleDeleteCategory={handleDeleteCategory}
+                  handleAddTechStack={handleAddTechStack}
+                  handleDeleteTechStack={handleDeleteTechStack}
+                  maxCategoryCount={MAX_CATEGORY_COUNT}
+                  maxTechStackCount={MAX_TECH_STACK_COUNT}
                 />
               </Stack>
             </Box>
 
-            <DraftGuideSection sectionCardSx={sectionCardSx} formInputSx={formInputSx} />
+            <DraftGuideSection
+              sectionCardSx={sectionCardSx}
+              formInputSx={formInputSx}
+              draftGuide={draftGuide}
+              handleFormChange={handleFormChange}
+            />
             <EditorActionBar
               isEdit={isEdit}
-              isPortfolioPublic={isPortfolioPublic}
+              isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
+              handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>

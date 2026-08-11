@@ -6,15 +6,12 @@
 import IconButton from "@mui/material/IconButton";
 
 export default function ImageActionButton({ "aria-label": ariaLabel, children, danger = false, sx }) {
+  const className = danger
+    ? "portfolio-editor-image-action-button portfolio-editor-image-action-button--danger"
+    : "portfolio-editor-image-action-button";
+
   return (
-    <IconButton
-      type="button"
-      aria-label={ariaLabel}
-      sx={{
-        ...sx,
-        color: danger ? "#ba1a1a" : sx?.color,
-      }}
-    >
+    <IconButton className={className} type="button" aria-label={ariaLabel} sx={sx}>
       {children}
     </IconButton>
   );
