@@ -22,10 +22,12 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx, handleFo
       >
         <Stack
           direction={{ xs: "column", tablet: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", tablet: "center" }}
           spacing={2}
-          sx={{ mb: 3 }}
+          sx={{
+            mb: 3,
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", tablet: "center" },
+          }}
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <EditIcon aria-hidden="true" />

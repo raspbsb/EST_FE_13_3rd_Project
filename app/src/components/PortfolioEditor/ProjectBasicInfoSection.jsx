@@ -83,7 +83,7 @@ export default function ProjectBasicInfoSection({
                 }
                 sx={formInputSx}
               />
-              <Text color="text.secondary" textAlign="center">
+              <Text color="text.secondary" sx={{ textAlign: "center" }}>
                 ~
               </Text>
               <OutlinedInput

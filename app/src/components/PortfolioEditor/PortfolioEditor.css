@@ -1,3 +1,8 @@
+html,
+body {
+  overflow-x: clip;
+}
+
 .portfolio-editor-page {
   --portfolio-primary: #0d6efd;
   --portfolio-text-primary: #212121;
@@ -60,6 +65,28 @@
   font-weight: 500;
   letter-spacing: 0.28px;
   line-height: 20px;
+}
+
+.portfolio-editor-page .portfolio-editor-meta-autocomplete.MuiAutocomplete-root.Mui-disabled .MuiOutlinedInput-root,
+.portfolio-editor-page .portfolio-editor-meta-autocomplete .MuiOutlinedInput-root.Mui-disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.portfolio-editor-page
+  .portfolio-editor-meta-autocomplete.MuiAutocomplete-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline,
+.portfolio-editor-page
+  .portfolio-editor-meta-autocomplete
+  .MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #d6d9e3;
+}
+
+.portfolio-editor-page .portfolio-editor-meta-autocomplete.MuiAutocomplete-root.Mui-disabled .MuiInputBase-input,
+.portfolio-editor-page .portfolio-editor-meta-autocomplete .MuiOutlinedInput-root.Mui-disabled .MuiInputBase-input {
+  color: #9e9e9e;
+  -webkit-text-fill-color: #9e9e9e;
 }
 
 .portfolio-editor-page .MuiInputBase-root,
@@ -545,13 +572,28 @@
 }
 
 .portfolio-editor-action-bar.MuiBox-root {
+  position: sticky;
+  bottom: 0;
   width: 100%;
   box-sizing: border-box;
   z-index: 1300;
   border-top: 1px solid #ececec;
   background-color: var(--portfolio-surface);
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04), 0 0 0 100vmax var(--portfolio-surface);
-  clip-path: inset(0 -100vmax);
+}
+
+.portfolio-editor-action-bar.MuiBox-root::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 50%;
+  bottom: 0;
+  left: 50%;
+  z-index: -1;
+  margin-right: -50vw;
+  margin-left: -50vw;
+  border-top: 1px solid #ececec;
+  background-color: var(--portfolio-surface);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.04);
 }
 
 .portfolio-editor-image-action-button.MuiIconButton-root {

@@ -1,8 +1,7 @@
-.chip:global(.MuiChip-root) {
-  flex: 0 1 auto;
-  max-width: 100%;
+.chip:global(.MuiChip-root.MuiButtonBase-root) {
   height: 24px;
   min-height: 24px;
+  max-width: 100%;
   border: 0;
   border-radius: 9999px;
   font-size: 12px;
