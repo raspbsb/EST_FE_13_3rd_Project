@@ -8,6 +8,7 @@ import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
   const { data, status } = useSelector(state => state.portfolio);
+  const author = data?.profiles;
 
   return (
     <Box>
@@ -19,11 +20,11 @@ export default function AuthorInfoPortfolios({}) {
         }}
       >
         <Text component={"h3"} variant="h5">
-          author의 다른 프로젝트
+          {author?.user_name ?? "-"}의 다른 프로젝트
         </Text>
-        <Text component={"p"} variant="body2" align="right">
-          <MuiLink component={Link} to={`/profiles/${data?.author_id}`}>
-            View all 4
+        <Text component={"p"} variant="body1" align="right">
+          <MuiLink component={Link} to={`/profiles/${author?.user_id ?? ""}`}>
+            View all
           </MuiLink>
         </Text>
       </Box>
