@@ -14,6 +14,8 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import MyProjects from "./pages/MyProjects";
 import Collections from "./pages/Collections";
+import PublicProfileLayout from "./layouts/PublicProfileLayout";
+import MyProjectsSection from "./components/mypage/MyProjectsSection";
 
 export default function App() {
   return (
@@ -28,12 +30,12 @@ export default function App() {
         {/* MyPage */}
         <Route path="/mypage" element={<MyPageLayout />}>
           <Route index element={<Profile mode="mypage" />} />
-          <Route path="projects" element={<MyProjects />} />
+          <Route path="projects" element={<MyProjectsSection mode="mypage" />} />
           <Route path="collections" element={<Collections />} />
         </Route>
         {/* Public Profile */}
         <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
-          <Route index element={<MyProjects mode="public" />} />
+          <Route index element={<MyProjectsSection mode="public" />} />
         </Route>
 
         <Route path="/login" element={<Login />} />

@@ -30,3 +30,5 @@ export { default as PersonOutlinedIcon } from "@mui/icons-material/PersonOutline
 export { default as ShareIcon } from "@mui/icons-material/Share";
 export { default as GithubIcon } from "@mui/icons-material/GitHub";
 export { default as MailIcon } from "@mui/icons-material/EmailOutlined";
+export { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
+export { default as FavoriteBorderIcon } from "@mui/icons-material/FavoriteBorder";

@@ -42,7 +42,7 @@ export default function PublicProfileLayout() {
   }
 
   if (!profile) {
-    return <div>프로필을 찾을 수 없습니다.</div>;
+    return <Box sx={{ py: 10 }}>프로필을 찾을 수 없습니다.</Box>;
   }
 
   return (
@@ -54,13 +54,14 @@ export default function PublicProfileLayout() {
         sx={{
           maxWidth: '1272px',
           mx: 'auto',
+          py: 6,
         }}
       >
         <ProfileHeader mode="public" profile={profile} />
 
         <ActivityStats />
 
-        <Outlet />
+        <Outlet context={{ profile }} />
       </Container>
     </>
   );
