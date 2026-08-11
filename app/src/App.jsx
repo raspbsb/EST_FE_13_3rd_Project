@@ -14,7 +14,6 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import MyProjects from "./pages/MyProjects";
 import Collections from "./pages/Collections";
-import PublicProfileLayout from "./layouts/PublicProfileLayout";
 import MyProjectsSection from "./components/mypage/MyProjectsSection";
 
 export default function App() {
