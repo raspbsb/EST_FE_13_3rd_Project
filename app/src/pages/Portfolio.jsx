@@ -23,6 +23,20 @@ export default function Portfolio() {
     };
   }, [id]);
 
+  // 후에 스켈레톤으로 변경
+  if (status === "idle" || status === "loading") {
+    return (
+      <Container>
+        <Text component={"p"} variant="h4">
+          포트폴리오 상세
+        </Text>
+        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
+          로딩중...
+        </Text>
+      </Container>
+    );
+  }
+
   if (status === "failed") {
     return (
       <Container>
@@ -74,7 +88,7 @@ export default function Portfolio() {
 
   return (
     <Container>
-      <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>
+      <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
         <Text component={"p"} variant="h4">
           포트폴리오 상세
         </Text>

@@ -5,10 +5,12 @@ import Text from "@mui/material/Typography";
 export default function HeroSpecsItem({ label = "", half, children, noBox }) {
   return (
     <>
-      <Grid component={"dt"} size={{ mobile: 4, tablet: 3, desktop: 2 }}>
-        <Text variant="subtitle2">{label}</Text>
+      <Grid component={"dt"} size={{ mobile: 12, tablet: 3, desktop: 2 }} sx={{ mb: -0.5, minWidth: "0px" }}>
+        <Text variant="subtitle2" noWrap sx={{ minWidth: "0px" }}>
+          {label}
+        </Text>
       </Grid>
-      <Grid component={"dd"} size={{ mobile: 8, tablet: 9, desktop: half ? 4 : 10 }}>
+      <Grid component={"dd"} size={{ mobile: 12, tablet: 9, desktop: half ? 4 : 10 }} sx={{ minWidth: "0px" }}>
         <Box
           sx={{
             display: "flex",
@@ -16,6 +18,8 @@ export default function HeroSpecsItem({ label = "", half, children, noBox }) {
             gap: 1,
             px: noBox ? 0 : 2,
             py: 0.5,
+            minWidth: "0px",
+            maxWidth: "100%",
             minHeight: "40px",
             borderStyle: "solid",
             borderWidth: noBox ? "0px" : "1px",

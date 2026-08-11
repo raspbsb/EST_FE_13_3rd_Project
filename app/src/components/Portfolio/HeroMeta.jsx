@@ -12,11 +12,12 @@ import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from ".
 export default function HeroMeta({}) {
   const { data, status } = useSelector(state => state.portfolio);
 
+  // liked, bookmarked 테이블 준비중
   const isLiked = false;
   const isBookmarked = false;
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: { mobile: 1, tablet: 2, desktop: 3 } }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: { mobile: 1, tablet: 2, desktop: 3 }, minWidth: "0px" }}>
       <Chip
         component={Link}
         to={`/profiles/${data?.author_id}`}

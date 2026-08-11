@@ -31,7 +31,7 @@ export default function HeroAiSummary({}) {
       </Text>
       {aiCreated ? (
         <>
-          <Text component={"p"} variant="body1" sx={{ my: 0.5 }} noWrap>
+          <Text component={"p"} variant="body1" sx={{ my: 1 }} noWrap>
             {aiCreated?.project_summary}
           </Text>
           <Text align="right" variant="body2">
@@ -39,7 +39,7 @@ export default function HeroAiSummary({}) {
           </Text>
         </>
       ) : (
-        <Text component={"p"} variant="body1" sx={{ my: 1 }}>
+        <Text component={"p"} variant="body1" sx={{ my: 1 }} noWrap>
           포트폴리오의 AI 분석결과가 없습니다.
         </Text>
       )}
