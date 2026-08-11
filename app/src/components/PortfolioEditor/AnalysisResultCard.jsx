@@ -9,19 +9,37 @@ import Text from "@mui/material/Typography";
 export default function AnalysisResultCard({ title, description }) {
   return (
     <Stack
+      className="portfolio-editor-analysis-card"
       spacing={0.75}
       sx={{
         border: "1px solid rgba(0, 87, 205, 0.2)",
-        borderRadius: 1,
-        bgcolor: "rgba(255, 255, 255, 0.72)",
-        p: 2,
-        minHeight: 130,
+        borderRadius: "8px",
+        bgcolor: "rgba(255, 255, 255, 0.6)",
+        p: "17px",
+        minHeight: 136,
       }}
     >
-      <Text color="primary" fontWeight={700} fontSize={18}>
+      <Text
+        className="portfolio-editor-analysis-card__title"
+        sx={{
+          color: "#0d6efd",
+          fontSize: 18,
+          fontWeight: 500,
+          letterSpacing: "0.28px",
+          lineHeight: "27px",
+        }}
+      >
         {title}
       </Text>
-      <Text color="text.primary" fontSize={16} lineHeight={1.5}>
+      <Text
+        className="portfolio-editor-analysis-card__description"
+        sx={{
+          color: "#212121",
+          fontSize: 14,
+          fontWeight: 400,
+          lineHeight: "22px",
+        }}
+      >
         {description}
       </Text>
     </Stack>
