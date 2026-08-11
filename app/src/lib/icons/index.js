@@ -23,3 +23,5 @@ export { default as CloseIcon } from '@mui/icons-material/Close';
 export { default as AccountCircleIcon } from '@mui/icons-material/AccountCircle';
 export { default as AddAPhotoIcon } from '@mui/icons-material/AddAPhoto';
 export { default as ChevronRightIcon } from '@mui/icons-material/ChevronRight';
+export { default as VisibilityOutlinedIcon } from '@mui/icons-material/VisibilityOutlined';
+export { default as FavoriteBorderIcon } from '@mui/icons-material/FavoriteBorder';
