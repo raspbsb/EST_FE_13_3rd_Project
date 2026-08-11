@@ -1,0 +1,551 @@
+.portfolio-editor-page {
+  --portfolio-primary: #0d6efd;
+  --portfolio-text-primary: #212121;
+  --portfolio-text-secondary: #757575;
+  --portfolio-text-subtle: #636262;
+  --portfolio-icon: #444;
+  --portfolio-border: #c2c6d8;
+  --portfolio-border-soft: rgba(0, 87, 205, 0.2);
+  --portfolio-surface: #ffffff;
+  --portfolio-surface-muted: #f2f3ff;
+  --portfolio-surface-blue: #f0f7ff;
+  --portfolio-chip-muted: #ededed;
+  --portfolio-danger: #ba1a1a;
+  color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-page .MuiTypography-root {
+  color: inherit;
+  letter-spacing: 0;
+}
+
+.portfolio-editor-page h1.MuiTypography-root,
+.portfolio-editor-page .MuiTypography-h4 {
+  color: var(--portfolio-text-primary);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.portfolio-editor-page h2.MuiTypography-root,
+.portfolio-editor-page .MuiTypography-h5 {
+  color: var(--portfolio-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.portfolio-editor-page h3.MuiTypography-root,
+.portfolio-editor-page .MuiTypography-h6 {
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.portfolio-editor-page .MuiPaper-root,
+.portfolio-editor-page section {
+  border-color: var(--portfolio-border);
+  border-radius: 12px;
+}
+
+.portfolio-editor-page .MuiPaper-root {
+  background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-page label.MuiTypography-root,
+.portfolio-editor-page .MuiFormControl-root > .MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-page .MuiInputBase-root,
+.portfolio-editor-page .MuiOutlinedInput-root,
+.portfolio-editor-page .MuiAutocomplete-root .MuiOutlinedInput-root {
+  min-height: 42px;
+  border-radius: 8px;
+  background-color: var(--portfolio-surface);
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.portfolio-editor-page .MuiOutlinedInput-notchedOutline {
+  border-color: var(--portfolio-border);
+}
+
+.portfolio-editor-page .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline,
+.portfolio-editor-page .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #9aa3b2;
+}
+
+.portfolio-editor-page .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+.portfolio-editor-page .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--portfolio-primary);
+  border-width: 1px;
+}
+
+.portfolio-editor-page .MuiOutlinedInput-input,
+.portfolio-editor-page .MuiSelect-select,
+.portfolio-editor-page .MuiAutocomplete-inputRoot .MuiAutocomplete-input {
+  padding: 9px 17px;
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.portfolio-editor-page textarea.MuiOutlinedInput-input {
+  line-height: 24px;
+}
+
+.portfolio-editor-page .MuiSvgIcon-root {
+  color: var(--portfolio-icon);
+}
+
+.portfolio-editor-page .MuiChip-root {
+  min-height: 32px;
+  border-radius: 4px;
+  border: 1px solid var(--portfolio-border);
+  background-color: var(--portfolio-chip-muted);
+  color: var(--portfolio-text-primary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.portfolio-editor-page .MuiChip-colorPrimary {
+  border-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--portfolio-primary);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.portfolio-editor-page .MuiChip-label {
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+.portfolio-editor-page .MuiChip-deleteIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  color: currentColor;
+  opacity: 0.8;
+}
+
+.portfolio-editor-page .MuiChip-deleteIcon:hover {
+  color: currentColor;
+  opacity: 1;
+}
+
+.portfolio-editor-page .MuiButtonBase-root[role="button"] {
+  color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-page .MuiButton-root {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.portfolio-editor-page .MuiButton-contained {
+  background-color: var(--portfolio-primary);
+  color: #ffffff;
+}
+
+.portfolio-editor-page .MuiButton-outlined {
+  border-color: var(--portfolio-border);
+  color: var(--portfolio-text-secondary);
+}
+
+.portfolio-editor-page .MuiButton-root.Mui-disabled {
+  background-color: var(--portfolio-border);
+  color: var(--portfolio-text-secondary);
+  opacity: 0.6;
+}
+
+.portfolio-editor-page .MuiAlert-root {
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.portfolio-editor-page .MuiAccordion-root {
+  border-radius: 8px;
+  background-color: var(--portfolio-surface-muted);
+}
+
+.portfolio-editor-page .MuiAccordionSummary-root {
+  min-height: 52px;
+}
+
+.portfolio-editor-page .MuiAccordionSummary-content .MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-page .MuiSwitch-root {
+  width: 44px;
+  height: 24px;
+  padding: 0;
+}
+
+.portfolio-editor-page .MuiSwitch-switchBase {
+  padding: 2px;
+}
+
+.portfolio-editor-page .MuiSwitch-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #ffffff;
+}
+
+.portfolio-editor-page .MuiSwitch-track {
+  border-radius: 9999px;
+  background-color: var(--portfolio-border);
+  opacity: 1;
+}
+
+.portfolio-editor-page .MuiSwitch-switchBase.Mui-checked {
+  transform: translateX(20px);
+}
+
+.portfolio-editor-page .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: var(--portfolio-primary);
+  opacity: 1;
+}
+
+.portfolio-editor-page [class*="left-side"] > section,
+.portfolio-editor-page [class*="primary-info"] > section {
+  border-radius: 12px;
+}
+
+.portfolio-editor-page section[style*="linear-gradient"],
+.portfolio-editor-page section:has(.MuiTypography-root.MuiTypography-h5 .MuiSvgIcon-colorPrimary) {
+  border-color: var(--portfolio-primary);
+  background: linear-gradient(117deg, var(--portfolio-surface-blue) 0%, #ffffff 100%);
+}
+
+.portfolio-editor-page .MuiPaper-root .MuiTypography-root[color="primary"],
+.portfolio-editor-page .MuiTypography-root.MuiTypography-subtitle1 {
+  color: var(--portfolio-primary);
+}
+
+.portfolio-editor-page .MuiAutocomplete-paper {
+  border: 1px solid var(--portfolio-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(25, 27, 36, 0.12);
+}
+
+.portfolio-editor-page .MuiAutocomplete-option {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.portfolio-editor-page .MuiAutocomplete-option[aria-selected="true"],
+.portfolio-editor-page .MuiAutocomplete-option.Mui-focused {
+  background-color: var(--portfolio-surface-blue);
+}
+
+.portfolio-editor-page > form,
+.portfolio-editor-page form {
+  color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-title {
+  color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-title .MuiTypography-h4 {
+  margin-bottom: 4px;
+  color: var(--portfolio-text-primary);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.portfolio-editor-title__description.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.portfolio-editor-image-section .MuiTypography-h5 {
+  color: var(--portfolio-text-primary);
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.portfolio-editor-image-section__limit.MuiTypography-root,
+.portfolio-editor-image-section__dropzone-help.MuiTypography-root,
+.portfolio-editor-image-section__file-size.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.portfolio-editor-image-section__dropzone.MuiButtonBase-root {
+  min-height: 194px;
+  border-color: #8d99ae;
+  border-radius: 8px;
+  background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-image-section__dropzone .MuiSvgIcon-root {
+  color: var(--portfolio-text-primary);
+}
+
+.portfolio-editor-image-section__dropzone-title.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.portfolio-editor-image-section__thumbnail-badge.MuiChip-root {
+  min-height: 24px;
+  border-radius: 4px;
+  background-color: var(--portfolio-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.portfolio-editor-image-section__upload-count.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.portfolio-editor-ai-section .portfolio-editor-ai-section__heading .MuiSvgIcon-root {
+  width: 22px;
+  height: 22px;
+  color: var(--portfolio-primary);
+}
+
+.portfolio-editor-ai-section__title.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.portfolio-editor-ai-section__analyzed-at.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 16px;
+}
+
+.portfolio-editor-ai-section__notice.MuiAlert-root {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background-color: var(--portfolio-surface);
+  padding: 14px 17px;
+}
+
+.portfolio-editor-ai-section__notice .MuiAlert-icon {
+  margin-right: 8px;
+  padding: 0;
+  color: var(--portfolio-icon);
+}
+
+.portfolio-editor-ai-section__notice .MuiAlert-message {
+  display: flex;
+  align-items: center;
+}
+
+.portfolio-editor-ai-section__notice-text.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.portfolio-editor-analysis-card.MuiStack-root {
+  min-height: 136px;
+  border-color: var(--portfolio-border-soft);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 17px;
+}
+
+.portfolio-editor-analysis-card__title.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 27px;
+}
+
+.portfolio-editor-analysis-card__description.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.portfolio-editor-page p.MuiTypography-root.portfolio-editor-analysis-card__description {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.portfolio-editor-analysis-evidence.MuiAccordion-root {
+  width: min(100%, 790px);
+  border-radius: 8px;
+  background-color: var(--portfolio-surface-muted);
+  box-shadow: none;
+}
+
+.portfolio-editor-analysis-evidence__title.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-analysis-evidence__prompt.MuiPaper-root {
+  border-color: var(--portfolio-border-soft);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.portfolio-editor-analysis-evidence__prompt-text.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-analysis-evidence__limit.MuiAlert-root {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  background-color: #fff4e0;
+  padding: 10px 12px;
+}
+
+.portfolio-editor-analysis-evidence__limit .MuiAlert-icon {
+  margin-right: 8px;
+  padding: 0;
+  color: #d32f2f;
+}
+
+.portfolio-editor-analysis-evidence__limit .MuiAlert-message {
+  padding: 0;
+}
+
+.portfolio-editor-analysis-evidence__limit-text.MuiTypography-root {
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 18px;
+}
+
+.portfolio-editor-category-chip.MuiChip-root {
+  min-height: 32px;
+  border-radius: 4px;
+  border-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--portfolio-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.portfolio-editor-tech-chip.MuiChip-root {
+  min-height: 32px;
+  border-radius: 4px;
+  border-color: var(--portfolio-border);
+  background-color: var(--portfolio-chip-muted);
+  color: var(--portfolio-text-primary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.portfolio-editor-draft-guide.MuiBox-root {
+  border-radius: 12px;
+  background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-draft-guide__card.MuiPaper-root {
+  border-color: var(--portfolio-border-soft);
+  border-radius: 8px;
+  padding: 17px;
+}
+
+.portfolio-editor-draft-guide__card--current.MuiPaper-root {
+  background-color: #f5f7ff;
+}
+
+.portfolio-editor-draft-guide__card--ai.MuiPaper-root {
+  background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-draft-guide__card-title.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.portfolio-editor-page h3.MuiTypography-root.portfolio-editor-draft-guide__card-title {
+  color: var(--portfolio-primary);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.portfolio-editor-draft-guide__card-body.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.portfolio-editor-action-bar.MuiBox-root {
+  z-index: 1300;
+  border-top: 1px solid #ececec;
+  background-color: var(--portfolio-surface);
+}
+
+.portfolio-editor-action-bar .MuiTypography-root:first-of-type {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-action-bar .MuiTypography-root:last-of-type {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
