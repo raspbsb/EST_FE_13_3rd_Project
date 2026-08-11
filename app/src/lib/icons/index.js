@@ -18,3 +18,11 @@ export { default as CalendarIcon } from "@mui/icons-material/CalendarMonthOutlin
 export { default as AwesomeIcon } from "@mui/icons-material/AutoAwesomeOutlined";
 export { default as ErrorCircleIcon } from "@mui/icons-material/ErrorOutlineOutlined";
 export { default as CloudUploadIcon } from "@mui/icons-material/CloudUploadOutlined";
+export { default as PushPinIcon } from "@mui/icons-material/PushPin";
+export { default as OpenWithIcon } from "@mui/icons-material/OpenWith";
+export { default as CancelIcon } from "@mui/icons-material/Cancel";
+export { default as FavoriteIcon } from '@mui/icons-material/Favorite';
+export { default as CloseIcon } from '@mui/icons-material/Close';
+export { default as AccountCircleIcon } from '@mui/icons-material/AccountCircle';
+export { default as AddAPhotoIcon } from '@mui/icons-material/AddAPhoto';
+export { default as ChevronRightIcon } from '@mui/icons-material/ChevronRight';
