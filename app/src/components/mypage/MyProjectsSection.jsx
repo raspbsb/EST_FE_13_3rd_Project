@@ -25,7 +25,18 @@ export default function MyProjectsSection({ mode }) {
 
       const { data, error } = await supabase
         .from('portfolios')
-        .select('*')
+        .select(
+          `
+            *,
+            portfolio_images (
+              image_id,
+              image_path,
+              display_order,
+              is_thumbnail,
+              alt_text
+            )
+          `,
+        )
         .eq('author_id', userId)
         .eq('is_public', true)
         .order('created_at', { ascending: false });
@@ -61,12 +72,14 @@ export default function MyProjectsSection({ mode }) {
         )}
       </Box>
       <List>
-        {projects.map(project => (
-          <Box key={project.project_id}>
-            <Text>{project.title}</Text>
-            <Text>{project.summary}</Text>
-          </Box>
-        ))}
+        {projects.map(project => {
+          return (
+            <Box key={project.project_id}>
+              <Text>{project.title}</Text>
+              <Text>{project.summary}</Text>
+            </Box>
+          );
+        })}
       </List>
     </Box>
   );
