@@ -1,4 +1,17 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { supabase } from "../../utils/supabase";
+
+export const fetchPortfolio = createAsyncThunk("portfolioData", async (portfolioId, thunkAPI) => {
+  const result = await supabase
+    .schema("public")
+    .from("portfolios")
+    .select(
+      "*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)",
+    )
+    .eq("project_id", portfolioId)
+    .maybeSingle();
+  return await result;
+});
 
 const portfolioSlice = createSlice({
   name: "counter",

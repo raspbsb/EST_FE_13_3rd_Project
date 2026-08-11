@@ -26,29 +26,28 @@ export default function EditorTitleSection({ isEdit, temporaryDrafts }) {
 
       {/* 임시저장 */}
       {temporaryDrafts[0].id ? (
-        <Stack
-          direction="row"
-          sx={{
-            justifyContent: "space-between",
-            alignItems: "center",
-            maxWidth: 464,
-            border: "1px solid",
-            borderColor: "primary.main",
-            borderRadius: 2,
-            p: 2,
-          }}
-        >
-          {/* 텍스트 그룹 */}
-          <Stack spacing={1}>
-            <Text>이전에 임시저장한 내용이 있습니다.</Text>
-            <Text>최신 저장 : 2026.08.02 18:30</Text>
+        <Stack className="portfolio-editor-temporary-draft" direction={{ xs: "column", tablet: "row" }}>
+          <Stack className="portfolio-editor-temporary-draft__text" spacing={2}>
+            <Text className="portfolio-editor-temporary-draft__line">이전에 임시저장한 내용이 있습니다.</Text>
+            <Text className="portfolio-editor-temporary-draft__line">최신 저장 : 2026.08.02 18:30</Text>
           </Stack>
-          {/* 버튼 그룹 */}
-          <Stack spacing={1}>
-            <Button type="submit" variant="contained" size="small">
+
+          <Stack className="portfolio-editor-temporary-draft__actions" spacing={1}>
+            <Button
+              className="portfolio-editor-temporary-draft__button portfolio-editor-temporary-draft__button--primary"
+              type="submit"
+              variant="contained"
+              size="small"
+            >
               최신 저장 내용 적용
             </Button>
-            <Button type="button" variant="outlined" size="small">
+
+            <Button
+              className="portfolio-editor-temporary-draft__button portfolio-editor-temporary-draft__button--secondary"
+              type="button"
+              variant="outlined"
+              size="small"
+            >
               전체 저장 목록 확인
             </Button>
           </Stack>

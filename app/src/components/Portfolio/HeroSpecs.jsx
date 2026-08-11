@@ -34,15 +34,15 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href="https://deploy-url.com/project" variant="body1" color="textPrimary">
-          https://deploy-url.com/project
+        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap>
+          {data?.deploy_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href="https://github.com/author/project" variant="body1" color="textPrimary">
-          https://github.com/author/project
+        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap>
+          {data?.repository_url ?? ""}
         </MuiLink>
       </HeroSpecsItem>
 

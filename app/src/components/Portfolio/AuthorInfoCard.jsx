@@ -13,6 +13,9 @@ import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
 export default function AuthorInfoCard({}) {
+  const { data, status } = useSelector(state => state.portfolio);
+  const author = data?.profiles;
+
   return (
     <Box
       sx={{
@@ -30,27 +33,31 @@ export default function AuthorInfoCard({}) {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-        <Avatar sx={{ width: "128px", height: "128px" }} alt="author" />
+        <Avatar
+          src={author?.avatar_path ?? "."}
+          alt={author?.user_name ?? "-"}
+          sx={{ width: "128px", height: "128px" }}
+        />
         <Text component={"h3"} variant="h5">
-          author
+          {author?.user_name ?? "-"}
         </Text>
         <Text component={"p"} variant="subtitle1">
-          Frontend Developer
+          {author?.user_category ?? ""}
         </Text>
       </Box>
       <Button
         component={Link}
-        to="/profiles/:userId"
+        to={`/profiles/${author?.user_id ?? ""}`}
         sx={{ position: "absolute", top: "16px", right: "16px" }}
         color="secondary"
         variant="contained"
       >
         View Profile
       </Button>
-      <List>
-        <AuthorInfoCardContact href={"portfoliop@gmail.com"} email icon={<EmailIcon />} />
-        <AuthorInfoCardContact href={"https://github.com/portfolioplus"} icon={<CodeIcon />} />
-        <AuthorInfoCardContact href={"https://www.linkedin.com/in/portfolioplus/"} />
+      <List sx={{ maxWidth: "100%" }}>
+        {author?.email && <AuthorInfoCardContact href={author?.email} email icon={<EmailIcon />} />}
+        {author?.github_url && <AuthorInfoCardContact href={author?.github_url} icon={<CodeIcon />} />}
+        {author?.url2 && <AuthorInfoCardContact href={author?.url2} />}
       </List>
     </Box>
   );
