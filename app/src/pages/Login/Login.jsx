@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -35,72 +34,84 @@ export default function Login() {
   return (
     <Box component="main" className={styles.container}>
       <div className={styles.content}>
-        <Paper elevation={1} className={styles.left}>
-          <form onSubmit={handleSubmit} className={styles.form}>
-            <Typography variant="h5" component="h1" className={styles.title}>
-              로그인
-            </Typography>
-
-            <TextField
-              label="Email address"
-              variant="outlined"
-              fullWidth
-              className={styles.field}
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              type="email"
-              autoComplete="email"
-            />
-
-            <TextField
-              label="Password"
-              variant="outlined"
-              fullWidth
-              className={styles.field}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              type="password"
-              autoComplete="current-password"
-            />
-
-            <FormControlLabel
-              control={<Checkbox checked={remember} onChange={e => setRemember(e.target.checked)} color="primary" />}
-              label="로그인 상태 유지"
-              className={styles.remember}
-            />
-
-            {error && (
-              <Typography color="error" variant="body2" className={styles.error}>
-                {error}
+        {/* 왼쪽: 로그인 폼 영역 */}
+        <div className={styles.left}>
+          <div className={styles.formCard}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <Typography variant="h5" component="h1" className={styles.title}>
+                로그인
               </Typography>
-            )}
 
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              className={styles.loginButton}
-              disabled={loading}
-            >
-              {loading ? "로딩..." : "로그인"}
-            </Button>
+              <TextField
+                label="Email address"
+                variant="outlined"
+                fullWidth
+                className={styles.field}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                type="email"
+                autoComplete="email"
+              />
 
-            <Divider className={styles.divider} />
+              <TextField
+                label="Password"
+                variant="outlined"
+                fullWidth
+                className={styles.field}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                type="password"
+                autoComplete="current-password"
+              />
 
-            <Typography variant="body2" className={styles.signupText}>
-              아직 회원이 아니신가요?{" "}
-              <Link to="/signup" className={styles.signupLink}>
-                회원가입
-              </Link>
-            </Typography>
-          </form>
-        </Paper>
+              <FormControlLabel
+                control={<Checkbox checked={remember} onChange={e => setRemember(e.target.checked)} color="primary" />}
+                label="로그인 상태 유지"
+                className={styles.remember}
+              />
 
+              {error && (
+                <Typography color="error" variant="body2" className={styles.error}>
+                  {error}
+                </Typography>
+              )}
+
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                fullWidth
+                className={styles.loginButton}
+                disabled={loading}
+              >
+                {loading ? "로딩..." : "로그인"}
+              </Button>
+
+              <Divider className={styles.divider} />
+
+              <Typography variant="body2" className={styles.signupText}>
+                아직 회원이 아니신가요?{" "}
+                <Link to="/signup" className={styles.signupLink}>
+                  회원가입
+                </Link>
+              </Typography>
+            </form>
+          </div>
+        </div>
+
+        {/* 오른쪽: 배경색 #F2F7FF 및 최소 너비 600px 유지 영역 */}
         <div className={styles.right}>
-          <div className={styles.hero} role="img" aria-label="login illustration" />
+          <img
+            src="/hero.png"
+            alt="로그인 배경"
+            className={styles.heroImage}
+            onError={e => {
+              // 이미지 로드 실패 시 이미지 표시를 숨겨 배경색만 깨끗하게 나타나도록 처리
+              e.target.style.display = "none";
+            }}
+          />
         </div>
       </div>
     </Box>
