@@ -15,7 +15,6 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
-import { useEffect } from "react";
 
 export default function ProjectBasicInfoSection({
   sectionCardSx,
@@ -24,22 +23,16 @@ export default function ProjectBasicInfoSection({
   formData,
   handleFormChange,
 }) {
-  // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를
+  // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
   const handleDateChange = (name, nextDate) => {
-    console.log(name);
-    console.log(nextDate);
     handleFormChange({
       target: {
         name,
         value: nextDate ? nextDate.format("YYYY-MM-DD") : "",
       },
     });
+    // console.log(nextDate ? nextDate.format("YYYY-MM-DD") : ""); // 2026-08-11
   };
-
-  // 실험용 콘솔로그 끝나면 지울것
-  // useEffect(() => {
-  //   console.log(handleDateChange);
-  // }, [handleDateChange]);
 
   return (
     <Box component="section" sx={sectionCardSx}>

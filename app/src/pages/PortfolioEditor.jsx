@@ -36,11 +36,6 @@ export default function PortfolioEditor({ data }) {
   const MAX_CATEGORY_COUNT = 5;
   const MAX_TECH_STACK_COUNT = 8;
 
-  // 실험용 콘솔로그 끝나면 지울것
-  useEffect(() => {
-    console.log(isPortfolioPublic);
-  }, [isPortfolioPublic]);
-
   // 섹션 카드 스타일 (mui)
   const sectionCardSx = {
     border: "1px solid",
@@ -251,12 +246,23 @@ export default function PortfolioEditor({ data }) {
     // 이벤트 타겟의 name, value, type, checked 상태를 구조분해할당
     const { name, value, type, checked } = e.target;
 
+    // 개발용 콘솔 : 끝나면 지울것
+    const nextValue = type === "checkbox" ? checked : value;
+    console.log({
+      [name]: nextValue,
+    });
+
     // 이전걸 풀어헤친다음 그 중 formData에 해당하는 것만 값 변경
     setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  // 실험용 콘솔 : 끝나면 지울것
+  useEffect(() => {
+    console.log(isPortfolioPublic);
+  }, [isPortfolioPublic]);
 
   return (
     <>
