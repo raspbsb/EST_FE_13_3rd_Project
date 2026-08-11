@@ -483,7 +483,14 @@
 }
 
 .portfolio-editor-meta-chip-list.MuiStack-root {
+  display: flex;
+  flex-wrap: wrap;
   gap: 4px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  align-items: flex-start;
 }
 
 .portfolio-editor-draft-guide.MuiBox-root {
