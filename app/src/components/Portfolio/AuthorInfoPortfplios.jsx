@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -6,13 +7,15 @@ import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
 
 export default function AuthorInfoPortfolios({}) {
+  const { data, status } = useSelector(state => state.portfolio);
+
   return (
     <Box>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Text component={"h3"} variant="h5">
           author의 다른 프로젝트
         </Text>
-        <MuiLink component={Link} to="/profiles/:userId">
+        <MuiLink component={Link} to={`/profiles/${data?.author_id}`}>
           View all 4
         </MuiLink>
       </Box>

@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import MuiLink from "@mui/material/Link";
@@ -5,8 +7,10 @@ import MuiLink from "@mui/material/Link";
 import { AiIcon } from "../../lib/icons";
 import { alpha, useTheme } from "@mui/material/styles";
 
-export default function HeroAiSummary({ children }) {
+export default function HeroAiSummary({}) {
   const theme = useTheme();
+  const { data, status } = useSelector(state => state.portfolio);
+  const aiCreated = data?.portfolio_ai_created;
 
   return (
     <Box
@@ -23,14 +27,22 @@ export default function HeroAiSummary({ children }) {
     >
       <Text component={"h3"} variant="subtitle2" color="primary" sx={{ display: "flex", alignItems: "center" }}>
         <AiIcon fontSize="small" sx={{ mr: 0.5 }} />
-        AI 요약 미리보기
+        AI 분석 미리보기
       </Text>
-      <Text component={"p"} variant="body2" sx={{ my: 0.5 }} noWrap>
-        {children}
-      </Text>
-      <Text align="right" variant="body2">
-        <MuiLink href="#ai-analysis">전체 AI 분석 보기</MuiLink>
-      </Text>
+      {aiCreated ? (
+        <>
+          <Text component={"p"} variant="body1" sx={{ my: 0.5 }} noWrap>
+            {aiCreated?.project_summary}
+          </Text>
+          <Text align="right" variant="body2">
+            <MuiLink href="#ai-analysis">전체 AI 분석 보기</MuiLink>
+          </Text>
+        </>
+      ) : (
+        <Text component={"p"} variant="body1" sx={{ my: 1 }}>
+          포트폴리오의 AI 분석결과가 없습니다.
+        </Text>
+      )}
     </Box>
   );
 }

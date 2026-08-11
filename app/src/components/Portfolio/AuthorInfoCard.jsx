@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -13,6 +14,8 @@ import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
 export default function AuthorInfoCard({}) {
+  const { data, status } = useSelector(state => state.portfolio);
+
   return (
     <Box
       sx={{
@@ -40,7 +43,7 @@ export default function AuthorInfoCard({}) {
       </Box>
       <Button
         component={Link}
-        to="/profiles/:userId"
+        to={`/profiles/${data?.author_id}`}
         sx={{ position: "absolute", top: "16px", right: "16px" }}
         color="secondary"
         variant="contained"

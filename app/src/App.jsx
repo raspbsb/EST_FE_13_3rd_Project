@@ -2,6 +2,7 @@ import { Link, Route, Routes } from "react-router-dom";
 import { useState } from "react";
 import MainLayout from "./layouts/MainLayout";
 import MyPageLayout from "./layouts/MyPageLayout";
+import PublicProfileLayout from "./layouts/PublicProfileLayout";
 
 import Home from "./pages/Home";
 import Gallery from "./pages/Gallery";
@@ -24,12 +25,15 @@ export default function App() {
         <Route path="/portfolios/new" element={<PortfolioEditor />} />
         <Route path="/portfolios/:id" element={<Portfolio />} />
         <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
-
-        <Route path="/profiles/:userId" element={<Profile mode="public" />} />
+        {/* MyPage */}
         <Route path="/mypage" element={<MyPageLayout />}>
-          <Route index element={<Profile />} />
+          <Route index element={<Profile mode="mypage" />} />
           <Route path="projects" element={<MyProjects />} />
           <Route path="collections" element={<Collections />} />
+        </Route>
+        {/* Public Profile */}
+        <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
+          <Route index element={<MyProjects mode="public" />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
