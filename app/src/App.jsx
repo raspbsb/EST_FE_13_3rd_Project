@@ -13,29 +13,33 @@ import Signup from './pages/Signup';
 import NotFound from './pages/NotFound';
 import MyProjects from './pages/MyProjects';
 import Collections from './pages/Collections';
+import PublicProfileLayout from './layouts/PublicProfileLayout';
 
 export default function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path='/' element={<Home />} />
+        <Route path="/" element={<Home />} />
 
-        <Route path='/gallery' element={<Gallery />} />
-        <Route path='/portfolios/new' element={<PortfolioEditor />} />
-        <Route path='/portfolios/:id' element={<Portfolio />} />
-        <Route path='/portfolios/:id/edit' element={<PortfolioEditor />} />
-
-        <Route path='/profiles/:userId' element={<Profile mode='public' />} />
-        <Route path='/mypage' element={<MyPageLayout />}>
-          <Route index element={<Profile />} />
-          <Route path='projects' element={<MyProjects />} />
-          <Route path='collections' element={<Collections />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/portfolios/new" element={<PortfolioEditor />} />
+        <Route path="/portfolios/:id" element={<Portfolio />} />
+        <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
+        {/* MyPage */}
+        <Route path="/mypage" element={<MyPageLayout />}>
+          <Route index element={<Profile mode="mypage" />} />
+          <Route path="projects" element={<MyProjects />} />
+          <Route path="collections" element={<Collections />} />
+        </Route>
+        {/* Public Profile */}
+        <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
+          <Route index element={<MyProjects mode="public" />} />
         </Route>
 
-        <Route path='/login' element={<Login />} />
-        <Route path='/signup' element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-        <Route path='*' element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
