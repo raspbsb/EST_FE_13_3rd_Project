@@ -6,10 +6,15 @@ const theme = createTheme({
   },
   breakpoints: {
     values: {
+      xs: 0,
       mobile: 0,
+      sm: 600,
       tablet: 768,
+      md: 900,
+      lg: 1200,
       desktopContainer: 1272,
       desktop: 1440,
+      xl: 1536,
     },
   },
   colorSchemes: {
