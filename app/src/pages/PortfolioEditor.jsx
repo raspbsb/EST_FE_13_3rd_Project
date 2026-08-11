@@ -29,7 +29,6 @@ export default function PortfolioEditor({ data }) {
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: null }]);
-
   // 공개/비공개 토글 스위치 체크여부 상태
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
@@ -46,7 +45,6 @@ export default function PortfolioEditor({ data }) {
     bgcolor: "background.paper",
     p: { xs: "17px", tablet: "25px" },
   };
-
   // 라벨 스타일 (mui)
   const fieldLabelSx = {
     mb: 1,
@@ -57,7 +55,6 @@ export default function PortfolioEditor({ data }) {
     lineHeight: "20px",
     display: "block",
   };
-
   // 인풋 스타일 (mui)
   const formInputSx = {
     minHeight: 42,
@@ -76,7 +73,6 @@ export default function PortfolioEditor({ data }) {
       borderWidth: 1,
     },
   };
-
   // 이미지 액션 버튼 스타일 (mui)
   const thumbnailActionButtonSx = {
     width: 32,
@@ -104,7 +100,8 @@ export default function PortfolioEditor({ data }) {
     e.preventDefault();
   };
 
-  // 사용자 입력 데이터 상태 객체
+  // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
+  // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
@@ -123,7 +120,8 @@ export default function PortfolioEditor({ data }) {
     images: [],
   });
 
-  // AI 분석 결과 데이터 상태 객체
+  // AI 분석 결과 데이터 상태 객체. 기본값 모두 빈값. 키 : projectSummary, mainFeatures,
+  // technicalFeatures, projectStructure, analyzedRole, participationDetails, analysisLimitation, analysisEvidence
   const [aiAnalysisResult, setAiAnalysisResult] = useState({
     projectSummary: "",
     mainFeatures: "",
@@ -135,14 +133,14 @@ export default function PortfolioEditor({ data }) {
     analysisEvidence: null,
   });
 
-  // AI 초안 생성 저장 데이터 상태 객체
+  // AI 초안 생성 저장 데이터 상태 객체.
   const [draftGuide, setDraftGuide] = useState({
     originalDescription: "", // AI 초안 생성 전 사용자가 입력했던 기존 설명
     aiDraftDescription: "", // AI가 생성한 설명 초안
     aiShortSummary: "", // AI가 생성한 한 줄 요약
   });
 
-  // 화면 동작 관리용 상태 객체
+  // 화면 동작 관리용 상태 객체.
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
@@ -150,7 +148,7 @@ export default function PortfolioEditor({ data }) {
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
-  // 카테고리 텍스트를 받아서 칩을 생성하는 함수
+  // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleAddCategory = category => {
     if (!category) return;
 
@@ -178,8 +176,9 @@ export default function PortfolioEditor({ data }) {
     }));
   };
 
-  // 기술 스택 검색 기능으로 선택하거나, 직접 입력한 값을 formData.tech_stacks에 추가하는 함수
-  // freeSolo 입력값은 문자열로 들어올 수 있으므로 value/label 객체 형태로 변환한다.
+  // 기술 스택 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
+  // 기술 스택 검색 기능으로 선택하거나, 직접 입력한 값을 formData.tech_stacks에 추가
+  // freeSolo 입력값은 문자열로 들어올 수 있으므로 value/label 객체 형태로 변환
   // 이미 추가된 기술 스택은 value 또는 대소문자를 무시한 label 기준으로 중복 추가하지 않는다.
   const handleAddTechStack = techStack => {
     if (!techStack) return;
@@ -249,7 +248,7 @@ export default function PortfolioEditor({ data }) {
         <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} />
 
         <Box component="form" onSubmit={handleSubmit}>
-          <Stack spacing={4} sx={{ pb: 14 }}>
+          <Stack spacing={4} sx={{ pb: 0 }}>
             <Box
               sx={{
                 display: "grid",
