@@ -25,7 +25,7 @@ export default function ContactDialog({ open, onClose }) {
   const [openMessage, setOpenMessage] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  const handleMessageOpen = item => {
+  const handleMessageClick = item => {
     setSelectedMessage(item);
     setOpenMessage(true);
   };
@@ -140,7 +140,7 @@ export default function ContactDialog({ open, onClose }) {
 
           <List disablePadding>
             {filteredContacts.map(contact => (
-              <ContactCard key={contact.id} item={contact} onClick={handleMessageOpen} />
+              <ContactCard key={contact.id} item={contact} onMessageClick={handleMessageClick} />
             ))}
           </List>
         </DialogContent>
