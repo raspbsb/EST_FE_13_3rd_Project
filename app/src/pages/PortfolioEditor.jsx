@@ -32,6 +32,10 @@ export default function PortfolioEditor({ data }) {
   // 공개/비공개 토글 스위치 체크여부 상태
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
+  // 카테고리/기술스택 최대 개수 제한용 상수
+  const MAX_CATEGORY_COUNT = 5;
+  const MAX_TECH_STACK_COUNT = 8;
+
   // 실험용 콘솔로그 끝나면 지울것
   useEffect(() => {
     console.log(isPortfolioPublic);
@@ -71,6 +75,21 @@ export default function PortfolioEditor({ data }) {
     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
       borderColor: "primary.main",
       borderWidth: 1,
+    },
+    "&.Mui-disabled": {
+      bgcolor: "#f5f5f5",
+      color: "#9e9e9e",
+      cursor: "not-allowed",
+    },
+    "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
+      borderColor: "#d6d9e3",
+    },
+    "&.Mui-disabled .MuiInputBase-input": {
+      color: "#9e9e9e",
+      WebkitTextFillColor: "#9e9e9e",
+    },
+    "&.Mui-disabled .MuiSvgIcon-root": {
+      color: "#9e9e9e",
     },
   };
   // 이미지 액션 버튼 스타일 (mui)
@@ -132,6 +151,10 @@ export default function PortfolioEditor({ data }) {
     images: [],
   });
 
+  // 카테고리/기술스택 제한 넘으면 disabled 처리용 변수
+  const isCategoryLimitReached = formData.categories.length >= MAX_CATEGORY_COUNT;
+  const isTechStackLimitReached = formData.tech_stacks.length >= MAX_TECH_STACK_COUNT;
+
   // AI 분석 결과 데이터 상태 객체. 기본값 모두 빈값. 키 : projectSummary, mainFeatures,
   // technicalFeatures, projectStructure, analyzedRole, participationDetails, analysisLimitation, analysisEvidence
   const [aiAnalysisResult, setAiAnalysisResult] = useState({
@@ -165,6 +188,8 @@ export default function PortfolioEditor({ data }) {
     if (!category) return;
 
     setFormData(prev => {
+      if (prev.categories.length >= MAX_CATEGORY_COUNT) return prev;
+
       // 기존 카테고리 배열에서 매개변수로 받은 카테고리가 존재하면 true, 없으면 false 반환
       const exists = prev.categories.some(item => item.value === category.value);
 
@@ -210,6 +235,8 @@ export default function PortfolioEditor({ data }) {
 
     // 이전 기술스택의 value나 label 중 위에서 저장한 value나 label이 같다면(이미 존재한다면) true, 아니면 false 반환
     setFormData(prev => {
+      if (prev.tech_stacks.length >= MAX_TECH_STACK_COUNT) return prev;
+
       const exists = prev.tech_stacks.some(
         item => item.value === nextTechStack.value || item.label.toLowerCase() === nextTechStack.label.toLowerCase(),
       );
@@ -296,6 +323,8 @@ export default function PortfolioEditor({ data }) {
                   handleDeleteCategory={handleDeleteCategory}
                   handleAddTechStack={handleAddTechStack}
                   handleDeleteTechStack={handleDeleteTechStack}
+                  maxCategoryCount={MAX_CATEGORY_COUNT}
+                  maxTechStackCount={MAX_TECH_STACK_COUNT}
                 />
               </Stack>
             </Box>

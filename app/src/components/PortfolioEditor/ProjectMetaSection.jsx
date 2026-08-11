@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
+import Text from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import {
   categoryOptions,
@@ -44,13 +45,33 @@ export default function ProjectMetaSection({
   handleDeleteCategory,
   handleAddTechStack,
   handleDeleteTechStack,
+  maxCategoryCount,
+  maxTechStackCount,
 }) {
   const [techStackInputValue, setTechStackInputValue] = useState("");
+  const [categoryInputValue, setCategoryInputValue] = useState("");
+
+  const handleCategoryChange = (_, selectedOption) => {
+    handleAddCategory(selectedOption);
+    setCategoryInputValue("");
+  };
 
   const handleTechStackChange = (_, selectedOption) => {
     handleAddTechStack(selectedOption);
     setTechStackInputValue("");
   };
+
+  const stackSx = {
+    mb: 1,
+    width: "100%",
+    minWidth: 0,
+    maxWidth: "100%",
+    overflow: "hidden",
+    flexWrap: "wrap",
+  };
+
+  const isCategoryLimitReached = formData.categories.length >= maxCategoryCount;
+  const isTechStackLimitReached = formData.tech_stacks.length >= maxTechStackCount;
 
   return (
     <Paper elevation={0} sx={sectionCardSx}>
@@ -100,21 +121,34 @@ export default function ProjectMetaSection({
         </FormControl>
 
         <FormControl fullWidth required>
-          <FieldLabel required sx={fieldLabelSx}>
-            카테고리
-          </FieldLabel>
-          <Stack
-            direction="row"
-            className="portfolio-editor-meta-chip-list"
-            spacing={1}
-            flexWrap="wrap"
-            useFlexGap
+          <Box
             sx={{
               mb: 1,
-              maxWidth: "100%",
-              overflow: "visible",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
             }}
           >
+            <FieldLabel required sx={{ ...fieldLabelSx, mb: 0 }}>
+              카테고리
+            </FieldLabel>
+
+            <Text
+              component="span"
+              sx={{
+                color: "#757575",
+                fontSize: 10,
+                fontWeight: 500,
+                letterSpacing: "1.5px",
+                lineHeight: "16px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              최소 1, 최대 5
+            </Text>
+          </Box>
+          <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
             {formData.categories.map(category => (
               <PortfolioMetaChip
                 variant="category"
@@ -125,32 +159,52 @@ export default function ProjectMetaSection({
             ))}
           </Stack>
           <Autocomplete
+            className="portfolio-editor-meta-autocomplete"
             id="category"
             options={selectableCategoryOptions}
             value={null}
+            inputValue={categoryInputValue}
+            disabled={isCategoryLimitReached}
             getOptionLabel={option => option.label}
             isOptionEqualToValue={(option, value) => option.value === value.value}
-            onChange={(_, selectedOption) => handleAddCategory(selectedOption)}
+            onInputChange={(_, value, reason) => {
+              if (reason === "input") setCategoryInputValue(value);
+              if (reason === "clear") setCategoryInputValue("");
+            }}
+            onChange={handleCategoryChange}
             renderInput={params => <TextField {...params} size="small" sx={formInputSx} />}
           />
         </FormControl>
 
         <FormControl fullWidth required>
-          <FieldLabel required sx={fieldLabelSx}>
-            기술 스택
-          </FieldLabel>
-          <Stack
-            direction="row"
-            className="portfolio-editor-meta-chip-list"
-            spacing={1}
-            flexWrap="wrap"
-            useFlexGap
+          <Box
             sx={{
               mb: 1,
-              maxWidth: "100%",
-              overflow: "visible",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1,
             }}
           >
+            <FieldLabel required sx={{ ...fieldLabelSx, mb: 0 }}>
+              기술 스택
+            </FieldLabel>
+
+            <Text
+              component="span"
+              sx={{
+                color: "#757575",
+                fontSize: 10,
+                fontWeight: 500,
+                letterSpacing: "1.5px",
+                lineHeight: "16px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              최소 1, 최대 8
+            </Text>
+          </Box>
+          <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
             {formData.tech_stacks.map(techStack => (
               <PortfolioMetaChip
                 variant="tech"
@@ -161,14 +215,19 @@ export default function ProjectMetaSection({
             ))}
           </Stack>
           <Autocomplete
+            className="portfolio-editor-meta-autocomplete"
             freeSolo
             id="tech_stack"
             options={selectableTechStackOptions}
             value={null}
             inputValue={techStackInputValue}
+            disabled={isTechStackLimitReached}
             getOptionLabel={option => (typeof option === "string" ? option : option.label)}
             isOptionEqualToValue={(option, value) => option.value === value.value}
-            onInputChange={(_, value) => setTechStackInputValue(value)}
+            onInputChange={(_, value, reason) => {
+              if (reason === "input") setTechStackInputValue(value);
+              if (reason === "clear") setTechStackInputValue("");
+            }}
             onChange={handleTechStackChange}
             renderInput={params => <TextField {...params} size="small" sx={formInputSx} />}
           />
