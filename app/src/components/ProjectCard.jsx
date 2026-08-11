@@ -35,8 +35,12 @@ export default function ProjectCard({ project }) {
         {/* 기술 스택 + 난이도 */}
         <div className="project-card-top">
           <div className="project-card-skills">
-            <TagChip label="React" />
-            <TagChip label="D3.js" />
+            {project.portfolio_tech_stacks?.map(({ tech_stack }) => (
+              <TagChip key={tech_stack} label={tech_stack} />
+            ))}
+
+            {/* <TagChip label="React" />
+            <TagChip label="D3.js" /> */}
           </div>
 
           <span className="project-card-project-level">{/* 프로젝트 난이도 */}중</span>

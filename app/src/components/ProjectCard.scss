@@ -3,7 +3,7 @@
   overflow: hidden;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
-  background-color: #fff;
+
   cursor: pointer;
 
   transition:
@@ -71,6 +71,7 @@
 
     .MuiChip-root {
       height: 20px;
+      border-radius: 2px;
       font-size: 12px;
     }
   }

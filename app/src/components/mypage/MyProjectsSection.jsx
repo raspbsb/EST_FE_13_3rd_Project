@@ -37,6 +37,9 @@ export default function MyProjectsSection({ mode }) {
               display_order,
               is_thumbnail,
               alt_text
+            ),
+            portfolio_tech_stacks (
+              tech_stack
             )
           `,
         )
