@@ -5,7 +5,9 @@ export const fetchPortfolio = createAsyncThunk("portfolioData", async (portfolio
   const result = await supabase
     .schema("public")
     .from("portfolios")
-    .select("*, portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)")
+    .select(
+      "*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)",
+    )
     .eq("project_id", portfolioId)
     .maybeSingle();
   return await result;
