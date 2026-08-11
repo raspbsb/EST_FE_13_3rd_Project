@@ -65,7 +65,12 @@ export default function MyProjectsSection({ mode }) {
   }, [userId]);
 
   return (
-    <Box component="section">
+    <Box
+      component="section"
+      sx={{
+        pt: 9,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         {mode === 'mypage' ? (
           <>

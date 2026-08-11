@@ -13,7 +13,6 @@ export default function Profile({ mode }) {
         display: 'flex',
         flexDirection: 'column',
         gap: 9,
-        pt: 9,
       }}
     >
       <MyProjectsSection mode={mode} />

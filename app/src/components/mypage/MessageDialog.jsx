@@ -33,7 +33,12 @@ export default function MessageDialog({ open, onClose, message }) {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers>
+      <DialogContent
+        sx={{
+          px: 3,
+        }}
+        dividers
+      >
         <Box
           sx={{
             display: 'flex',
@@ -44,15 +49,16 @@ export default function MessageDialog({ open, onClose, message }) {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-
-              mb: 3,
+              mb: 2,
             }}
           >
-            <Text variant="body1" sx={{ width: 100 }}>
+            <Text component="h3" variant="body1" sx={{ width: 100 }}>
               {message.sender}
             </Text>
 
-            <Text variant="subtitle2">{message.job}</Text>
+            <Text component="h4" variant="subtitle2">
+              {message.job}
+            </Text>
           </Box>
 
           <Box
@@ -61,37 +67,32 @@ export default function MessageDialog({ open, onClose, message }) {
               mb: 3,
             }}
           >
-            <Text variant="body1">{message.createdAt}</Text>
+            <Text component="span" variant="body1">
+              {message.createdAt}
+            </Text>
           </Box>
         </Box>
 
-        <Box>
-          <Text variant="subtitle2" gutterBottom>
-            Message
-          </Text>
-
+        <Box sx={{ border: '1px solid #ccc', p: 2, bgcolor: '#fff' }}>
           <Text
-            variant="body1"
+            component="p"
+            variant="subtitle2"
             sx={{
               whiteSpace: 'pre-line',
-              lineHeight: 1.8,
             }}
           >
             {message.content}
           </Text>
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
-        <Box>
-          <Text variant="subtitle2" sx={{ color: 'primary.main' }} gutterBottom>
+        <Box sx={{ pt: 2 }}>
+          <Text component="span" variant="subtitle2" sx={{ color: 'primary.main' }}>
             ⓘ 이 메시지는 비공개 제안을 포함하고 있습니다.
           </Text>
         </Box>
       </DialogContent>
 
-      <Divider />
-
-      <DialogActions>
+      <DialogActions sx={{ px: 3, py: 2 }}>
         <Button variant="contained" color="error" onClick={onClose}>
           삭제
         </Button>
