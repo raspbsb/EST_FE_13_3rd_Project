@@ -32,6 +32,7 @@ const portfolioSlice = createSlice({
     builder.addCase(fetchPortfolio.fulfilled, (state, action) => {
       state.data = action.payload.data;
       state.status = action.payload ? "succeeded" : "notFound";
+      state.data?.portfolio_images.sort((a, b) => a.display_order - b.display_order);
       console.log(state.data);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
