@@ -18,6 +18,15 @@ import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection
 import "../components/PortfolioEditor/PortfolioEditor.css";
 import { createPortfolioSavePayload } from "../utils/createPortfolioSavePayload";
 
+// 카테고리/기술스택 최대 개수 제한용 상수
+const MAX_CATEGORY_COUNT = 5;
+const MAX_TECH_STACK_COUNT = 8;
+
+// 이미지 검증 기준 상수
+const MAX_IMAGE_COUNT = 5;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
 // 섹션 카드 스타일 (mui)
 const sectionCardSx = {
   border: "1px solid",
@@ -120,15 +129,6 @@ export default function PortfolioEditor({ data }) {
   const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: 1 }]);
   // 공개/비공개 토글 스위치 체크여부 상태
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
-
-  // 카테고리/기술스택 최대 개수 제한용 상수
-  const MAX_CATEGORY_COUNT = 5;
-  const MAX_TECH_STACK_COUNT = 8;
-
-  // 이미지 검증 기준 상수
-  const MAX_IMAGE_COUNT = 5;
-  const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-  const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
@@ -402,18 +402,41 @@ export default function PortfolioEditor({ data }) {
   }, []);
 
   // 이미지 순서를 바꾸는 함수
-  const handleMoveImage = useCallback((imageId, direction) => {}, []);
+  // 라이브러리 dndkit 사용 : https://docs.dndkit.com/presets/sortable
+  const handleMoveImage = useCallback((activeImageId, overImageId) => {
+    setFormData(prev => {
+      if (!overImageId || activeImageId === overImageId) return prev;
 
-  // 실험용 콘솔 : 끝나면 지울것
-  useEffect(() => {
-    console.log(isPortfolioPublic);
-  }, [isPortfolioPublic]);
+      const sortedImages = [...prev.images].sort((a, b) => a.order - b.order);
+      const primaryImage = sortedImages.find(image => image.isThumbnail) ?? sortedImages[0];
+      const secondaryImages = sortedImages.filter(image => image.id !== primaryImage?.id);
+
+      const activeIndex = secondaryImages.findIndex(image => image.id === activeImageId);
+      const overIndex = secondaryImages.findIndex(image => image.id === overImageId);
+
+      if (activeIndex === -1 || overIndex === -1) return prev;
+
+      const nextSecondaryImages = [...secondaryImages];
+      const [movedImage] = nextSecondaryImages.splice(activeIndex, 1);
+      nextSecondaryImages.splice(overIndex, 0, movedImage);
+
+      return {
+        ...prev,
+        images: normalizeImageOrder([primaryImage, ...nextSecondaryImages]),
+      };
+    });
+  }, []);
+
+  // 실험용 콘솔 : 공개여부, 끝나면 지울것
+  // useEffect(() => {
+  //   console.log(isPortfolioPublic);
+  // }, [isPortfolioPublic]);
 
   return (
     <>
       {
-        // 실험용 콘솔 : 끝나면 지울것
-        console.log("PortfolioEditor 렌더")
+        // 실험용 콘솔 : 전체 페이지 렌더링 여부, 끝나면 지울것
+        // console.log("PortfolioEditor 렌더")
       }
 
       <Container

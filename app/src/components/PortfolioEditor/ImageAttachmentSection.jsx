@@ -1,16 +1,14 @@
-/**
- * 포트폴리오 이미지 업로드 영역, 대표/보조 이미지 미리보기 그리드
- * @param {{ sectionCardSx: object, thumbnailActionButtonSx: object }} props - sectionCardSx: 이미지 첨부 카드 sx, thumbnailActionButtonSx: 썸네일 액션 버튼 sx
- * @returns {JSX.Element} 이미지 업로드 드롭존, 대표 이미지 미리보기, 보조 이미지 2열 그리드, 업로드 개수/용량
- */
 import Box from "@mui/material/Box";
 import ButtonBase from "@mui/material/ButtonBase";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
-import { CancelIcon, CloudUploadIcon, OpenWithIcon, PushPinIcon } from "../../lib/icons";
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
+import { CancelIcon, CloudUploadIcon } from "../../lib/icons";
 import ImageActionButton from "./ImageActionButton";
+import SortableImageItem from "./SortableImageItem";
 import { memo, useRef } from "react";
 
 function ImageAttachmentSection({
@@ -20,12 +18,29 @@ function ImageAttachmentSection({
   onAddImages,
   onDeleteImage,
   onSetThumbnailImage,
+  onMoveImage,
 }) {
   const fileInputRef = useRef(null);
 
   const sortedImages = [...images].sort((a, b) => a.order - b.order);
   const primaryImage = sortedImages.find(image => image.isThumbnail) ?? sortedImages[0];
   const secondaryImages = sortedImages.filter(image => image.id !== primaryImage?.id);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+  );
+
+  const handleDragEnd = e => {
+    const { active, over } = e;
+
+    if (!over || active.id === over.id) return;
+
+    onMoveImage(active.id, over.id);
+  };
 
   return (
     <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
@@ -53,7 +68,10 @@ function ImageAttachmentSection({
 
       <ButtonBase
         className="portfolio-editor-image-section__dropzone"
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => {
+          if (images.length >= 5) return;
+          fileInputRef.current?.click();
+        }}
         sx={{
           width: "100%",
           minHeight: 194,
@@ -135,64 +153,28 @@ function ImageAttachmentSection({
           </Box>
         )}
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-            gap: 2,
-          }}
-        >
-          {secondaryImages.map((image, index) => {
-            const imageNumber = index + 2;
-
-            return (
-              <Box
-                key={image.id}
-                sx={{
-                  position: "relative",
-                  aspectRatio: "1 / 1",
-                  border: "1px solid",
-                  borderColor: "#d7dbe7",
-                  borderRadius: 1,
-                  bgcolor: "#f5f7fb",
-                  overflow: "hidden",
-                }}
-              >
-                <Box
-                  component="img"
-                  src={image.previewUrl}
-                  alt={`이미지 미리보기 ${imageNumber}`}
-                  sx={{
-                    display: "block",
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={secondaryImages.map(image => image.id)} strategy={rectSortingStrategy}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 2,
+              }}
+            >
+              {secondaryImages.map((image, index) => (
+                <SortableImageItem
+                  key={image.id}
+                  image={image}
+                  imageNumber={index + 2}
+                  thumbnailActionButtonSx={thumbnailActionButtonSx}
+                  onSetThumbnailImage={onSetThumbnailImage}
+                  onDeleteImage={onDeleteImage}
                 />
-                <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
-                  <ImageActionButton
-                    aria-label={`이미지 ${imageNumber} 대표 이미지로 고정`}
-                    onClick={() => onSetThumbnailImage(image.id)}
-                    sx={thumbnailActionButtonSx}
-                  >
-                    <PushPinIcon />
-                  </ImageActionButton>
-                  <ImageActionButton aria-label={`이미지 ${imageNumber} 이동`} sx={thumbnailActionButtonSx}>
-                    <OpenWithIcon />
-                  </ImageActionButton>
-                  <ImageActionButton
-                    aria-label={`이미지 ${imageNumber} 삭제`}
-                    danger
-                    onClick={() => onDeleteImage(image.id)}
-                    sx={thumbnailActionButtonSx}
-                  >
-                    <CancelIcon />
-                  </ImageActionButton>
-                </Stack>
-              </Box>
-            );
-          })}
-        </Box>
+              ))}
+            </Box>
+          </SortableContext>
+        </DndContext>
       </Stack>
 
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>

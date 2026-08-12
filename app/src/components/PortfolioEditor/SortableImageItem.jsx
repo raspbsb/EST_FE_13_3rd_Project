@@ -16,6 +16,7 @@ export default function SortableImageItem({
     id: image.id,
   });
 
+  // dnd-kit 라이브러리 사용을 위한 예외적인 인라인 스타일 사용
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
