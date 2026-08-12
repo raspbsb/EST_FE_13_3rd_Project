@@ -41,7 +41,7 @@ export default function MyPageLayout() {
 
         <ActivityStats />
 
-        <Outlet />
+        <Outlet context={{ profile }} />
       </Container>
     </>
   );
