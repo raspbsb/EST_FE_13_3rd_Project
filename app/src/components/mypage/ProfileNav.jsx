@@ -1,10 +1,12 @@
-import { NavLink, useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import ContactDialog from './ContactDialog';
+import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
+import ContactDialog from "./ContactDialog";
+import styles from "./ProfileNav.module.css";
+
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Box from "@mui/material/Box";
 
 export default function ProfileNav() {
   const location = useLocation();
@@ -13,38 +15,29 @@ export default function ProfileNav() {
 
   // 현재 URL에 따라 선택된 탭 결정
   const getTabValue = () => {
-    if (location.pathname === '/mypage') return 0;
-    if (location.pathname === '/mypage/projects') return 1;
-    if (location.pathname.startsWith('/mypage/collections')) return 2;
+    if (location.pathname === "/mypage") return 0;
+    if (location.pathname === "/mypage/projects") return 1;
+    if (location.pathname.startsWith("/mypage/collections")) return 2;
     return false;
   };
 
   return (
     <>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 64,
-          zIndex: theme => theme.zIndex.appBar - 1,
-          bgcolor: '#f3f4f5',
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+      <Box className={styles.desktopNav}>
         <Tabs
           value={getTabValue()}
           textColor="text.primary"
           indicatorColor="primary"
           aria-label="마이페이지 메뉴"
           sx={{
-            '& .MuiTabs-flexContainer': {
+            "& .MuiTabs-flexContainer": {
               gap: 2,
             },
 
-            '& .MuiTab-root': {
+            "& .MuiTab-root": {
               minHeight: 48,
-              textTransform: 'none',
-              typography: 'h6',
+              textTransform: "none",
+              typography: "h6",
               py: 0,
             },
           }}

@@ -32,3 +32,7 @@ export { default as GithubIcon } from "@mui/icons-material/GitHub";
 export { default as MailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
 export { default as FavoriteBorderIcon } from "@mui/icons-material/FavoriteBorder";
+export { default as WorkIcon } from "@mui/icons-material/Work";
+export { default as BookmarkIcon } from "@mui/icons-material/Bookmark";
+export { default as NotificationsIcon } from "@mui/icons-material/Notifications";
+export { default as PersonIcon } from "@mui/icons-material/Person";
