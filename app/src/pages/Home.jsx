@@ -56,14 +56,14 @@ export default function Home() {
 
     fetchPortfolios();
   }, []);
-
   const filteredPortfolios = portfolios.filter(item => {
-    const query = searchTerm.toLowerCase();
-    const title = item.title?.toLowerCase() || "";
-    const summary = item.ai_summary?.toLowerCase() || item.description?.toLowerCase() || "";
+    const query = searchTerm.toLowerCase().trim();
+    if (!query) return true;
+
+    const title = item?.title?.toLowerCase() || "";
+    const summary = item?.ai_summary?.toLowerCase() || item?.description?.toLowerCase() || "";
     return title.includes(query) || summary.includes(query);
   });
-
   const getInfinitePortfolios = () => {
     if (filteredPortfolios.length === 0) return [];
     let list = [...filteredPortfolios];
@@ -73,15 +73,18 @@ export default function Home() {
     return list;
   };
   const infinitePortfolios = getInfinitePortfolios();
-
   const handleScroll = () => {
     const container = scrollRef.current;
     if (!container) return;
-    if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 20) {
-      container.scrollTo({ left: 1, behavior: "auto" });
+
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+
+    if (container.scrollLeft >= maxScrollLeft - 5) {
+      container.scrollLeft = 1;
+    } else if (container.scrollLeft <= 0) {
+      container.scrollLeft = maxScrollLeft - 6;
     }
   };
-
   return (
     <Box
       sx={{
@@ -214,12 +217,13 @@ export default function Home() {
                     "&::-webkit-scrollbar": { height: 6 },
                     "&::-webkit-scrollbar-thumb": {
                       backgroundColor: "#CBD5E1",
+                      borderRadius: 3,
                     },
                   }}
                 >
                   {infinitePortfolios.map((item, index) => (
                     <Box
-                      key={`desktop-${item.id || "card"}-${index}`}
+                      key={`desktop-${item?.id ?? "card"}-${index}`}
                       sx={{
                         width: "320px",
                         flexShrink: 0,
@@ -242,7 +246,7 @@ export default function Home() {
                       : Array.from({ length: 4 }, (_, i) => filteredPortfolios[i % filteredPortfolios.length])
                     ).map((item, index) => (
                       <Grid
-                        key={`grid-${item?.id || "card"}-${index}`}
+                        key={`grid-${item?.id ?? "card"}-${index}`}
                         sx={{
                           maxWidth: { mobile: "173px !important", tablet: "100%" },
                           width: "100%",
@@ -258,7 +262,6 @@ export default function Home() {
               </>
             )}
           </Box>
-
           <Container
             maxWidth={false}
             sx={{
@@ -281,103 +284,48 @@ export default function Home() {
                 width: "100%",
               }}
             >
-              <Card
-                elevation={0}
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
+              <Card elevation={0} sx={{ flex: 1, minWidth: 0 }}>
                 <CardContent sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
-                  <Box
-                    sx={{
-                      p: 1.25,
-                      backgroundColor: "divider",
-                      display: "flex",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <Box sx={{ p: 1.25, backgroundColor: "divider", display: "flex", flexShrink: 0 }}>
                     <AutoAwesomeIcon sx={{ color: "#4B5563", fontSize: "20px" }} />
                   </Box>
                   <Box>
                     <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
                       AI-Powered Summary
                     </Text>
-                    <Text
-                      variant="body2"
-                      sx={{
-                        color: "text.secondary",
-                        lineHeight: 1.45,
-                      }}
-                    >
+                    <Text variant="body2" sx={{ color: "text.secondary", lineHeight: 1.45 }}>
                       AI 기반의 등록 기능 및 자동 태깅 포트폴리오
                     </Text>
                   </Box>
                 </CardContent>
               </Card>
-              <Card
-                elevation={0}
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
+
+              <Card elevation={0} sx={{ flex: 1, minWidth: 0 }}>
                 <CardContent sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
-                  <Box
-                    sx={{
-                      p: 1.25,
-                      backgroundColor: "divider",
-                      display: "flex",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <Box sx={{ p: 1.25, backgroundColor: "divider", display: "flex", flexShrink: 0 }}>
                     <CodeIcon sx={{ color: "#4B5563", fontSize: "20px" }} />
                   </Box>
                   <Box>
                     <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "text.primary" }}>
                       Codebase Insights
                     </Text>
-                    <Text
-                      variant="body2"
-                      sx={{
-                        color: "text.secondary",
-                        lineHeight: 1.45,
-                      }}
-                    >
+                    <Text variant="body2" sx={{ color: "text.secondary", lineHeight: 1.45 }}>
                       코드베이스 인사이트 분석 및 기술 스택 자동 태깅
                     </Text>
                   </Box>
                 </CardContent>
               </Card>
-              <Card
-                elevation={0}
-                sx={{
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
+
+              <Card elevation={0} sx={{ flex: 1, minWidth: 0 }}>
                 <CardContent sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
-                  <Box
-                    sx={{
-                      p: 1.25,
-                      backgroundColor: "divider",
-                      display: "flex",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <Box sx={{ p: 1.25, backgroundColor: "divider", display: "flex", flexShrink: 0 }}>
                     <PeopleIcon sx={{ color: "#4B5563", fontSize: "20px" }} />
                   </Box>
                   <Box>
                     <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "text.primary" }}>
                       Recruiter Direct Connect
                     </Text>
-                    <Text
-                      variant="body2"
-                      sx={{
-                        color: "text.secondary",
-                        lineHeight: 1.45,
-                      }}
-                    >
+                    <Text variant="body2" sx={{ color: "text.secondary", lineHeight: 1.45 }}>
                       채용 담당자와 직접 연결하여 포트폴리오 공유
                     </Text>
                   </Box>
