@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 
 function ProjectBasicInfoSection({
   sectionCardSx,
@@ -30,16 +30,57 @@ function ProjectBasicInfoSection({
   description,
   handleFormChange,
 }) {
+  const [localTitle, setLocalTitle] = useState(title);
+  const [localDeployUrl, setLocalDeployUrl] = useState(deployUrl);
+  const [localAuthorRole, setLocalAuthorRole] = useState(authorRole);
+  const [localRepositoryUrl, setLocalRepositoryUrl] = useState(repositoryUrl);
+  const [localDescription, setLocalDescription] = useState(description);
+
+  useEffect(() => {
+    setLocalTitle(title);
+  }, [title]);
+
+  useEffect(() => {
+    setLocalDeployUrl(deployUrl);
+  }, [deployUrl]);
+
+  useEffect(() => {
+    setLocalAuthorRole(authorRole);
+  }, [authorRole]);
+
+  useEffect(() => {
+    setLocalRepositoryUrl(repositoryUrl);
+  }, [repositoryUrl]);
+
+  useEffect(() => {
+    setLocalDescription(description);
+  }, [description]);
+
+  const commitField = useCallback(
+    (name, value) => {
+      handleFormChange({
+        target: {
+          name,
+          value,
+        },
+      });
+    },
+    [handleFormChange],
+  );
+
   // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
-  const handleDateChange = useCallback((name, nextDate) => {
-    handleFormChange({
-      target: {
-        name,
-        value: nextDate ? nextDate.format("YYYY-MM-DD") : "",
-      },
-    });
-    // console.log(nextDate ? nextDate.format("YYYY-MM-DD") : ""); // 2026-08-11
-  }, []);
+  const handleDateChange = useCallback(
+    (name, nextDate) => {
+      handleFormChange({
+        target: {
+          name,
+          value: nextDate ? nextDate.format("YYYY-MM-DD") : "",
+        },
+      });
+      // console.log(nextDate ? nextDate.format("YYYY-MM-DD") : ""); // 2026-08-11
+    },
+    [handleFormChange],
+  );
 
   return (
     <Box component="section" sx={sectionCardSx}>
@@ -60,8 +101,9 @@ function ProjectBasicInfoSection({
             id="title"
             name="title"
             size="small"
-            value={title}
-            onChange={handleFormChange}
+            value={localTitle}
+            onChange={event => setLocalTitle(event.target.value)}
+            onBlur={() => commitField("title", localTitle)}
             sx={formInputSx}
           />
         </FormControl>
@@ -142,8 +184,9 @@ function ProjectBasicInfoSection({
               id="deploy_url"
               name="deploy_url"
               size="small"
-              value={deployUrl}
-              onChange={handleFormChange}
+              value={localDeployUrl}
+              onChange={event => setLocalDeployUrl(event.target.value)}
+              onBlur={() => commitField("deploy_url", localDeployUrl)}
               sx={formInputSx}
             />
           </FormControl>
@@ -159,8 +202,9 @@ function ProjectBasicInfoSection({
               id="author_role"
               name="author_role"
               size="small"
-              value={authorRole}
-              onChange={handleFormChange}
+              value={localAuthorRole}
+              onChange={event => setLocalAuthorRole(event.target.value)}
+              onBlur={() => commitField("author_role", localAuthorRole)}
               sx={formInputSx}
             />
           </FormControl>
@@ -174,8 +218,9 @@ function ProjectBasicInfoSection({
               id="repository_url"
               name="repository_url"
               size="small"
-              value={repositoryUrl}
-              onChange={handleFormChange}
+              value={localRepositoryUrl}
+              onChange={event => setLocalRepositoryUrl(event.target.value)}
+              onBlur={() => commitField("repository_url", localRepositoryUrl)}
               sx={formInputSx}
             />
           </FormControl>
@@ -193,8 +238,9 @@ function ProjectBasicInfoSection({
             size="small"
             multiline
             minRows={5}
-            value={description}
-            onChange={handleFormChange}
+            value={localDescription}
+            onChange={event => setLocalDescription(event.target.value)}
+            onBlur={() => commitField("description", localDescription)}
             sx={formInputSx}
           />
         </FormControl>
