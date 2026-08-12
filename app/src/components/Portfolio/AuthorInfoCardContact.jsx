@@ -1,10 +1,10 @@
-import { cloneElement } from "react";
+import { cloneElement, memo } from "react";
 import ListItem from "@mui/material/ListItem";
 import MuiLink from "@mui/material/Link";
 
 import { LinkIcon } from "../../lib/icons";
 
-export default function AuthorInfoCardContact({ href, icon = <LinkIcon />, email }) {
+function AuthorInfoCardContact({ href, icon = <LinkIcon />, email }) {
   const renderedIcon = cloneElement(icon, { fontSize: "small", sx: { mr: 1 } });
 
   return (
@@ -16,3 +16,5 @@ export default function AuthorInfoCardContact({ href, icon = <LinkIcon />, email
     </ListItem>
   );
 }
+
+export default memo(AuthorInfoCardContact);
