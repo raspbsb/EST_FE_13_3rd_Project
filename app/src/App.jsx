@@ -35,6 +35,8 @@ export default function App() {
         <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
           <Route index element={<MyProjects mode="public" />} />
         </Route>
+        {/* 테스트용 임시 라우트 */}
+        <Route path="/test/collections/:userId" element={<Collections />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
