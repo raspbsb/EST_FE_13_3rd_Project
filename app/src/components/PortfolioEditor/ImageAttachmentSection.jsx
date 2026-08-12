@@ -56,7 +56,7 @@ function ImageAttachmentSection({
 
   return (
     <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
-      <Stack direction="row" sx={{ mb: 3, width: "100%", justifyContent: "space-between", alignItems: "center" }}>
+      <Stack className="portfolio-editor-image-section__header" direction="row">
         <Text component="h2" variant="h5" fontWeight={700}>
           이미지 첨부
         </Text>
@@ -85,20 +85,9 @@ function ImageAttachmentSection({
           if (isImageLimitReached) return;
           fileInputRef.current?.click();
         }}
-        sx={{
-          width: "100%",
-          minHeight: 194,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          border: "2px dashed",
-          borderColor: "#8d99ae",
-          borderRadius: 2,
-          mb: 3,
-        }}
       >
-        <Stack spacing={1} sx={{ alignItems: "center", justifyContent: "center" }}>
-          <CloudUploadIcon sx={{ fontSize: 40, color: "#212121" }} />
+        <Stack className="portfolio-editor-image-section__dropzone-content" spacing={1}>
+          <CloudUploadIcon className="portfolio-editor-image-section__dropzone-icon" />
 
           <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
             {isImageLimitReached ? "최대 5장 업로드됨" : "파일을 끌어서 놓거나 클릭하여 업로드"}
@@ -112,48 +101,26 @@ function ImageAttachmentSection({
         </Stack>
       </ButtonBase>
 
-      <Text fontWeight={700} sx={{ mb: 2 }}>
+      <Text className="portfolio-editor-image-section__preview-title" fontWeight={700}>
         이미지 미리보기
       </Text>
 
-      <Stack spacing={2} sx={{ mb: 2 }}>
+      <Stack className="portfolio-editor-image-section__preview-list" spacing={2}>
         {primaryImage && (
-          <Box
-            sx={{
-              position: "relative",
-              aspectRatio: "358 / 220",
-              border: "1px solid",
-              borderColor: "#d7dbe7",
-              borderRadius: 1,
-              bgcolor: "#f5f7fb",
-              overflow: "hidden",
-            }}
-          >
+          <Box className="portfolio-editor-image-section__primary-preview">
             <Box
               component="img"
+              className="portfolio-editor-image-section__preview-image"
               src={primaryImage.previewUrl}
               alt="대표 이미지 미리보기"
-              sx={{
-                width: "100%",
-                height: "100%",
-                display: "block",
-                objectFit: "cover",
-              }}
             />
             <Chip
               className="portfolio-editor-image-section__thumbnail-badge"
               label="대표 이미지"
               color="primary"
               size="small"
-              sx={{
-                position: "absolute",
-                top: 8,
-                left: 8,
-                borderRadius: 1,
-                fontWeight: 700,
-              }}
             />
-            <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
+            <Stack className="portfolio-editor-image-section__preview-actions" direction="row" spacing={0.5}>
               <ImageActionButton
                 aria-label="대표 이미지 삭제"
                 danger
@@ -168,13 +135,7 @@ function ImageAttachmentSection({
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={secondaryImages.map(image => image.id)} strategy={rectSortingStrategy}>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: 2,
-              }}
-            >
+            <Box className="portfolio-editor-image-section__secondary-grid">
               {secondaryImages.map((image, index) => (
                 <SortableImageItem
                   key={image.id}
@@ -190,7 +151,7 @@ function ImageAttachmentSection({
         </DndContext>
       </Stack>
 
-      <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+      <Stack className="portfolio-editor-image-section__footer" direction="row">
         <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
           {images.length}/5장 업로드됨
         </Text>
