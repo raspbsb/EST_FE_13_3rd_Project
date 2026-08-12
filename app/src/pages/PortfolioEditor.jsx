@@ -18,6 +18,74 @@ import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection
 import "../components/PortfolioEditor/PortfolioEditor.css";
 import { createPortfolioSavePayload } from "../utils/createPortfolioSavePayload";
 
+// 섹션 카드 스타일 (mui)
+const sectionCardSx = {
+  border: "1px solid",
+  borderColor: "#c2c6d8",
+  borderRadius: "12px",
+  bgcolor: "background.paper",
+  p: { xs: "17px", tablet: "25px" },
+};
+// 라벨 스타일 (mui)
+const fieldLabelSx = {
+  mb: 1,
+  color: "#757575",
+  fontSize: 14,
+  fontWeight: 500,
+  letterSpacing: "0.28px",
+  lineHeight: "20px",
+  display: "block",
+};
+// 인풋 스타일 (mui)
+const formInputSx = {
+  minHeight: 42,
+  borderRadius: "8px",
+  bgcolor: "background.paper",
+  fontSize: 16,
+  lineHeight: "24px",
+  "& .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#c2c6d8",
+  },
+  "&:hover .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#9aa3b2",
+  },
+  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+    borderColor: "primary.main",
+    borderWidth: 1,
+  },
+  "&.Mui-disabled": {
+    bgcolor: "#f5f5f5",
+    color: "#9e9e9e",
+    cursor: "not-allowed",
+  },
+  "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
+    borderColor: "#d6d9e3",
+  },
+  "&.Mui-disabled .MuiInputBase-input": {
+    color: "#9e9e9e",
+    WebkitTextFillColor: "#9e9e9e",
+  },
+  "&.Mui-disabled .MuiSvgIcon-root": {
+    color: "#9e9e9e",
+  },
+};
+// 이미지 액션 버튼 스타일 (mui)
+const thumbnailActionButtonSx = {
+  width: 32,
+  height: 32,
+  p: 0.75,
+  border: "0.2px solid rgba(68, 68, 68, 0.5)",
+  borderRadius: "8px",
+  bgcolor: "rgba(255, 255, 255, 0.8)",
+  color: "#444",
+  "&:hover": {
+    bgcolor: "rgba(255, 255, 255, 0.92)",
+  },
+  "& .MuiSvgIcon-root": {
+    fontSize: 18,
+  },
+};
+
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -41,86 +109,6 @@ export default function PortfolioEditor({ data }) {
   const MAX_IMAGE_COUNT = 5;
   const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
-
-  // 섹션 카드 스타일 (mui)
-  const sectionCardSx = useMemo(
-    () => ({
-      border: "1px solid",
-      borderColor: "#c2c6d8",
-      borderRadius: "12px",
-      bgcolor: "background.paper",
-      p: { xs: "17px", tablet: "25px" },
-    }),
-    [],
-  );
-  // 라벨 스타일 (mui)
-  const fieldLabelSx = useMemo(
-    () => ({
-      mb: 1,
-      color: "#757575",
-      fontSize: 14,
-      fontWeight: 500,
-      letterSpacing: "0.28px",
-      lineHeight: "20px",
-      display: "block",
-    }),
-    [],
-  );
-  // 인풋 스타일 (mui)
-  const formInputSx = useMemo(
-    () => ({
-      minHeight: 42,
-      borderRadius: "8px",
-      bgcolor: "background.paper",
-      fontSize: 16,
-      lineHeight: "24px",
-      "& .MuiOutlinedInput-notchedOutline": {
-        borderColor: "#c2c6d8",
-      },
-      "&:hover .MuiOutlinedInput-notchedOutline": {
-        borderColor: "#9aa3b2",
-      },
-      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-        borderColor: "primary.main",
-        borderWidth: 1,
-      },
-      "&.Mui-disabled": {
-        bgcolor: "#f5f5f5",
-        color: "#9e9e9e",
-        cursor: "not-allowed",
-      },
-      "&.Mui-disabled .MuiOutlinedInput-notchedOutline": {
-        borderColor: "#d6d9e3",
-      },
-      "&.Mui-disabled .MuiInputBase-input": {
-        color: "#9e9e9e",
-        WebkitTextFillColor: "#9e9e9e",
-      },
-      "&.Mui-disabled .MuiSvgIcon-root": {
-        color: "#9e9e9e",
-      },
-    }),
-    [],
-  );
-  // 이미지 액션 버튼 스타일 (mui)
-  const thumbnailActionButtonSx = useMemo(
-    () => ({
-      width: 32,
-      height: 32,
-      p: 0.75,
-      border: "0.2px solid rgba(68, 68, 68, 0.5)",
-      borderRadius: "8px",
-      bgcolor: "rgba(255, 255, 255, 0.8)",
-      color: "#444",
-      "&:hover": {
-        bgcolor: "rgba(255, 255, 255, 0.92)",
-      },
-      "& .MuiSvgIcon-root": {
-        fontSize: 18,
-      },
-    }),
-    [],
-  );
 
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
