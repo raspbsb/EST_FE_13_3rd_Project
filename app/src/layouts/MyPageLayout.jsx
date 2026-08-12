@@ -1,25 +1,26 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
 
-import Container from '@mui/material/Container';
+import Container from "@mui/material/Container";
 
-import ProfileHeader from '../components/mypage/ProfileHeader';
-import ActivityStats from '../components/mypage/ActivityStats';
-import ProfileNav from '../components/mypage/ProfileNav';
-import { useState } from 'react';
+import ProfileHeader from "../components/mypage/ProfileHeader";
+import ActivityStats from "../components/mypage/ActivityStats";
+import ProfileNav from "../components/mypage/ProfileNav";
+import MobileProfileNav from "../components/mypage/MobileProfileNav";
+import { useState } from "react";
 
 export default function MyPageLayout() {
   //프로필 상태 관리
   const [profile, setProfile] = useState({
-    user_id: '',
-    avatar_path: '',
-    user_name: 'User Name',
-    user_category: 'Frontend Developer',
-    skills: ['React', 'TypeScript', 'Supabase', 'Tailwind', 'Next.js'],
-    bio: 'Crafting highly performant, accessible, and delightful web experiences. Specializing in modern React ecosystems and scalable design systems for creative professionals.',
-    email: 'portfolio@gmail.com',
+    user_id: "",
+    avatar_path: "",
+    user_name: "User Name",
+    user_category: "Frontend Developer",
+    skills: ["React", "TypeScript", "Supabase", "Tailwind", "Next.js"],
+    bio: "Crafting highly performant, accessible, and delightful web experiences. Specializing in modern React ecosystems and scalable design systems for creative professionals.",
+    email: "portfolio@gmail.com",
     is_public: true,
-    github_url: 'https://github.com/portfolio',
-    url2: '',
+    github_url: "https://github.com/portfolio",
+    url2: "",
     profile_view: 0,
   });
 
@@ -32,17 +33,23 @@ export default function MyPageLayout() {
         maxWidth={false}
         disableGutters
         sx={{
-          maxWidth: '1272px',
-          mx: 'auto',
+          maxWidth: "1272px",
+          mx: "auto",
           py: 6,
+
+          "@media (max-width: 767px)": {
+            pb: 7,
+          },
         }}
       >
         <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
 
         <ActivityStats />
 
-        <Outlet />
+        <Outlet context={{ profile }} />
       </Container>
+
+      <MobileProfileNav />
     </>
   );
 }
