@@ -11,6 +11,7 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { CancelIcon, CloudUploadIcon, OpenWithIcon, PushPinIcon } from "../../lib/icons";
 import ImageActionButton from "./ImageActionButton";
+import { memo } from "react";
 
 const portfolioPreviewImageUrls = [
   "https://www.figma.com/api/mcp/asset/9f627a9c-01d7-44ba-a75d-5ea10f3fb01e.png",
@@ -19,7 +20,7 @@ const portfolioPreviewImageUrls = [
   "https://www.figma.com/api/mcp/asset/f87e37eb-22aa-4570-a56a-dcc1a0129bdc.png",
 ];
 
-export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handleFormChange }) {
+function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handleFormChange }) {
   const [primaryPreviewImageUrl, ...secondaryPreviewImageUrls] = portfolioPreviewImageUrls;
 
   return (
@@ -176,3 +177,5 @@ export default function ImageAttachmentSection({ sectionCardSx, thumbnailActionB
     </Paper>
   );
 }
+
+export default memo(ImageAttachmentSection);

@@ -10,8 +10,9 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { EditIcon } from "../../lib/icons";
+import { memo } from "react";
 
-export default function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide }) {
+function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide }) {
   return (
     <Box>
       <Box
@@ -137,3 +138,5 @@ export default function DraftGuideSection({ sectionCardSx, formInputSx, draftGui
     </Box>
   );
 }
+
+export default memo(DraftGuideSection);

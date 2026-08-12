@@ -15,14 +15,9 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
+import { memo } from "react";
 
-export default function ProjectBasicInfoSection({
-  sectionCardSx,
-  fieldLabelSx,
-  formInputSx,
-  formData,
-  handleFormChange,
-}) {
+function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, formData, handleFormChange }) {
   // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
   const handleDateChange = (name, nextDate) => {
     handleFormChange({
@@ -195,3 +190,5 @@ export default function ProjectBasicInfoSection({
     </Box>
   );
 }
+
+export default memo(ProjectBasicInfoSection);

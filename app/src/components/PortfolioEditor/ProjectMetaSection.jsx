@@ -3,7 +3,7 @@
  * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: Select 공통 sx
  * @returns {JSX.Element} 참여 정보 Select, 카테고리/기술 스택 선택 Select, 선택된 항목 Chip 목록
  */
-import { useState } from "react";
+import { memo, useState } from "react";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -35,7 +35,7 @@ function renderSelectMenuItems(options) {
   ));
 }
 
-export default function ProjectMetaSection({
+function ProjectMetaSection({
   sectionCardSx,
   fieldLabelSx,
   formInputSx,
@@ -236,3 +236,5 @@ export default function ProjectMetaSection({
     </Paper>
   );
 }
+
+export default memo(ProjectMetaSection);
