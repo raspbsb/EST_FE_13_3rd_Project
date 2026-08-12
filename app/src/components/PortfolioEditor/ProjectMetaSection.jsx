@@ -3,7 +3,7 @@
  * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: Select 공통 sx
  * @returns {JSX.Element} 참여 정보 Select, 카테고리/기술 스택 선택 Select, 선택된 항목 Chip 목록
  */
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -35,11 +35,15 @@ function renderSelectMenuItems(options) {
   ));
 }
 
-export default function ProjectMetaSection({
+function ProjectMetaSection({
   sectionCardSx,
   fieldLabelSx,
   formInputSx,
-  formData,
+  projectType,
+  teamSize,
+  environment,
+  categories,
+  techStacks,
   handleFormChange,
   handleAddCategory,
   handleDeleteCategory,
@@ -51,27 +55,30 @@ export default function ProjectMetaSection({
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const handleCategoryChange = (_, selectedOption) => {
+  const handleCategoryChange = useCallback((_, selectedOption) => {
     handleAddCategory(selectedOption);
     setCategoryInputValue("");
-  };
+  }, []);
 
-  const handleTechStackChange = (_, selectedOption) => {
+  const handleTechStackChange = useCallback((_, selectedOption) => {
     handleAddTechStack(selectedOption);
     setTechStackInputValue("");
-  };
+  }, []);
 
-  const stackSx = {
-    mb: 1,
-    width: "100%",
-    minWidth: 0,
-    maxWidth: "100%",
-    overflow: "hidden",
-    flexWrap: "wrap",
-  };
+  const stackSx = useMemo(
+    () => ({
+      mb: 1,
+      width: "100%",
+      minWidth: 0,
+      maxWidth: "100%",
+      overflow: "hidden",
+      flexWrap: "wrap",
+    }),
+    [],
+  );
 
-  const isCategoryLimitReached = formData.categories.length >= maxCategoryCount;
-  const isTechStackLimitReached = formData.tech_stacks.length >= maxTechStackCount;
+  const isCategoryLimitReached = categories.length >= maxCategoryCount;
+  const isTechStackLimitReached = techStacks.length >= maxTechStackCount;
 
   return (
     <Paper elevation={0} sx={sectionCardSx}>
@@ -83,7 +90,7 @@ export default function ProjectMetaSection({
               id="project_type"
               name="project_type"
               size="small"
-              value={formData.project_type}
+              value={projectType}
               onChange={handleFormChange}
               sx={formInputSx}
             >
@@ -97,7 +104,7 @@ export default function ProjectMetaSection({
               id="team_size"
               name="team_size"
               size="small"
-              value={formData.team_size}
+              value={teamSize}
               onChange={handleFormChange}
               sx={formInputSx}
             >
@@ -112,7 +119,7 @@ export default function ProjectMetaSection({
             id="environment"
             name="environment"
             size="small"
-            value={formData.environment}
+            value={environment}
             onChange={handleFormChange}
             sx={formInputSx}
           >
@@ -149,7 +156,7 @@ export default function ProjectMetaSection({
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
-            {formData.categories.map(category => (
+            {categories.map(category => (
               <PortfolioMetaChip
                 variant="category"
                 key={category.value}
@@ -205,7 +212,7 @@ export default function ProjectMetaSection({
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
-            {formData.tech_stacks.map(techStack => (
+            {techStacks.map(techStack => (
               <PortfolioMetaChip
                 variant="tech"
                 key={techStack.value}
@@ -236,3 +243,5 @@ export default function ProjectMetaSection({
     </Paper>
   );
 }
+
+export default memo(ProjectMetaSection);
