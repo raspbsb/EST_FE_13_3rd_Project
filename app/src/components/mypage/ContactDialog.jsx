@@ -52,8 +52,9 @@ export default function ContactDialog({ open, onClose }) {
       id: 2,
       type: 'message',
       sender: 'employer',
-      job: 'Job position',
+      job: '프론트엔드 개발자',
       createdAt: '1d ago',
+      content: '안녕하세요.',
       isRead: false,
     },
     {

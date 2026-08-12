@@ -8,13 +8,19 @@ import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 
-import { setLoading, setPortfolio, resetPortfolio, fetchPortfolio } from "../components/Portfolio/portfolioSlice";
+import {
+  setLoading,
+  setPortfolio,
+  resetPortfolio,
+  fetchPortfolio,
+  fetchOtherPortfolios,
+} from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status, error, otherPortfolios } = useSelector(state => state.portfolio);
 
   useEffect(() => {
     dispatch(fetchPortfolio(id));
@@ -22,6 +28,26 @@ export default function Portfolio() {
       dispatch(resetPortfolio());
     };
   }, [id]);
+
+  useEffect(() => {
+    if (status !== "succeeded") return;
+    if (!data?.author_id) return;
+    dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
+  }, [status]);
+
+  // 후에 스켈레톤으로 변경
+  if (status === "idle" || status === "loading") {
+    return (
+      <Container>
+        <Text component={"p"} variant="h4">
+          포트폴리오 상세
+        </Text>
+        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
+          로딩중...
+        </Text>
+      </Container>
+    );
+  }
 
   if (status === "failed") {
     return (
@@ -74,7 +100,7 @@ export default function Portfolio() {
 
   return (
     <Container>
-      <Stack sx={{ gap: { mobile: 3, tablet: 4, desktop: 6 }, py: { mobile: 4, tablet: 4, desktop: 6 } }}>
+      <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
         <Text component={"p"} variant="h4">
           포트폴리오 상세
         </Text>

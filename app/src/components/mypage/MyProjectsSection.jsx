@@ -1,26 +1,97 @@
+import { useEffect, useState } from 'react';
+import { useOutletContext, useParams } from 'react-router-dom';
+import { supabase } from '../../utils/supabase';
+
+import ProjectCard from '../ProjectCard';
+import styles from './MyProjectsSection.module.css';
+
 import List from '@mui/material/List';
 import Box from '@mui/material/Box';
 import Text from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
 export default function MyProjectsSection({ mode }) {
+  const { userId } = useParams();
+
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const outletContext = useOutletContext();
+  const profile = outletContext?.profile;
+
+  // supabase portfolios 테이블 데이터 가져오기
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('portfolios')
+        .select(
+          `
+            *,
+            portfolio_images (
+              image_id,
+              image_path,
+              display_order,
+              is_thumbnail,
+              alt_text
+            ),
+            portfolio_tech_stacks (
+              tech_stack
+            ),
+            profiles (
+              user_name,
+              avatar_path
+            )
+          `,
+        )
+        .eq('author_id', userId)
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('프로젝트 조회 실패', error);
+        setLoading(false);
+        return;
+      }
+
+      setProjects(data);
+      setLoading(false);
+    };
+    fetchProducts();
+  }, [userId]);
+
   return (
-    <Box component='section' sx={{}}>
+    <Box
+      component="section"
+      sx={{
+        pt: 9,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         {mode === 'mypage' ? (
           <>
-            <Text variant='h6'>내 프로젝트</Text>
-            <Link href='/mypage/projects' underline='hover' variant='subtitle2'>
+            <Text component="h2" variant="h6">
+              내 프로젝트
+            </Text>
+            <Link component="a" href="/mypage/projects" underline="hover" variant="subtitle2">
               View all
             </Link>
           </>
         ) : (
-          <Text variant='h6'>User Name의 프로젝트</Text>
+          <Text component="h2" variant="h6">
+            {profile?.user_name}의 프로젝트
+          </Text>
         )}
       </Box>
-      <List>
-        <p>프로젝트 카드 영역</p>
-      </List>
+      <div className={styles.grid}>
+        {projects.map(project => (
+          <ProjectCard key={project.project_id} project={project} />
+        ))}
+      </div>
     </Box>
   );
 }

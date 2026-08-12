@@ -5,10 +5,15 @@ import Link from '@mui/material/Link';
 
 export default function Collections() {
   return (
-    <Box component='section' sx={{}}>
+    <Box
+      component="section"
+      sx={{
+        pt: 9,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <Text variant='h6'>북마크</Text>
-        <Link component='button' underline='hover' variant='subtitle2'>
+        <Text variant="h6">북마크</Text>
+        <Link component="button" underline="hover" variant="subtitle2">
           컬렉션 관리
         </Link>
       </Box>

@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
 import AuthorInfoCard from "./AuthorInfoCard";
-import AuthorInfoPortfolios from "./AuthorInfoPortfplios";
+import AuthorInfoPortfolios from "./AuthorInfoPortfolios";
 
 export default function AuthorInfoSection({}) {
   return (
