@@ -11,7 +11,7 @@ import Text from "@mui/material/Typography";
 import { LockIcon, PublicIcon, ViewsIcon } from "../../lib/icons";
 import { memo } from "react";
 
-function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, handleFormChange }) {
+function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onPreviewOpen, handleFormChange }) {
   return (
     <Box
       className="portfolio-editor-action-bar"
@@ -52,7 +52,7 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, handle
           <Button type="button" variant="outlined">
             임시저장
           </Button>
-          <Button type="button" variant="outlined">
+          <Button type="button" variant="outlined" onClick={onPreviewOpen}>
             <ViewsIcon />
             미리보기
           </Button>

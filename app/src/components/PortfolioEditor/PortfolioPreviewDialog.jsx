@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Text from "@mui/material/Typography";
 
-export default function PortfolioPreviewDialog({ open, onClose }) {
+export default function PortfolioPreviewDialog({ open, onClose, formData, aiAnalysisResult, draftGuide }) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>미리보기</DialogTitle>

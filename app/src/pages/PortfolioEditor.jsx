@@ -13,6 +13,7 @@ import EditorActionBar from "../components/PortfolioEditor/EditorActionBar";
 import EditorTitleSection from "../components/PortfolioEditor/EditorTitleSection";
 import GithubAiAnalysisSection from "../components/PortfolioEditor/GithubAiAnalysisSection";
 import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmentSection";
+import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPreviewDialog";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import "../components/PortfolioEditor/PortfolioEditor.css";
@@ -190,6 +191,20 @@ export default function PortfolioEditor({ data }) {
     },
     [formData, aiAnalysisResult, draftGuide],
   );
+
+  const handleOpenPreview = useCallback(() => {
+    setEditorUi(prev => ({
+      ...prev,
+      isPreviewOpen: true,
+    }));
+  }, []);
+
+  const handleClosePreview = useCallback(() => {
+    setEditorUi(prev => ({
+      ...prev,
+      isPreviewOpen: false,
+    }));
+  }, []);
 
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleAddCategory = useCallback(category => {
@@ -513,11 +528,19 @@ export default function PortfolioEditor({ data }) {
               isEdit={isEdit}
               isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
+              onPreviewOpen={handleOpenPreview}
               handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>
       </Container>
+      <PortfolioPreviewDialog
+        open={editorUi.isPreviewOpen}
+        onClose={handleClosePreview}
+        formData={formData}
+        aiAnalysisResult={aiAnalysisResult}
+        draftGuide={draftGuide}
+      />
     </>
   );
 }
