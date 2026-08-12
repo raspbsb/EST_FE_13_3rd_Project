@@ -122,26 +122,6 @@ export default function PortfolioEditor({ data }) {
     [],
   );
 
-  // 공개/비공개 토글 스위치 핸들링 함수
-  const handlePortfolioVisibilityChange = useCallback(e => {
-    setIsPortfolioPublic(e.target.checked);
-    handleFormChange(e);
-  }, []);
-
-  // 폼 전송 함수
-  const handleSubmit = useCallback(e => {
-    e.preventDefault();
-
-    const payload = createPortfolioSavePayload({
-      formData,
-      aiAnalysisResult,
-      draftGuide,
-      authorId: null,
-    });
-
-    console.log(payload);
-  }, []);
-
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
@@ -189,6 +169,23 @@ export default function PortfolioEditor({ data }) {
     isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
+
+  // 폼 전송 함수
+  const handleSubmit = useCallback(
+    e => {
+      e.preventDefault();
+
+      const payload = createPortfolioSavePayload({
+        formData,
+        aiAnalysisResult,
+        draftGuide,
+        authorId: null,
+      });
+
+      console.log(payload);
+    },
+    [formData, aiAnalysisResult, draftGuide],
+  );
 
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleAddCategory = useCallback(category => {
@@ -282,9 +279,18 @@ export default function PortfolioEditor({ data }) {
     // 이전걸 풀어헤친다음 그 중 formData에 해당하는 것만 값 변경
     setFormData(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: nextValue,
     }));
   }, []);
+
+  // 공개/비공개 토글 스위치 핸들링 함수
+  const handlePortfolioVisibilityChange = useCallback(
+    e => {
+      setIsPortfolioPublic(e.target.checked);
+      handleFormChange(e);
+    },
+    [handleFormChange],
+  );
 
   // 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
   const handleAddImages = useCallback(files => {}, []);
@@ -305,7 +311,7 @@ export default function PortfolioEditor({ data }) {
 
   return (
     <>
-      {console.log("PortfolioEditor 렌더")}
+      {/* {console.log("PortfolioEditor 렌더")} */}
       <Container
         className="portfolio-editor-page"
         component="main"
@@ -352,7 +358,11 @@ export default function PortfolioEditor({ data }) {
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  formData={formData}
+                  projectType={formData.project_type}
+                  teamSize={formData.team_size}
+                  environment={formData.environment}
+                  categories={formData.categories}
+                  techStacks={formData.tech_stacks}
                   handleFormChange={handleFormChange}
                   handleAddCategory={handleAddCategory}
                   handleDeleteCategory={handleDeleteCategory}

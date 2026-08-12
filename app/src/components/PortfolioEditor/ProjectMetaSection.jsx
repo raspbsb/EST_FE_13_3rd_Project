@@ -39,7 +39,11 @@ function ProjectMetaSection({
   sectionCardSx,
   fieldLabelSx,
   formInputSx,
-  formData,
+  projectType,
+  teamSize,
+  environment,
+  categories,
+  techStacks,
   handleFormChange,
   handleAddCategory,
   handleDeleteCategory,
@@ -70,8 +74,8 @@ function ProjectMetaSection({
     flexWrap: "wrap",
   };
 
-  const isCategoryLimitReached = formData.categories.length >= maxCategoryCount;
-  const isTechStackLimitReached = formData.tech_stacks.length >= maxTechStackCount;
+  const isCategoryLimitReached = categories.length >= maxCategoryCount;
+  const isTechStackLimitReached = techStacks.length >= maxTechStackCount;
 
   return (
     <Paper elevation={0} sx={sectionCardSx}>
@@ -83,7 +87,7 @@ function ProjectMetaSection({
               id="project_type"
               name="project_type"
               size="small"
-              value={formData.project_type}
+              value={projectType}
               onChange={handleFormChange}
               sx={formInputSx}
             >
@@ -97,7 +101,7 @@ function ProjectMetaSection({
               id="team_size"
               name="team_size"
               size="small"
-              value={formData.team_size}
+              value={teamSize}
               onChange={handleFormChange}
               sx={formInputSx}
             >
@@ -112,7 +116,7 @@ function ProjectMetaSection({
             id="environment"
             name="environment"
             size="small"
-            value={formData.environment}
+            value={environment}
             onChange={handleFormChange}
             sx={formInputSx}
           >
@@ -149,7 +153,7 @@ function ProjectMetaSection({
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
-            {formData.categories.map(category => (
+            {categories.map(category => (
               <PortfolioMetaChip
                 variant="category"
                 key={category.value}
@@ -205,7 +209,7 @@ function ProjectMetaSection({
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
-            {formData.tech_stacks.map(techStack => (
+            {techStacks.map(techStack => (
               <PortfolioMetaChip
                 variant="tech"
                 key={techStack.value}
