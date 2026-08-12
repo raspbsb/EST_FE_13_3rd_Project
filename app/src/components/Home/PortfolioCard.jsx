@@ -11,8 +11,8 @@ export default function PortfolioCard({ portfolio }) {
   const id = portfolio?.id || portfolio?.portfolio_id || portfolio?._id;
   const title = portfolio?.title || "제목 없음";
   const content = portfolio?.ai_summary || portfolio?.content || portfolio?.description || "요약 내용이 없습니다.";
-  const images = portfolio?.portfolio_images || [];
-  const thumbnailObj = images.find(img => img.is_thumbnail || img.is_main) || images[0];
+  const images = Array.isArray(portfolio?.portfolio_images) ? portfolio.portfolio_images : [];
+  const thumbnailObj = images.find(img => img?.is_thumbnail || img?.is_main) || images[0];
 
   const image =
     thumbnailObj?.image_url ||
