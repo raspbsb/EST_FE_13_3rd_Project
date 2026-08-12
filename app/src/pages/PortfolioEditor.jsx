@@ -16,7 +16,6 @@ import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmen
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import "../components/PortfolioEditor/PortfolioEditor.css";
-import { createPortfolioSavePayload } from "../utils/createPortfolioSavePayload";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -183,14 +182,11 @@ export default function PortfolioEditor({ data }) {
     e => {
       e.preventDefault();
 
-      const payload = createPortfolioSavePayload({
+      console.log({
         formData,
         aiAnalysisResult,
         draftGuide,
-        authorId: null,
       });
-
-      console.log(payload);
     },
     [formData, aiAnalysisResult, draftGuide],
   );
