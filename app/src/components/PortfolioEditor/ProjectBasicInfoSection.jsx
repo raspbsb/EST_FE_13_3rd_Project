@@ -15,11 +15,23 @@ import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import { ErrorCircleIcon } from "../../lib/icons";
 import FieldLabel from "./FieldLabel";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 
-function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, formData, handleFormChange }) {
+function ProjectBasicInfoSection({
+  sectionCardSx,
+  fieldLabelSx,
+  formInputSx,
+  title,
+  startedAt,
+  endedAt,
+  deployUrl,
+  authorRole,
+  repositoryUrl,
+  description,
+  handleFormChange,
+}) {
   // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
-  const handleDateChange = (name, nextDate) => {
+  const handleDateChange = useCallback((name, nextDate) => {
     handleFormChange({
       target: {
         name,
@@ -27,7 +39,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
       },
     });
     // console.log(nextDate ? nextDate.format("YYYY-MM-DD") : ""); // 2026-08-11
-  };
+  }, []);
 
   return (
     <Box component="section" sx={sectionCardSx}>
@@ -48,7 +60,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
             id="title"
             name="title"
             size="small"
-            value={formData.title}
+            value={title}
             onChange={handleFormChange}
             sx={formInputSx}
           />
@@ -79,7 +91,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
                 }}
               >
                 <DatePicker
-                  value={formData.started_at ? dayjs(formData.started_at) : null}
+                  value={startedAt ? dayjs(startedAt) : null}
                   format="YYYY.MM.DD"
                   onChange={nextDate => handleDateChange("started_at", nextDate)}
                   slotProps={{
@@ -101,8 +113,8 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
                 </Text>
 
                 <DatePicker
-                  value={formData.ended_at ? dayjs(formData.ended_at) : null}
-                  minDate={formData.started_at ? dayjs(formData.started_at) : undefined}
+                  value={endedAt ? dayjs(endedAt) : null}
+                  minDate={startedAt ? dayjs(startedAt) : undefined}
                   format="YYYY.MM.DD"
                   onChange={nextDate => handleDateChange("ended_at", nextDate)}
                   slotProps={{
@@ -130,7 +142,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
               id="deploy_url"
               name="deploy_url"
               size="small"
-              value={formData.deploy_url}
+              value={deployUrl}
               onChange={handleFormChange}
               sx={formInputSx}
             />
@@ -147,7 +159,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
               id="author_role"
               name="author_role"
               size="small"
-              value={formData.author_role}
+              value={authorRole}
               onChange={handleFormChange}
               sx={formInputSx}
             />
@@ -162,7 +174,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
               id="repository_url"
               name="repository_url"
               size="small"
-              value={formData.repository_url}
+              value={repositoryUrl}
               onChange={handleFormChange}
               sx={formInputSx}
             />
@@ -181,7 +193,7 @@ function ProjectBasicInfoSection({ sectionCardSx, fieldLabelSx, formInputSx, for
             size="small"
             multiline
             minRows={5}
-            value={formData.description}
+            value={description}
             onChange={handleFormChange}
             sx={formInputSx}
           />

@@ -338,7 +338,13 @@ export default function PortfolioEditor({ data }) {
                   sectionCardSx={sectionCardSx}
                   fieldLabelSx={fieldLabelSx}
                   formInputSx={formInputSx}
-                  formData={formData}
+                  title={formData.title}
+                  startedAt={formData.started_at}
+                  endedAt={formData.ended_at}
+                  deployUrl={formData.deploy_url}
+                  authorRole={formData.author_role}
+                  repositoryUrl={formData.repository_url}
+                  description={formData.description}
                   handleFormChange={handleFormChange}
                 />
                 <GithubAiAnalysisSection sectionCardSx={sectionCardSx} aiAnalysisResult={aiAnalysisResult} />

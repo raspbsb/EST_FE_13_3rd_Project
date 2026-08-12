@@ -3,7 +3,7 @@
  * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object }} props - sectionCardSx: 섹션 외곽 카드 sx, fieldLabelSx: FieldLabel 공통 sx, formInputSx: Select 공통 sx
  * @returns {JSX.Element} 참여 정보 Select, 카테고리/기술 스택 선택 Select, 선택된 항목 Chip 목록
  */
-import { memo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -55,24 +55,27 @@ function ProjectMetaSection({
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const handleCategoryChange = (_, selectedOption) => {
+  const handleCategoryChange = useCallback((_, selectedOption) => {
     handleAddCategory(selectedOption);
     setCategoryInputValue("");
-  };
+  }, []);
 
-  const handleTechStackChange = (_, selectedOption) => {
+  const handleTechStackChange = useCallback((_, selectedOption) => {
     handleAddTechStack(selectedOption);
     setTechStackInputValue("");
-  };
+  }, []);
 
-  const stackSx = {
-    mb: 1,
-    width: "100%",
-    minWidth: 0,
-    maxWidth: "100%",
-    overflow: "hidden",
-    flexWrap: "wrap",
-  };
+  const stackSx = useMemo(
+    () => ({
+      mb: 1,
+      width: "100%",
+      minWidth: 0,
+      maxWidth: "100%",
+      overflow: "hidden",
+      flexWrap: "wrap",
+    }),
+    [],
+  );
 
   const isCategoryLimitReached = categories.length >= maxCategoryCount;
   const isTechStackLimitReached = techStacks.length >= maxTechStackCount;
