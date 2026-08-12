@@ -5,13 +5,14 @@ import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
+import ProjectCard from "../ProjectCard";
 
 export default function AuthorInfoPortfolios({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data, status, otherPortfolios } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
   return (
-    <Box>
+    <>
       <Box
         sx={{
           display: "flex",
@@ -24,18 +25,28 @@ export default function AuthorInfoPortfolios({}) {
         </Text>
         <Text component={"p"} variant="body1" align="right">
           <MuiLink component={Link} to={`/profiles/${author?.user_id ?? ""}`}>
-            View all
+            View all {otherPortfolios?.count + 1}
           </MuiLink>
         </Text>
       </Box>
-      <Grid component={"ul"} container columns={2} sx={{ width: "100%" }}>
-        <Grid component={"li"} size={1}>
-          <Box component={"article"}></Box>
-        </Grid>
-        <Grid component={"li"} size={1}>
-          <Box component={"article"}></Box>
-        </Grid>
+      <Grid component={"ul"} container columns={{ mobile: 1, tablet: 2, desktop: 2 }}>
+        {otherPortfolios.status === "succeeded" ? (
+          <>
+            <Grid component={"li"} size={1}>
+              <ProjectCard project={otherPortfolios?.data?.[0]} />
+            </Grid>
+            <Grid component={"li"} size={1}>
+              <ProjectCard project={otherPortfolios?.data?.[1]} />
+            </Grid>
+          </>
+        ) : (
+          <Grid component={"li"} size={{ mobile: 1, tablet: 2, desktop: 2 }}>
+            <Text component={"p"} color="textDisabled" variant="h6" align="center">
+              다른 프로젝트가 없습니다.
+            </Text>
+          </Grid>
+        )}
       </Grid>
-    </Box>
+    </>
   );
 }
