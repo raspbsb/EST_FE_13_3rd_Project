@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
-  const { userId: profileUserId } = useParams();
+  const { userId: profileUserId, collectionId } = useParams();
   const { profile } = useOutletContext();
 
   const [projects, setProjects] = useState([]);
@@ -19,7 +19,60 @@ export default function MyProjects({ mode }) {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      setLoading(true);
+
+      // 컬렉션 상세 페이지
+      if (mode === "collection") {
+        if (!collectionId) {
+          setProjects([]);
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("bookmarks")
+          .select(
+            `
+          project_id,
+          created_at,
+          portfolios (
+            *,
+            portfolio_images (
+              image_id,
+              image_path,
+              display_order,
+              is_thumbnail,
+              alt_text
+            ),
+            portfolio_tech_stacks (
+              tech_stack
+            ),
+            profiles (
+              user_name,
+              avatar_path
+            )
+          )
+        `,
+          )
+          .eq("collection_id", collectionId)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("북마크 프로젝트 조회 실패:", error);
+          setProjects([]);
+        } else {
+          const bookmarkProjects = data.map(bookmark => bookmark.portfolios).filter(Boolean);
+
+          setProjects(bookmarkProjects);
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // 2. MyPage / Public Profile 데이터 조회
       if (!targetUserId) {
+        setProjects([]);
         setLoading(false);
         return;
       }
@@ -28,22 +81,22 @@ export default function MyProjects({ mode }) {
         .from("portfolios")
         .select(
           `
-          *,
-          portfolio_images (
-            image_id,
-            image_path,
-            display_order,
-            is_thumbnail,
-            alt_text
-          ),
-          portfolio_tech_stacks (
-            tech_stack
-          ),
-          profiles (
-            user_name,
-            avatar_path
-          )
-        `,
+        *,
+        portfolio_images (
+          image_id,
+          image_path,
+          display_order,
+          is_thumbnail,
+          alt_text
+        ),
+        portfolio_tech_stacks (
+          tech_stack
+        ),
+        profiles (
+          user_name,
+          avatar_path
+        )
+      `,
         )
         .eq("author_id", targetUserId)
         .order("created_at", { ascending: false });
@@ -66,7 +119,7 @@ export default function MyProjects({ mode }) {
     };
 
     fetchProjects();
-  }, [targetUserId, mode]);
+  }, [targetUserId, collectionId, mode]);
 
   if (loading) {
     return null;
@@ -75,7 +128,11 @@ export default function MyProjects({ mode }) {
   return (
     <Box component="section" className={styles.section}>
       <Text component="h2" variant="h6" className={styles.title}>
-        {mode === "mypage" ? "내 프로젝트" : `${profile?.user_name}의 프로젝트`}
+        {mode === "mypage"
+          ? "내 프로젝트"
+          : mode === "collection"
+            ? "북마크 한 프로젝트"
+            : `${profile?.user_name}의 프로젝트`}
       </Text>
 
       {projects.length === 0 ? (

@@ -1,6 +1,6 @@
 import { supabase } from "../utils/supabase";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
@@ -12,6 +12,7 @@ import styles from "./Collections.module.css";
 
 export default function Collections() {
   const { userId } = useParams();
+  const navigate = useNavigate();
 
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +81,7 @@ export default function Collections() {
   }, [userId]);
 
   const handleCollectionClick = collectionId => {
-    console.log("컬렉션 클릭:", collectionId);
+    navigate(`/mypage/collections/${collectionId}`);
   };
 
   return (
