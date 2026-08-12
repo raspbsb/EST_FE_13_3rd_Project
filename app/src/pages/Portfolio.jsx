@@ -8,13 +8,19 @@ import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 
-import { setLoading, setPortfolio, resetPortfolio, fetchPortfolio } from "../components/Portfolio/portfolioSlice";
+import {
+  setLoading,
+  setPortfolio,
+  resetPortfolio,
+  fetchPortfolio,
+  fetchOtherPortfolios,
+} from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { data, status, error } = useSelector(state => state.portfolio);
+  const { data, status, error, otherPortfolios } = useSelector(state => state.portfolio);
 
   useEffect(() => {
     dispatch(fetchPortfolio(id));
@@ -22,6 +28,12 @@ export default function Portfolio() {
       dispatch(resetPortfolio());
     };
   }, [id]);
+
+  useEffect(() => {
+    if (status !== "succeeded") return;
+    if (!data?.author_id) return;
+    dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
+  }, [status]);
 
   // 후에 스켈레톤으로 변경
   if (status === "idle" || status === "loading") {

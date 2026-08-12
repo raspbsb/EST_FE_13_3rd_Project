@@ -8,9 +8,10 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Text from "@mui/material/Typography";
-import { LockIcon, PublicIcon, VisibilityIcon } from "../../lib/icons";
+import { LockIcon, PublicIcon, ViewsIcon } from "../../lib/icons";
+import { memo } from "react";
 
-export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, handleFormChange }) {
+function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, handleFormChange }) {
   return (
     <Box
       className="portfolio-editor-action-bar"
@@ -52,7 +53,7 @@ export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilit
             임시저장
           </Button>
           <Button type="button" variant="outlined">
-            <VisibilityIcon />
+            <ViewsIcon />
             미리보기
           </Button>
           <Button type="submit" variant="contained">
@@ -63,3 +64,5 @@ export default function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilit
     </Box>
   );
 }
+
+export default memo(EditorActionBar);

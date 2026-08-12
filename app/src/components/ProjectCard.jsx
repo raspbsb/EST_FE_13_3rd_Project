@@ -1,14 +1,18 @@
-import { useNavigate } from 'react-router-dom';
-import TagChip from './TagChip';
+import { useNavigate } from "react-router-dom";
+import TagChip from "./TagChip";
 
 // import Chip from '@mui/material/Chip';
-import Text from '@mui/material/Typography';
+import Text from "@mui/material/Typography";
 
-import { AccountCircleIcon, FavoriteBorderIcon, VisibilityOutlinedIcon } from '../lib/icons';
+import { AccountCircleIcon, FavoriteBorderIcon, VisibilityOutlinedIcon } from "../lib/icons";
 
-import './ProjectCard.scss';
+import "./ProjectCard.scss";
 
 export default function ProjectCard({ project }) {
+  if (!project) {
+    return <></>;
+  }
+
   const navigate = useNavigate();
 
   const thumbnail = project.portfolio_images?.find(image => image.is_thumbnail);
@@ -19,13 +23,13 @@ export default function ProjectCard({ project }) {
   };
   // 날짜 출력
   const formatDate = date => {
-    if (!date) return '';
+    if (!date) return "";
 
     const dateObj = new Date(date);
 
     const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
 
     return `${year}.${month}.${day}`;
   };
@@ -40,7 +44,7 @@ export default function ProjectCard({ project }) {
           <div className="project-card-thumbnail-placeholder">이미지 없음</div>
         )}
 
-        {project.project_type === 'Team' && <span className="project-card-type">Team</span>}
+        {project.project_type === "Team" && <span className="project-card-type">Team</span>}
       </div>
 
       {/* 카드 내용 */}
@@ -78,7 +82,7 @@ export default function ProjectCard({ project }) {
         <div className="project-card-footer">
           <div className="project-card-author">
             <AccountCircleIcon />
-            <span>{project.profiles?.user_name || 'Unknown'}</span>
+            <span>{project.profiles?.user_name || "Unknown"}</span>
           </div>
 
           <div className="project-card-stats">
