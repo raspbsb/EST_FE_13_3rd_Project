@@ -34,6 +34,18 @@ function ImageAttachmentSection({
     }),
   );
 
+  const isImageLimitReached = images.length >= 5;
+
+  const totalImageSize = images.reduce((sum, image) => sum + image.size, 0);
+
+  const formatFileSize = size => {
+    if (size >= 1024 * 1024) {
+      return `${(size / 1024 / 1024).toFixed(1)}MB`;
+    }
+
+    return `${Math.ceil(size / 1024)}KB`;
+  };
+
   const handleDragEnd = e => {
     const { active, over } = e;
 
@@ -68,8 +80,9 @@ function ImageAttachmentSection({
 
       <ButtonBase
         className="portfolio-editor-image-section__dropzone"
+        disabled={isImageLimitReached}
         onClick={() => {
-          if (images.length >= 5) return;
+          if (isImageLimitReached) return;
           fileInputRef.current?.click();
         }}
         sx={{
@@ -88,7 +101,7 @@ function ImageAttachmentSection({
           <CloudUploadIcon sx={{ fontSize: 40, color: "#212121" }} />
 
           <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
-            파일을 끌어서 놓거나 클릭하여 업로드
+            {isImageLimitReached ? "최대 5장 업로드됨" : "파일을 끌어서 놓거나 클릭하여 업로드"}
           </Text>
 
           <Text className="portfolio-editor-image-section__dropzone-help" color="text.secondary" fontSize={12}>
@@ -183,7 +196,7 @@ function ImageAttachmentSection({
         </Text>
 
         <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>
-          980KB
+          {formatFileSize(totalImageSize)}
         </Text>
       </Stack>
     </Paper>
