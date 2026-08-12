@@ -11,17 +11,21 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { CancelIcon, CloudUploadIcon, OpenWithIcon, PushPinIcon } from "../../lib/icons";
 import ImageActionButton from "./ImageActionButton";
-import { memo } from "react";
+import { memo, useRef } from "react";
 
-const portfolioPreviewImageUrls = [
-  "https://www.figma.com/api/mcp/asset/9f627a9c-01d7-44ba-a75d-5ea10f3fb01e.png",
-  "https://www.figma.com/api/mcp/asset/385f11bb-0572-4357-9154-183a2069f19e.png",
-  "https://www.figma.com/api/mcp/asset/dda323de-80c4-4823-8eb5-72dcfb6ad13a.png",
-  "https://www.figma.com/api/mcp/asset/f87e37eb-22aa-4570-a56a-dcc1a0129bdc.png",
-];
+function ImageAttachmentSection({
+  sectionCardSx,
+  thumbnailActionButtonSx,
+  images,
+  onAddImages,
+  onDeleteImage,
+  onSetThumbnailImage,
+}) {
+  const fileInputRef = useRef(null);
 
-function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handleFormChange }) {
-  const [primaryPreviewImageUrl, ...secondaryPreviewImageUrls] = portfolioPreviewImageUrls;
+  const sortedImages = [...images].sort((a, b) => a.order - b.order);
+  const primaryImage = sortedImages.find(image => image.isThumbnail) ?? sortedImages[0];
+  const secondaryImages = sortedImages.filter(image => image.id !== primaryImage?.id);
 
   return (
     <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
@@ -35,8 +39,21 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
         </Text>
       </Stack>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        multiple
+        hidden
+        onChange={e => {
+          onAddImages(Array.from(e.target.files));
+          e.target.value = "";
+        }}
+      />
+
       <ButtonBase
         className="portfolio-editor-image-section__dropzone"
+        onClick={() => fileInputRef.current?.click()}
         sx={{
           width: "100%",
           minHeight: 194,
@@ -69,47 +86,54 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
       </Text>
 
       <Stack spacing={2} sx={{ mb: 2 }}>
-        <Box
-          sx={{
-            position: "relative",
-            aspectRatio: "358 / 220",
-            border: "1px solid",
-            borderColor: "#d7dbe7",
-            borderRadius: 1,
-            bgcolor: "#f5f7fb",
-            overflow: "hidden",
-          }}
-        >
+        {primaryImage && (
           <Box
-            component="img"
-            src={primaryPreviewImageUrl}
-            alt="대표 이미지 미리보기"
             sx={{
-              width: "100%",
-              height: "100%",
-              display: "block",
-              objectFit: "cover",
-            }}
-          />
-          <Chip
-            className="portfolio-editor-image-section__thumbnail-badge"
-            label="대표 이미지"
-            color="primary"
-            size="small"
-            sx={{
-              position: "absolute",
-              top: 8,
-              left: 8,
+              position: "relative",
+              aspectRatio: "358 / 220",
+              border: "1px solid",
+              borderColor: "#d7dbe7",
               borderRadius: 1,
-              fontWeight: 700,
+              bgcolor: "#f5f7fb",
+              overflow: "hidden",
             }}
-          />
-          <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
-            <ImageActionButton aria-label="대표 이미지 삭제" danger sx={thumbnailActionButtonSx}>
-              <CancelIcon />
-            </ImageActionButton>
-          </Stack>
-        </Box>
+          >
+            <Box
+              component="img"
+              src={primaryImage.previewUrl}
+              alt="대표 이미지 미리보기"
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "block",
+                objectFit: "cover",
+              }}
+            />
+            <Chip
+              className="portfolio-editor-image-section__thumbnail-badge"
+              label="대표 이미지"
+              color="primary"
+              size="small"
+              sx={{
+                position: "absolute",
+                top: 8,
+                left: 8,
+                borderRadius: 1,
+                fontWeight: 700,
+              }}
+            />
+            <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
+              <ImageActionButton
+                aria-label="대표 이미지 삭제"
+                danger
+                onClick={() => onDeleteImage(primaryImage.id)}
+                sx={thumbnailActionButtonSx}
+              >
+                <CancelIcon />
+              </ImageActionButton>
+            </Stack>
+          </Box>
+        )}
 
         <Box
           sx={{
@@ -118,12 +142,12 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
             gap: 2,
           }}
         >
-          {secondaryPreviewImageUrls.map((image, index) => {
+          {secondaryImages.map((image, index) => {
             const imageNumber = index + 2;
 
             return (
               <Box
-                key={image}
+                key={image.id}
                 sx={{
                   position: "relative",
                   aspectRatio: "1 / 1",
@@ -136,7 +160,7 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
               >
                 <Box
                   component="img"
-                  src={image}
+                  src={image.previewUrl}
                   alt={`이미지 미리보기 ${imageNumber}`}
                   sx={{
                     display: "block",
@@ -148,6 +172,7 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
                 <Stack direction="row" spacing={0.5} sx={{ position: "absolute", top: 8, right: 8 }}>
                   <ImageActionButton
                     aria-label={`이미지 ${imageNumber} 대표 이미지로 고정`}
+                    onClick={() => onSetThumbnailImage(image.id)}
                     sx={thumbnailActionButtonSx}
                   >
                     <PushPinIcon />
@@ -155,7 +180,12 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
                   <ImageActionButton aria-label={`이미지 ${imageNumber} 이동`} sx={thumbnailActionButtonSx}>
                     <OpenWithIcon />
                   </ImageActionButton>
-                  <ImageActionButton aria-label={`이미지 ${imageNumber} 삭제`} danger sx={thumbnailActionButtonSx}>
+                  <ImageActionButton
+                    aria-label={`이미지 ${imageNumber} 삭제`}
+                    danger
+                    onClick={() => onDeleteImage(image.id)}
+                    sx={thumbnailActionButtonSx}
+                  >
                     <CancelIcon />
                   </ImageActionButton>
                 </Stack>
@@ -167,7 +197,7 @@ function ImageAttachmentSection({ sectionCardSx, thumbnailActionButtonSx, handle
 
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>
         <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
-          {portfolioPreviewImageUrls.length}/5장 업로드됨
+          {images.length}/5장 업로드됨
         </Text>
 
         <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>

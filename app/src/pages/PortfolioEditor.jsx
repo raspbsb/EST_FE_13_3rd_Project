@@ -86,6 +86,26 @@ const thumbnailActionButtonSx = {
   },
 };
 
+// 이미지 첨부 상태에 넣을 이미지 객체 생성 함수
+const createPortfolioImageItem = ({ file, order, isThumbnail = false }) => ({
+  id: crypto.randomUUID(),
+  file,
+  previewUrl: URL.createObjectURL(file),
+  name: file.name,
+  size: file.size,
+  type: file.type,
+  order,
+  isThumbnail,
+});
+
+// 현재 배열 순서 기준으로 order를 1부터 다시 매기는 함수
+const normalizeImageOrder = images =>
+  images.map((image, index) => ({
+    ...image,
+    order: index + 1,
+    isThumbnail: index === 0,
+  }));
+
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -127,7 +147,7 @@ export default function PortfolioEditor({ data }) {
     is_public: false,
     categories: [],
     tech_stacks: [],
-    images: [{ id: "", previewUrl: "", name: "", size: "", type: "", isThumbnail: "" }],
+    images: [],
   });
 
   // AI 분석 결과 데이터 상태 객체. 기본값 모두 빈값. 키 : projectSummary, mainFeatures,
@@ -280,14 +300,106 @@ export default function PortfolioEditor({ data }) {
     [handleFormChange],
   );
 
-  // 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
-  const handleAddImages = useCallback(files => {}, []);
+  // 이미지 추가 : 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
+  const handleAddImages = useCallback(files => {
+    setFormData(prev => {
+      // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
+      const selectedFiles = Array.from(files);
+      // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
+      const remainingImageCount = MAX_IMAGE_COUNT - prev.images.length;
+
+      // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
+      if (remainingImageCount <= 0) {
+        alert(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`);
+        return prev;
+      }
+
+      // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
+      if (selectedFiles.length > remainingImageCount) {
+        alert(
+          `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
+        );
+        return prev;
+      }
+
+      // png/jpeg/webp 타입이 아닌 파일들을 분류
+      const invalidTypeFiles = selectedFiles.filter(file => !ALLOWED_IMAGE_TYPES.includes(file.type));
+
+      // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
+      if (invalidTypeFiles.length > 0) {
+        alert("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.");
+        return prev;
+      }
+
+      // 최대 크기 이상의 파일들을 분류
+      const oversizedFiles = selectedFiles.filter(file => file.size > MAX_IMAGE_SIZE);
+
+      // 최대 크기 이상인 파일이 있다면 리턴하고 경고
+      if (oversizedFiles.length > 0) {
+        alert("10MB 이하 이미지만 업로드할 수 있습니다.");
+        return prev;
+      }
+
+      // 조건에 맞는 이미지들을 객체로 생성하는 함수
+      const nextImages = selectedFiles.map((file, index) =>
+        createPortfolioImageItem({
+          file,
+          order: prev.images.length + index + 1,
+          isThumbnail: prev.images.length === 0 && index === 0,
+        }),
+      );
+
+      // 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
+      return {
+        ...prev,
+        images: normalizeImageOrder([...prev.images, ...nextImages]),
+      };
+    });
+  }, []);
 
   // 선택한 이미지를 삭제하는 함수
-  const handleDeleteImage = useCallback(imageId => {}, []);
+  const handleDeleteImage = useCallback(imageId => {
+    // formData를 변경 :
+    setFormData(prev => {
+      // 기존에서 삭제 요청받은 id와 동일한 대상을 삭제대상으로 지정
+      const deleteTarget = prev.images.find(image => image.id === imageId);
+
+      // 삭제대상이 아니면 기존거 리턴
+      if (!deleteTarget) return prev;
+
+      // 브라우저가 임시로 잡아둔 이미지 미리보기 URL을 해제 (브라우저 메모리 정리용)
+      URL.revokeObjectURL(deleteTarget.previewUrl);
+
+      // 기존 이미지에서 삭제대상이 아닌 이미지만 필터링해 다시 저장
+      const nextImages = prev.images.filter(image => image.id !== imageId);
+
+      // 남은 이미지를 순서 재정렬해 반환
+      return {
+        ...prev,
+        images: normalizeImageOrder(nextImages),
+      };
+    });
+  }, []);
 
   // 대표 이미지를 바꾸는 함수
-  const handleSetThumbnailImage = useCallback(imageId => {}, []);
+  const handleSetThumbnailImage = useCallback(imageId => {
+    setFormData(prev => {
+      // 기존거에서 매개변수로 받은 id와 일치하는 이미지를 찾아 썸네일 이미지로 저장
+      const thumbnailImage = prev.images.find(image => image.id === imageId);
+
+      // 썸네일 이미지가 아닌 것들은 기존거 리턴
+      if (!thumbnailImage) return prev;
+
+      // 썸네일 이미지가 아닌 것들을 필터링해 저장
+      const otherImages = prev.images.filter(image => image.id !== imageId);
+
+      // 썸네일 이미지를 가장 처음에 놓고, 다른 이미지를 풀어헤쳐 하나의 배열로 만든 뒤 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
+      return {
+        ...prev,
+        images: normalizeImageOrder([thumbnailImage, ...otherImages]),
+      };
+    });
+  }, []);
 
   // 이미지 순서를 바꾸는 함수
   const handleMoveImage = useCallback((imageId, direction) => {}, []);
@@ -299,7 +411,11 @@ export default function PortfolioEditor({ data }) {
 
   return (
     <>
-      {/* {console.log("PortfolioEditor 렌더")} */}
+      {
+        // 실험용 콘솔 : 끝나면 지울것
+        console.log("PortfolioEditor 렌더")
+      }
+
       <Container
         className="portfolio-editor-page"
         component="main"
