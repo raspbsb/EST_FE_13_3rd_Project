@@ -1,5 +1,5 @@
 // React Hooks
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // Material UI Components
@@ -158,9 +158,6 @@ export default function PortfolioEditor({ data }) {
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
-  // 공개/비공개 토글 스위치 체크여부 상태
-  const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
-
   // 임시저장용 키
   // 임시저장용 변수
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
@@ -404,7 +401,6 @@ export default function PortfolioEditor({ data }) {
   // 공개/비공개 토글 스위치 핸들링 함수
   const handlePortfolioVisibilityChange = useCallback(
     e => {
-      setIsPortfolioPublic(e.target.checked);
       handleFormChange(e);
     },
     [handleFormChange],
