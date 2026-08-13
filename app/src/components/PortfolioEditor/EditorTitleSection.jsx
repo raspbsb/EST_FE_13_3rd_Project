@@ -27,7 +27,7 @@ const formatDraftSavedAt = savedAt => {
   )}`;
 };
 
-function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft }) {
+function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDraft }) {
   const [isDraftListOpen, setIsDraftListOpen] = useState(false);
   const latestDraft = temporaryDrafts[0];
   const latestSavedAt = formatDraftSavedAt(latestDraft?.savedAt);
@@ -45,6 +45,12 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft }) {
     handleCloseDraftList();
   };
 
+  const handleDeleteSelectedDraft = draftId => {
+    if (!confirm("이 임시저장 데이터를 삭제할까요?")) return;
+
+    onDeleteDraft(draftId);
+  };
+
   return (
     <Stack className="portfolio-editor-title" spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       <Box>
@@ -52,7 +58,10 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft }) {
           포트폴리오 {isEdit ? "수정" : "등록"}
         </Text>
         <Text className="portfolio-editor-title__description" color="text.secondary">
-          프로젝트 정보를 {isEdit ? "최신으로 유지하고 AI 분석을 통해 디테일을 강화하세요." : "입력하고 AI 분석을 통해 포트폴리오를 완성하세요."}
+          프로젝트 정보를{" "}
+          {isEdit
+            ? "최신으로 유지하고 AI 분석을 통해 디테일을 강화하세요."
+            : "입력하고 AI 분석을 통해 포트폴리오를 완성하세요."}
         </Text>
       </Box>
 
@@ -92,22 +101,38 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft }) {
             <DialogContent>
               <Stack className="portfolio-editor-temporary-draft-dialog__list" spacing={1}>
                 {temporaryDrafts.map(draft => (
-                  <Button
+                  <Stack
                     className="portfolio-editor-temporary-draft-dialog__item"
                     key={draft.id}
-                    type="button"
-                    variant="outlined"
-                    onClick={() => handleApplySelectedDraft(draft.id)}
+                    direction="row"
+                    spacing={1}
                   >
-                    <Box className="portfolio-editor-temporary-draft-dialog__item-text">
-                      <Text className="portfolio-editor-temporary-draft-dialog__item-title">
-                        {draft.title || "제목 없는 임시저장"}
-                      </Text>
-                      <Text className="portfolio-editor-temporary-draft-dialog__item-date">
-                        {formatDraftSavedAt(draft.savedAt)}
-                      </Text>
-                    </Box>
-                  </Button>
+                    <Button
+                      className="portfolio-editor-temporary-draft-dialog__apply-button"
+                      type="button"
+                      variant="outlined"
+                      onClick={() => handleApplySelectedDraft(draft.id)}
+                    >
+                      <Box className="portfolio-editor-temporary-draft-dialog__item-text">
+                        <Text className="portfolio-editor-temporary-draft-dialog__item-title">
+                          {draft.title || "제목 없는 임시저장"}
+                        </Text>
+                        <Text className="portfolio-editor-temporary-draft-dialog__item-date">
+                          {formatDraftSavedAt(draft.savedAt)}
+                        </Text>
+                      </Box>
+                    </Button>
+
+                    <Button
+                      className="portfolio-editor-temporary-draft-dialog__delete-button"
+                      type="button"
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteSelectedDraft(draft.id)}
+                    >
+                      삭제
+                    </Button>
+                  </Stack>
                 ))}
               </Stack>
             </DialogContent>

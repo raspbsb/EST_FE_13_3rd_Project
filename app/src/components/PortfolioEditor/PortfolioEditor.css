@@ -396,13 +396,25 @@ body {
   padding-top: 4px;
 }
 
-.portfolio-editor-temporary-draft-dialog__item.MuiButton-root {
-  justify-content: flex-start;
+.portfolio-editor-temporary-draft-dialog__item.MuiStack-root {
   width: 100%;
+  align-items: stretch;
+}
+
+.portfolio-editor-temporary-draft-dialog__apply-button.MuiButton-root {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  min-width: 0;
   border-color: var(--portfolio-border);
   border-radius: 8px;
   padding: 12px;
   text-align: left;
+}
+
+.portfolio-editor-temporary-draft-dialog__delete-button.MuiButton-root {
+  flex: 0 0 auto;
+  min-width: 64px;
+  border-radius: 8px;
 }
 
 .portfolio-editor-temporary-draft-dialog__item-text.MuiBox-root {

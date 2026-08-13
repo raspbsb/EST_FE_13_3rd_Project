@@ -415,6 +415,7 @@ export default function PortfolioEditor({ data }) {
     [temporaryDrafts],
   );
 
+  // 선택한 카테고리가 비어 있거나 최대 개수를 넘거나 이미 추가된 값이면 무시하고, 새 카테고리만 formData.categories에 추가하는 함수
   const handleAddCategory = useCallback(category => {
     if (!category) return;
 
@@ -432,6 +433,17 @@ export default function PortfolioEditor({ data }) {
         ...prev,
         categories: [...prev.categories, category],
       };
+    });
+  }, []);
+
+  // 선택한 임시저장 데이터를 목록과 localStorage에서 삭제하는 함수
+  const handleDeleteDraft = useCallback(draftId => {
+    setTemporaryDrafts(prev => {
+      const nextDrafts = prev.filter(draft => draft.id !== draftId);
+
+      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+      return nextDrafts;
     });
   }, []);
 
@@ -679,7 +691,12 @@ export default function PortfolioEditor({ data }) {
           maxWidth: "1272px",
         }}
       >
-        <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} onApplyDraft={handleApplyDraft} />
+        <EditorTitleSection
+          isEdit={isEdit}
+          temporaryDrafts={temporaryDrafts}
+          onApplyDraft={handleApplyDraft}
+          onDeleteDraft={handleDeleteDraft}
+        />
 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={4} sx={{ pb: 0 }}>
