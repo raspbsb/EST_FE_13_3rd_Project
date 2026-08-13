@@ -21,7 +21,9 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
   const result = await supabase
     .schema("public")
     .from("portfolios")
-    .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)")
+    .select(
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
+    )
     .order("created_at", { ascending: true })
     .limit(4);
   return result;
@@ -32,9 +34,12 @@ export const fetchPortfolios = createAsyncThunk(
     const result = await supabase
       .schema("public")
       .from("portfolios")
-      .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
-        count: "exact",
-      })
+      .select(
+        "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
+        {
+          count: "exact",
+        },
+      )
       .ilike("title", `%${searchTerm.trim()}%`)
       // .???("category", category)
       // .???("tech_stack", techStack)
@@ -100,13 +105,15 @@ const gallerySlice = createSlice({
       state.featured.status = "loading";
     });
     builder.addCase(fetchFeaturedPortfolios.fulfilled, (state, action) => {
-      state.featured.data = action.payload.data;
-      state.featured.status = action.payload.data?.length > 0 ? "succeeded" : "notFound";
-      console.log(state.featured.data);
+      const { data, error } = action.payload;
+      state.featured.error = error;
+      state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
+      state.featured.data = data ?? [];
+      error ? console.warn(error) : console.log(state.featured.data);
     });
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
       state.featured.status = "failed";
-      state.featured.error = action.payload.error ?? action.error;
+      state.featured.error = action.error;
       console.error(state.featured.error);
     });
 
@@ -114,23 +121,26 @@ const gallerySlice = createSlice({
       state.status = "loading";
     });
     builder.addCase(fetchPortfolios.fulfilled, (state, action) => {
-      state.data = action.payload.data;
-      state.status = action.payload.count > 0 ? "succeeded" : "notFound";
-      state.count = action.payload.count;
-      console.log(state.data);
+      const { data, error, count } = action.payload;
+      state.error = error;
+      state.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
+      state.data = data ?? [];
+      state.count = count ?? 0;
+      error ? console.warn(error) : console.log(state.data);
     });
     builder.addCase(fetchPortfolios.rejected, (state, action) => {
       state.status = "failed";
-      state.error = action.payload.error ?? action.error;
+      state.error = action.error;
       console.error(state.error);
     });
 
     builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
-      state.data.push(action.payload.data);
-      console.log(state.data);
+      const { data, error, count } = action.payload;
+      if (!error && count > 0) state.data.push(action.payload.data);
+      error ? console.warn(error) : console.log(state.data);
     });
     builder.addCase(fetchMorePortfolios.rejected, (state, action) => {
-      state.error = action.payload.error ?? action.error;
+      state.error = action.error;
       console.error(state.error);
     });
   },

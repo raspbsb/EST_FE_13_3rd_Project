@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { supabase } from "../../utils/supabase";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -10,12 +12,29 @@ import Avatar from "@mui/material/Avatar";
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 
 export default function HeroMeta({}) {
+  const [user, setUser] = useState(null);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const { data, status } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
-  // liked, bookmarked 테이블 준비중
-  const isLiked = false;
-  const isBookmarked = false;
+  async function fetchUser() {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      console.warn(error);
+      return;
+    }
+    console.log(user);
+    setUser(user);
+    setIsLiked(data?.portfolio_likes.includes(like => like.user_id === user.id));
+    setIsBookmarked(data?.bookmarks.includes(bm => bm.user_id === user.id));
+  }
+  useEffect(() => {
+    fetchUser();
+  }, [data]);
 
   return (
     <Box
@@ -56,7 +75,7 @@ export default function HeroMeta({}) {
           onClick={() => {}}
         >
           <Text component={"span"} variant="body2">
-            0
+            {data?.portfolio_likes?.length ?? 0}
           </Text>
         </Button>
         <Button

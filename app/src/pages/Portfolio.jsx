@@ -4,9 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { supabase } from "../utils/supabase";
 
 import Text from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import {
   setLoading,
@@ -35,16 +37,15 @@ export default function Portfolio() {
     dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
   }, [status]);
 
-  // 후에 스켈레톤으로 변경
   if (status === "idle" || status === "loading") {
     return (
       <Container>
         <Text component={"p"} variant="h4">
           포트폴리오 상세
         </Text>
-        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
-          로딩중...
-        </Text>
+        <Box sx={{ display: "flex", justifyContent: "center", pt: window.innerHeight / 32 }}>
+          <CircularProgress size={40} />
+        </Box>
       </Container>
     );
   }
