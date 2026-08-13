@@ -15,21 +15,21 @@ export const fetchPortfolios = createAsyncThunk(
   async ({
     page = 1,
     pageSize = 8,
-    search = "",
+    searchTerm = "",
     category = [],
     techStack = [],
-    sort = "created_at",
+    sortBy = "created_at",
     ascending = false,
   }) => {
-    switch (sort) {
+    switch (sortBy) {
       case "latest": // 최신순
-        sort = "created_at";
+        sortBy = "created_at";
       case "popular": // 조회순
-        sort = "view_count";
+        sortBy = "view_count";
       case "likes": // 좋아요순
       // 좋아요 테이블 미구현
       default:
-        sort = sort;
+        sortBy = sortBy;
     }
 
     const result = await supabase
@@ -38,10 +38,10 @@ export const fetchPortfolios = createAsyncThunk(
       .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
         count: "exact",
       })
-      .ilike("title", `%${search.trim()}%`)
+      .ilike("title", `%${searchTerm.trim()}%`)
       // .???("category", category)
       // .???("tech_stack", techStack)
-      .order(sort, { ascending })
+      .order(sortBy, { ascending })
       .range((page - 1) * pageSize, page * pageSize + 1);
     return result;
   },
