@@ -309,7 +309,12 @@ export default function PortfolioEditor({ data }) {
             value: techStack.trim().toLowerCase().replace(/\s+/g, "-"),
             label: techStack.trim(),
           }
-        : techStack;
+        : techStack.inputValue
+          ? {
+              value: techStack.inputValue.trim().toLowerCase().replace(/\s+/g, "-"),
+              label: techStack.inputValue.trim(),
+            }
+          : techStack;
 
     // 위에서 저장한 값의 라벨이 없으면 그대로 리턴
     if (!nextTechStack.label) return;

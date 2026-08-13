@@ -11,12 +11,35 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon, DropDownIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
-import { memo } from "react";
+import { developmentAnalysisEvidenceTabs } from "./portfolioEditorData";
+import { memo, useState } from "react";
 
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
+  const [isEvidenceExpanded, setIsEvidenceExpanded] = useState(false);
+  const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
+  const analysisEvidenceTabs =
+    Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
+      ? aiAnalysisResult.analysisEvidence
+      : developmentAnalysisEvidenceTabs;
+  const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
+
+  const handleEvidenceAccordionChange = (_, isExpanded) => {
+    setIsEvidenceExpanded(isExpanded);
+
+    if (!isExpanded) {
+      setSelectedEvidenceTab(false);
+    }
+  };
+
+  const handleEvidenceTabChange = (_, nextEvidenceTab) => {
+    setSelectedEvidenceTab(nextEvidenceTab);
+  };
+
   const analysisResultItems = [
     { title: "프로젝트 요약", description: aiAnalysisResult.projectSummary },
     { title: "주요 기능", description: aiAnalysisResult.mainFeatures },
@@ -90,7 +113,8 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
 
       <Accordion
         className="portfolio-editor-analysis-evidence"
-        defaultExpanded
+        expanded={isEvidenceExpanded}
+        onChange={handleEvidenceAccordionChange}
         elevation={0}
         sx={{
           overflow: "hidden",
@@ -118,25 +142,45 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
         </AccordionSummary>
 
         <AccordionDetails sx={{ px: 2, pt: 0, pb: 2 }}>
-          <Stack direction="row" spacing={1} useFlexGap sx={{ mb: 2, flexWrap: "wrap" }}>
-            <Button type="button" variant="outlined" sx={{ px: 3, py: 1, bgcolor: "background.paper" }}>
-              프로젝트 구조
-            </Button>
-
-            <Button type="button" variant="contained" sx={{ px: 3, py: 1 }}>
-              커밋 기록
-            </Button>
-          </Stack>
+          <Tabs
+            className="portfolio-editor-analysis-evidence__tabs"
+            value={selectedEvidenceTab}
+            onChange={handleEvidenceTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="분석 근거 카테고리"
+          >
+            {analysisEvidenceTabs.map(evidence => (
+              <Tab key={evidence.value} value={evidence.value} label={evidence.label} />
+            ))}
+          </Tabs>
 
           <Paper
-            className="portfolio-editor-analysis-evidence__prompt"
+            className={
+              selectedEvidence
+                ? "portfolio-editor-analysis-evidence__content"
+                : "portfolio-editor-analysis-evidence__prompt"
+            }
             variant="outlined"
             sx={{
               p: 2,
               mb: 2,
             }}
           >
-            <Text className="portfolio-editor-analysis-evidence__prompt-text">영역을 펼쳐 분석 근거를 확인하세요.</Text>
+            {selectedEvidence ? (
+              <Stack spacing={1}>
+                <Text className="portfolio-editor-analysis-evidence__content-title" component="h4">
+                  {selectedEvidence.label}
+                </Text>
+                <Text className="portfolio-editor-analysis-evidence__content-text" component="p">
+                  {selectedEvidence.description}
+                </Text>
+              </Stack>
+            ) : (
+              <Text className="portfolio-editor-analysis-evidence__prompt-text">
+                영역을 펼쳐 분석 근거를 확인하세요.
+              </Text>
+            )}
           </Paper>
 
           {aiAnalysisResult.analysisLimitation ? (

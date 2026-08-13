@@ -5,7 +5,7 @@
  */
 import { memo, useCallback, useMemo, useState } from "react";
 
-import Autocomplete from "@mui/material/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -25,7 +25,8 @@ import FieldLabel from "./FieldLabel";
 import PortfolioMetaChip from "./PortfolioMetaChip";
 
 const selectableCategoryOptions = categoryOptions.filter(option => option.value !== "search-web");
-const selectableTechStackOptions = techStackOptions.filter(option => option.value !== "typing-vercel");
+const selectableTechStackOptions = techStackOptions;
+const filterTechStackOptions = createFilterOptions();
 
 function renderSelectMenuItems(options) {
   return options.map(option => (
@@ -55,14 +56,36 @@ function ProjectMetaSection({
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
-  const handleCategoryChange = useCallback((_, selectedOption) => {
-    handleAddCategory(selectedOption);
-    setCategoryInputValue("");
-  }, []);
+  const handleCategoryChange = useCallback(
+    (_, selectedOption) => {
+      handleAddCategory(selectedOption);
+      setCategoryInputValue("");
+    },
+    [handleAddCategory],
+  );
 
-  const handleTechStackChange = useCallback((_, selectedOption) => {
-    handleAddTechStack(selectedOption);
-    setTechStackInputValue("");
+  const handleTechStackChange = useCallback(
+    (_, selectedOption) => {
+      handleAddTechStack(selectedOption);
+      setTechStackInputValue("");
+    },
+    [handleAddTechStack],
+  );
+
+  const handleFilterTechStackOptions = useCallback((options, params) => {
+    const filteredOptions = filterTechStackOptions(options, params);
+    const inputValue = params.inputValue.trim();
+    const hasSameOption = options.some(option => option.label.toLowerCase() === inputValue.toLowerCase());
+
+    if (inputValue && !hasSameOption) {
+      filteredOptions.unshift({
+        value: inputValue.toLowerCase().replace(/\s+/g, "-"),
+        label: `직접 입력 중: ${inputValue}`,
+        inputValue,
+      });
+    }
+
+    return filteredOptions;
   }, []);
 
   const stackSx = useMemo(
@@ -229,6 +252,7 @@ function ProjectMetaSection({
             value={null}
             inputValue={techStackInputValue}
             disabled={isTechStackLimitReached}
+            filterOptions={handleFilterTechStackOptions}
             getOptionLabel={option => (typeof option === "string" ? option : option.label)}
             isOptionEqualToValue={(option, value) => option.value === value.value}
             onInputChange={(_, value, reason) => {
