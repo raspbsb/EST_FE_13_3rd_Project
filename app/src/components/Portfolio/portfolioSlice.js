@@ -10,7 +10,7 @@ export const fetchPortfolio = createAsyncThunk("portfolio", async portfolioId =>
     )
     .eq("project_id", portfolioId)
     .maybeSingle();
-  return await result;
+  return result;
 });
 export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", async ({ id, authorId }) => {
   const result = await supabase
@@ -66,6 +66,7 @@ const portfolioSlice = createSlice({
       state.data = action.payload.data;
       state.status = "failed";
       state.error = action.payload.error;
+      console.error(state.error);
     });
 
     builder.addCase(fetchOtherPortfolios.pending, (state, action) => {
@@ -81,6 +82,7 @@ const portfolioSlice = createSlice({
       state.otherPortfolios.data = action.payload.data;
       state.otherPortfolios.status = "failed";
       state.otherPortfolios.error = action.payload.error;
+      console.error(state.otherPortfolios.error);
     });
   },
 });
