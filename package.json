@@ -9,6 +9,10 @@
     "functions:serve": "supabase functions serve"
   },
   "devDependencies": {
+    "react-snap": "^1.23.0",
     "supabase": "^2.111.0"
+  },
+  "dependencies": {
+    "react-helmet-async": "^3.0.0"
   }
 }
