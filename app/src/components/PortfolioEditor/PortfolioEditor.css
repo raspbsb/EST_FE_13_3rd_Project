@@ -213,7 +213,9 @@ body {
 }
 
 .portfolio-editor-section-header__actions.MuiStack-root {
-  align-items: flex-end;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 
 .portfolio-editor-ai-action-button.MuiButton-root {
@@ -245,6 +247,7 @@ body {
 @media (max-width: 899px) {
   .portfolio-editor-section-header__actions.MuiStack-root {
     align-items: flex-start;
+    gap: 4px;
   }
 }
 

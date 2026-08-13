@@ -54,7 +54,7 @@ function DraftGuideSection({
             </Text>
           </Stack>
 
-          <Stack className="portfolio-editor-section-header__actions" spacing={0.5}>
+          <Stack className="portfolio-editor-section-header__actions" direction={{ xs: "column", tablet: "row" }}>
             {draftGuide.generatedAt ? (
               <Text className="portfolio-editor-ai-section__analyzed-at">최종 생성: {draftGuide.generatedAt}</Text>
             ) : null}

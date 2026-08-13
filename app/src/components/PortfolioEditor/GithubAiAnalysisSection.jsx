@@ -84,7 +84,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAi
           </Text>
         </Stack>
 
-        <Stack className="portfolio-editor-section-header__actions" spacing={0.5}>
+        <Stack className="portfolio-editor-section-header__actions" direction={{ xs: "column", tablet: "row" }}>
           {aiAnalysisResult.analyzedAt ? (
             <Text className="portfolio-editor-ai-section__analyzed-at">최종 분석: {aiAnalysisResult.analyzedAt}</Text>
           ) : null}
