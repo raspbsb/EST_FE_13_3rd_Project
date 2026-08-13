@@ -93,7 +93,7 @@ export default function Collections() {
     navigate(`/mypage/collections/${collectionId}`);
   };
 
-  // 컬렉션 생성
+  // 컬렉션 생성 insert 함수
   const handleCreateCollection = async title => {
     const { error } = await supabase.from("collections").insert({
       owner_id: "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe", // auth 연결되면 user.id 로 변경
@@ -108,6 +108,26 @@ export default function Collections() {
     console.log("컬렉션 생성 성공");
 
     // 목록 다시 조회
+    await fetchCollections();
+  };
+
+  // 컬렉션 update 함수
+  const handleEditCollection = async (collectionId, title) => {
+    const { error } = await supabase
+      .from("collections")
+      .update({
+        title,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("collection_id", collectionId);
+
+    if (error) {
+      console.error("컬렉션 이름 수정 실패:", error);
+      return;
+    }
+
+    console.log("컬렉션 이름 수정 성공");
+
     await fetchCollections();
   };
 
@@ -126,6 +146,7 @@ export default function Collections() {
           onClose={() => setOpenManage(false)}
           collections={collections}
           onCreate={handleCreateCollection}
+          onEdit={handleEditCollection}
         />
       </Box>
 

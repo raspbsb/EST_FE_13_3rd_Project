@@ -16,12 +16,15 @@ import Divider from "@mui/material/Divider";
 
 import { MoreVertIcon } from "../../lib/icons";
 
-export default function CollectionManageDialog({ open, onClose, collections, onCreate }) {
+export default function CollectionManageDialog({ open, onClose, collections, onCreate, onEdit }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCollection, setSelectedCollection] = useState(null);
   // 컬렉션 생성 상태
   const [openCreate, setOpenCreate] = useState(false);
   const [collectionTitle, setCollectionTitle] = useState("");
+  // 컬렉션 타이틀 수정 상태
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
 
   // 메뉴 열고 닫기
   const handleMenuOpen = (event, collection) => {
@@ -67,7 +70,15 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
         </DialogActions>
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-          <MenuItem onClick={handleMenuClose}>이름 수정</MenuItem>
+          <MenuItem
+            onClick={() => {
+              setEditTitle(selectedCollection.title);
+              setOpenEdit(true);
+              setAnchorEl(null);
+            }}
+          >
+            이름 수정
+          </MenuItem>
 
           <MenuItem onClick={handleMenuClose}>삭제</MenuItem>
         </Menu>
@@ -116,6 +127,56 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
             }}
           >
             만들기
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* 컬렉션 타이틀 수정 dialog */}
+      <Dialog
+        open={openEdit}
+        onClose={() => {
+          setOpenEdit(false);
+          setEditTitle("");
+          setSelectedCollection(null);
+        }}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>컬렉션 이름 수정</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            label="컬렉션 이름"
+            value={editTitle}
+            onChange={e => setEditTitle(e.target.value)}
+            margin="normal"
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenEdit(false);
+              setEditTitle("");
+              setSelectedCollection(null);
+            }}
+          >
+            취소
+          </Button>
+
+          <Button
+            variant="contained"
+            disabled={!editTitle.trim() || !selectedCollection}
+            onClick={() => {
+              onEdit(selectedCollection.id, editTitle.trim());
+
+              setOpenEdit(false);
+              setEditTitle("");
+              setSelectedCollection(null);
+            }}
+          >
+            저장
           </Button>
         </DialogActions>
       </Dialog>
