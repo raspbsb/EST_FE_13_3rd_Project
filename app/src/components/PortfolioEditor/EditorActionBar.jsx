@@ -11,7 +11,14 @@ import Text from "@mui/material/Typography";
 import { LockIcon, PublicIcon, ViewsIcon } from "../../lib/icons";
 import { memo } from "react";
 
-function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onPreviewOpen, handleFormChange }) {
+function EditorActionBar({
+  isEdit,
+  isPortfolioPublic,
+  onVisibilityChange,
+  onSaveDraft,
+  onPreviewOpen,
+  handleFormChange,
+}) {
   return (
     <Box
       className="portfolio-editor-action-bar"
@@ -49,7 +56,7 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onPrev
 
         {/* 임시저장/미리보기/수정완료 버튼 */}
         <Stack direction="row" sx={{ gap: 1.5, alignItems: "center" }}>
-          <Button type="button" variant="outlined">
+          <Button type="button" variant="outlined" onClick={onSaveDraft}>
             임시저장
           </Button>
           <Button type="button" variant="outlined" onClick={onPreviewOpen}>
