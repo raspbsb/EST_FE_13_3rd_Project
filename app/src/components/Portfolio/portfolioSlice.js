@@ -16,7 +16,9 @@ export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", as
   const result = await supabase
     .schema("public")
     .from("portfolios")
-    .select("*, portfolio_images(*)", { count: "exact" })
+    .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
+      count: "exact",
+    })
     .eq("author_id", authorId)
     .neq("project_id", id)
     .order("created_at", { ascending: false })
