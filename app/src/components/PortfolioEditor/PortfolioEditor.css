@@ -352,6 +352,41 @@ body {
   opacity: 0.6;
 }
 
+.portfolio-editor-temporary-draft-dialog__list.MuiStack-root {
+  padding-top: 4px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item.MuiButton-root {
+  justify-content: flex-start;
+  width: 100%;
+  border-color: var(--portfolio-border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-text.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-title.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-date.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
 @media (max-width: 599px) {
   .portfolio-editor-temporary-draft.MuiStack-root {
     width: 100%;
