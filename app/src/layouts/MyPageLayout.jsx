@@ -44,7 +44,7 @@ export default function MyPageLayout() {
       >
         <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
 
-        <ActivityStats />
+        <ActivityStats profile={profile} />
 
         <Outlet context={{ profile }} />
       </Container>
