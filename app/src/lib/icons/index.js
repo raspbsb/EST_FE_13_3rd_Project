@@ -27,11 +27,15 @@ export { default as AddAPhotoIcon } from "@mui/icons-material/AddAPhoto";
 export { default as ChevronRightIcon } from "@mui/icons-material/ChevronRight";
 export { default as PersonOutlinedIcon } from "@mui/icons-material/PersonOutlined";
 export { default as ShareIcon } from "@mui/icons-material/Share";
-export { default as GithubIcon } from "@mui/icons-material/GitHub";
-export { default as MailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
 export { default as FavoriteBorderIcon } from "@mui/icons-material/FavoriteBorder";
 export { default as WorkIcon } from "@mui/icons-material/Work";
 export { default as BookmarkIcon } from "@mui/icons-material/Bookmark";
 export { default as NotificationsIcon } from "@mui/icons-material/Notifications";
 export { default as PersonIcon } from "@mui/icons-material/Person";
+
+export { default as GoogleIcon } from "@mui/icons-material/Google";
+export { default as GithubIcon } from "@mui/icons-material/GitHub";
+export { default as MailIcon } from "@mui/icons-material/EmailOutlined";
+export { default as KakaoIcon } from "@mui/icons-material/ChatBubble";
+export { default as NaverIcon } from "@mui/icons-material/Public";
