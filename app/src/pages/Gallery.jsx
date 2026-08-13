@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { fetchFeaturedPortfolios, fetchPortfolios } from "../components/Gallery/gallerySlice";
+import { fetchFeaturedPortfolios, fetchMorePortfolios, fetchPortfolios } from "../components/Gallery/gallerySlice";
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -35,7 +35,7 @@ export default function Gallery() {
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("latest");
-  const [visibleCount, setVisibleCount] = useState(8);
+  // const [visibleCount, setVisibleCount] = useState(8);
 
   const dispatch = useDispatch();
   const {
@@ -47,10 +47,17 @@ export default function Gallery() {
   } = useSelector(state => state.gallery);
 
   useEffect(() => {
-    // handleFetchPortfolios();
     dispatch(fetchFeaturedPortfolios());
-    dispatch(fetchPortfolios({ searchTerm, sortBy }));
   }, []);
+  useEffect(() => {
+    // handleFetchPortfolios();
+    dispatch(fetchPortfolios({ searchTerm, category, sortBy }));
+  }, [searchTerm, category, sortBy]);
+
+  const handleShowMore = () => {
+    // setVisibleCount(prev => prev + 4);
+    fetchMorePortfolios({ searchTerm, category, sortBy, visibleCount: portfolios?.length });
+  };
   /*
   const handleFetchPortfolios = async () => {
     try {
@@ -247,11 +254,11 @@ export default function Gallery() {
                     ))}
                   </Box>
                 </Box>
-                {visibleCount < count && (
+                {portfolios?.length < count && (
                   <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
                     <Button
                       variant="outlined"
-                      onClick={() => setVisibleCount(prev => prev + 4)}
+                      onClick={handleShowMore}
                       sx={{ px: 4, py: 1, color: "#374151", borderColor: "#D1D5DB", fontWeight: 600 }}
                     >
                       더보기
