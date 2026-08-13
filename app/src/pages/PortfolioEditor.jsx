@@ -126,6 +126,10 @@ const createDraftFormData = formData => ({
   images: [],
 });
 
+const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
+const MAX_PORTFOLIO_DRAFT_COUNT = 5;
+const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
+
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -142,8 +146,6 @@ export default function PortfolioEditor({ data }) {
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
   // 임시저장용 키
-  const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-draft";
-
   // 임시저장용 변수
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
@@ -195,10 +197,15 @@ export default function PortfolioEditor({ data }) {
 
   // 폼 전송 함수
   useEffect(() => {
-    const savedDraft = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
+    const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
 
-    if (savedDraft) {
-      setTemporaryDrafts([savedDraft]);
+    if (Array.isArray(savedDrafts)) {
+      setTemporaryDrafts(savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT));
+      return;
+    }
+
+    if (savedDrafts?.id) {
+      setTemporaryDrafts([savedDrafts]);
     }
   }, []);
 
@@ -233,37 +240,45 @@ export default function PortfolioEditor({ data }) {
   const handleSaveDraft = useCallback(() => {
     const nextDraft = {
       id: crypto.randomUUID(),
+      title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
       savedAt: new Date().toISOString(),
       formData: createDraftFormData(formData),
       aiAnalysisResult,
       draftGuide,
     };
 
-    saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDraft);
+    setTemporaryDrafts(prev => {
+      const nextDrafts = [nextDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
 
-    setTemporaryDrafts([nextDraft]);
+      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+      return nextDrafts;
+    });
     alert("임시저장되었습니다.");
   }, [formData, aiAnalysisResult, draftGuide]);
 
-  const handleApplyLatestDraft = useCallback(() => {
-    const latestDraft = temporaryDrafts[0];
+  const handleApplyDraft = useCallback(
+    draftId => {
+      const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
-    if (!latestDraft) return;
+      if (!selectedDraft) return;
 
-    setFormData(prev => ({
-      ...prev,
-      ...latestDraft.formData,
-      images: prev.images,
-    }));
+      setFormData(prev => ({
+        ...prev,
+        ...selectedDraft.formData,
+        images: prev.images,
+      }));
 
-    if (latestDraft.aiAnalysisResult) {
-      setAiAnalysisResult(latestDraft.aiAnalysisResult);
-    }
+      if (selectedDraft.aiAnalysisResult) {
+        setAiAnalysisResult(selectedDraft.aiAnalysisResult);
+      }
 
-    if (latestDraft.draftGuide) {
-      setDraftGuide(latestDraft.draftGuide);
-    }
-  }, [temporaryDrafts]);
+      if (selectedDraft.draftGuide) {
+        setDraftGuide(selectedDraft.draftGuide);
+      }
+    },
+    [temporaryDrafts],
+  );
 
   const handleAddCategory = useCallback(category => {
     if (!category) return;
@@ -309,7 +324,12 @@ export default function PortfolioEditor({ data }) {
             value: techStack.trim().toLowerCase().replace(/\s+/g, "-"),
             label: techStack.trim(),
           }
-        : techStack;
+        : techStack.inputValue
+          ? {
+              value: techStack.inputValue.trim().toLowerCase().replace(/\s+/g, "-"),
+              label: techStack.inputValue.trim(),
+            }
+          : techStack;
 
     // 위에서 저장한 값의 라벨이 없으면 그대로 리턴
     if (!nextTechStack.label) return;
@@ -525,11 +545,7 @@ export default function PortfolioEditor({ data }) {
           maxWidth: "1272px",
         }}
       >
-        <EditorTitleSection
-          isEdit={isEdit}
-          temporaryDrafts={temporaryDrafts}
-          onApplyLatestDraft={handleApplyLatestDraft}
-        />
+        <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} onApplyDraft={handleApplyDraft} />
 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={4} sx={{ pb: 0 }}>
@@ -592,6 +608,7 @@ export default function PortfolioEditor({ data }) {
               sectionCardSx={sectionCardSx}
               formInputSx={formInputSx}
               draftGuide={draftGuide}
+              summary={formData.summary}
               handleFormChange={handleFormChange}
             />
             <EditorActionBar

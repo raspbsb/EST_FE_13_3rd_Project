@@ -352,6 +352,41 @@ body {
   opacity: 0.6;
 }
 
+.portfolio-editor-temporary-draft-dialog__list.MuiStack-root {
+  padding-top: 4px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item.MuiButton-root {
+  justify-content: flex-start;
+  width: 100%;
+  border-color: var(--portfolio-border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-text.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-title.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.portfolio-editor-temporary-draft-dialog__item-date.MuiTypography-root {
+  color: var(--portfolio-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
 @media (max-width: 599px) {
   .portfolio-editor-temporary-draft.MuiStack-root {
     width: 100%;
@@ -611,10 +646,66 @@ body {
   line-height: 20px;
 }
 
+.portfolio-editor-analysis-evidence__tabs.MuiTabs-root {
+  min-height: 42px;
+  margin-bottom: 16px;
+}
+
+.portfolio-editor-analysis-evidence__tabs .MuiTabs-flexContainer {
+  gap: 8px;
+}
+
+.portfolio-editor-analysis-evidence__tabs .MuiTabs-indicator {
+  display: none;
+}
+
+.portfolio-editor-analysis-evidence__tabs .MuiTab-root {
+  min-height: 42px;
+  min-width: auto;
+  margin-right: 8px;
+  border: 1px solid var(--portfolio-border);
+  border-radius: 8px;
+  background-color: var(--portfolio-surface);
+  color: var(--portfolio-text-secondary);
+  padding: 9px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-transform: none;
+}
+
+.portfolio-editor-analysis-evidence__tabs .MuiTab-root.Mui-selected {
+  border-color: var(--portfolio-primary);
+  background-color: var(--portfolio-primary);
+  color: var(--portfolio-surface);
+}
+
 .portfolio-editor-analysis-evidence__prompt.MuiPaper-root {
   border-color: var(--portfolio-border-soft);
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.6);
+}
+
+.portfolio-editor-analysis-evidence__content.MuiPaper-root {
+  border-color: var(--portfolio-border-soft);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.82);
+}
+
+.portfolio-editor-analysis-evidence__content-title.MuiTypography-root {
+  color: var(--portfolio-primary);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.28px;
+  line-height: 20px;
+}
+
+.portfolio-editor-analysis-evidence__content-text.MuiTypography-root {
+  color: var(--portfolio-text-primary);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 21px;
+  white-space: pre-line;
 }
 
 .portfolio-editor-analysis-evidence__prompt-text.MuiTypography-root {
@@ -712,14 +803,30 @@ body {
   line-height: 22px;
 }
 
+.portfolio-editor-draft-guide__summary-field.MuiBox-root {
+  position: relative;
+}
+
 .portfolio-editor-draft-guide__summary-input.MuiOutlinedInput-root {
   border: 1px dashed var(--portfolio-primary);
   background-color: var(--portfolio-surface);
-  padding: 12px 17px;
+  padding: 12px 118px 58px 17px;
 }
 
 .portfolio-editor-draft-guide__summary-input textarea.MuiOutlinedInput-input {
   padding: 0;
+}
+
+.portfolio-editor-draft-guide__summary-button.MuiButton-root {
+  position: absolute;
+  right: 17px;
+  bottom: 13px;
+  min-width: 88px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
 }
 
 .portfolio-editor-action-bar.MuiBox-root {
@@ -781,7 +888,36 @@ body {
   color: var(--portfolio-danger);
 }
 
-.portfolio-editor-action-bar .MuiTypography-root:first-of-type {
+.portfolio-editor-visibility-control.MuiStack-root {
+  align-items: center;
+  gap: 16px;
+}
+
+.portfolio-editor-visibility-control__content.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.portfolio-editor-visibility-control__content > .MuiSvgIcon-root {
+  flex: 0 0 auto;
+  color: var(--portfolio-icon);
+  font-size: 22px;
+}
+
+.portfolio-editor-visibility-control__public-icon.MuiSvgIcon-root {
+  color: var(--portfolio-primary);
+}
+
+.portfolio-editor-visibility-control__text.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.portfolio-editor-visibility-control__title.MuiTypography-root {
   color: var(--portfolio-text-primary);
   font-size: 14px;
   font-weight: 500;
@@ -789,7 +925,7 @@ body {
   line-height: 20px;
 }
 
-.portfolio-editor-action-bar .MuiTypography-root:last-of-type {
+.portfolio-editor-visibility-control__description.MuiTypography-root {
   color: var(--portfolio-text-secondary);
   font-size: 12px;
   font-weight: 500;

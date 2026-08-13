@@ -12,7 +12,7 @@ import Text from "@mui/material/Typography";
 import { EditIcon } from "../../lib/icons";
 import { memo } from "react";
 
-function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide }) {
+function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, handleFormChange }) {
   return (
     <Box>
       <Box
@@ -109,30 +109,28 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide }) {
             AI 추천 한 줄 요약 (미리보기)
           </Text>
 
-          <OutlinedInput
-            className="portfolio-editor-draft-guide__summary-input"
-            fullWidth
-            multiline
-            minRows={4}
-            value={draftGuide.aiShortSummary}
-            sx={{
-              ...formInputSx,
-            }}
-            inputProps={{
-              "aria-label": "AI 추천 한 줄 요약",
-              readOnly: true,
-            }}
-          />
+          <Box className="portfolio-editor-draft-guide__summary-field">
+            <OutlinedInput
+              id="summary"
+              name="summary"
+              className="portfolio-editor-draft-guide__summary-input"
+              fullWidth
+              multiline
+              minRows={4}
+              value={summary}
+              onChange={handleFormChange}
+              sx={{
+                ...formInputSx,
+              }}
+              inputProps={{
+                "aria-label": "AI 추천 한 줄 요약",
+              }}
+            />
 
-          <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "flex-end" }}>
-            <Button type="button" variant="outlined">
-              취소
-            </Button>
-
-            <Button type="button" variant="contained">
+            <Button className="portfolio-editor-draft-guide__summary-button" type="button" variant="contained">
               적용하기
             </Button>
-          </Stack>
+          </Box>
         </Box>
       </Box>
     </Box>
