@@ -44,14 +44,25 @@ function EditorActionBar({
         }}
       >
         {/* 공개/비공개 토글 그룹 */}
-        <Stack direction="row" sx={{ alignItems: "center", gap: 1 }}>
+        <Stack className="portfolio-editor-visibility-control" direction="row">
           <Switch id="is_public" name="is_public" checked={isPortfolioPublic} onChange={onVisibilityChange} />
-          {/* 공개/비공개 텍스트 */}
-          <Box>
-            <Text>{isPortfolioPublic ? "공개 설정" : "비공개 설정"}</Text>
-            <Text>{isPortfolioPublic ? "모든 사용자가 " : "초대된 사람만 "}내 포트폴리오를 볼 수 있습니다.</Text>
+
+          <Box className="portfolio-editor-visibility-control__content">
+            {isPortfolioPublic ? (
+              <PublicIcon className="portfolio-editor-visibility-control__public-icon" />
+            ) : (
+              <LockIcon />
+            )}
+            {/* 공개/비공개 텍스트 */}
+            <Box className="portfolio-editor-visibility-control__text">
+              <Text className="portfolio-editor-visibility-control__title">
+                {isPortfolioPublic ? "공개 설정" : "비공개 설정"}
+              </Text>
+              <Text className="portfolio-editor-visibility-control__description">
+                {isPortfolioPublic ? "모든 사용자가 " : "초대된 사람만 "}내 포트폴리오를 볼 수 있습니다.
+              </Text>
+            </Box>
           </Box>
-          {isPortfolioPublic ? <PublicIcon /> : <LockIcon />}
         </Stack>
 
         {/* 임시저장/미리보기/수정완료 버튼 */}

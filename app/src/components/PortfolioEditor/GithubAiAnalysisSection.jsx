@@ -11,12 +11,36 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon, DropDownIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
-import { memo } from "react";
+import { developmentAnalysisEvidenceTabs } from "./portfolioEditorData";
+import { memo, useState } from "react";
 
-function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
+function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAiAnalysis }) {
+  const [isEvidenceExpanded, setIsEvidenceExpanded] = useState(false);
+  const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
+  const isAnalysisCompleted = Boolean(aiAnalysisResult.analyzedAt);
+  const analysisEvidenceTabs =
+    Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
+      ? aiAnalysisResult.analysisEvidence
+      : developmentAnalysisEvidenceTabs;
+  const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
+
+  const handleEvidenceAccordionChange = (_, isExpanded) => {
+    setIsEvidenceExpanded(isExpanded);
+
+    if (!isExpanded) {
+      setSelectedEvidenceTab(false);
+    }
+  };
+
+  const handleEvidenceTabChange = (_, nextEvidenceTab) => {
+    setSelectedEvidenceTab(nextEvidenceTab);
+  };
+
   const analysisResultItems = [
     { title: "프로젝트 요약", description: aiAnalysisResult.projectSummary },
     { title: "주요 기능", description: aiAnalysisResult.mainFeatures },
@@ -38,13 +62,14 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
       }}
     >
       <Stack
+        className="portfolio-editor-section-header"
         direction={{ xs: "column", tablet: "row" }}
         spacing={2}
         sx={{
           mb: 2,
           width: "100%",
           justifyContent: "space-between",
-          alignItems: { xs: "flex-start", tablet: "center" },
+          alignItems: "flex-start",
         }}
       >
         <Stack
@@ -59,12 +84,20 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
           </Text>
         </Stack>
 
-        <Stack spacing={0.5} sx={{ alignItems: { xs: "flex-start", tablet: "flex-end" } }}>
+        <Stack className="portfolio-editor-section-header__actions" spacing={0.5}>
           {aiAnalysisResult.analyzedAt ? (
             <Text className="portfolio-editor-ai-section__analyzed-at">최종 분석: {aiAnalysisResult.analyzedAt}</Text>
           ) : null}
-          <Button variant="contained" disabled size="medium">
-            분석 완료
+          <Button
+            className="portfolio-editor-ai-action-button"
+            type="button"
+            variant="contained"
+            size="medium"
+            disabled={isAnalysisCompleted}
+            startIcon={isAnalysisCompleted ? null : <AwesomeIcon aria-hidden="true" />}
+            onClick={onCompleteAiAnalysis}
+          >
+            {isAnalysisCompleted ? "분석 완료" : "저장소 분석"}
           </Button>
         </Stack>
       </Stack>
@@ -90,7 +123,8 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
 
       <Accordion
         className="portfolio-editor-analysis-evidence"
-        defaultExpanded
+        expanded={isEvidenceExpanded}
+        onChange={handleEvidenceAccordionChange}
         elevation={0}
         sx={{
           overflow: "hidden",
@@ -118,25 +152,45 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
         </AccordionSummary>
 
         <AccordionDetails sx={{ px: 2, pt: 0, pb: 2 }}>
-          <Stack direction="row" spacing={1} useFlexGap sx={{ mb: 2, flexWrap: "wrap" }}>
-            <Button type="button" variant="outlined" sx={{ px: 3, py: 1, bgcolor: "background.paper" }}>
-              프로젝트 구조
-            </Button>
-
-            <Button type="button" variant="contained" sx={{ px: 3, py: 1 }}>
-              커밋 기록
-            </Button>
-          </Stack>
+          <Tabs
+            className="portfolio-editor-analysis-evidence__tabs"
+            value={selectedEvidenceTab}
+            onChange={handleEvidenceTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="분석 근거 카테고리"
+          >
+            {analysisEvidenceTabs.map(evidence => (
+              <Tab key={evidence.value} value={evidence.value} label={evidence.label} />
+            ))}
+          </Tabs>
 
           <Paper
-            className="portfolio-editor-analysis-evidence__prompt"
+            className={
+              selectedEvidence
+                ? "portfolio-editor-analysis-evidence__content"
+                : "portfolio-editor-analysis-evidence__prompt"
+            }
             variant="outlined"
             sx={{
               p: 2,
               mb: 2,
             }}
           >
-            <Text className="portfolio-editor-analysis-evidence__prompt-text">영역을 펼쳐 분석 근거를 확인하세요.</Text>
+            {selectedEvidence ? (
+              <Stack spacing={1}>
+                <Text className="portfolio-editor-analysis-evidence__content-title" component="h4">
+                  {selectedEvidence.label}
+                </Text>
+                <Text className="portfolio-editor-analysis-evidence__content-text" component="p">
+                  {selectedEvidence.description}
+                </Text>
+              </Stack>
+            ) : (
+              <Text className="portfolio-editor-analysis-evidence__prompt-text">
+                영역을 펼쳐 분석 근거를 확인하세요.
+              </Text>
+            )}
           </Paper>
 
           {aiAnalysisResult.analysisLimitation ? (

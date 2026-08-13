@@ -1,5 +1,5 @@
 // React Hooks
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // Material UI Components
@@ -121,11 +121,72 @@ const normalizeImageOrder = images =>
     isThumbnail: index === 0,
   }));
 
+// 임시저장할 때 formData에서 브라우저 세션에만 유효한 이미지 객체를 제외하는 함수
 const createDraftFormData = formData => ({
   ...formData,
   images: [],
 });
 
+// 개발 단계에서 GitHub 저장소 분석 버튼 클릭 시 보여줄 AI 분석 결과 더미 데이터
+const developmentAiAnalysisResult = {
+  projectSummary:
+    "Portfolio+는 창작자와 개발자가 자신의 프로젝트를 등록하고, 방문자와 채용 담당자가 분야와 기술 스택을 기준으로 작품을 탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다.",
+  mainFeatures:
+    "포트폴리오 등록·수정·삭제, 이미지 업로드, 카테고리·기술 스택 기반 탐색, 좋아요·북마크, 제작자 프로필, GitHub 저장소 분석 기능을 제공합니다.",
+  technicalFeatures:
+    "React와 MUI 기반의 컴포넌트 구조로 입력 UI를 구성하고, Supabase 연동을 전제로 사용자 인증, 프로젝트 데이터, 이미지 저장 흐름을 분리해 관리합니다.",
+  projectStructure:
+    "기본 정보, 이미지 첨부, 메타 정보, AI 분석 결과, 초안 가이드, 하단 액션바가 섹션 단위로 분리된 등록·수정 중심의 포트폴리오 편집 화면입니다.",
+  analyzedRole:
+    "등록·수정 페이지의 입력 흐름, 이미지 관리, 메타 정보 선택, AI 분석 결과 표시, 초안 가이드 UI와 상태 연결을 담당했습니다.",
+  participationDetails:
+    "기획 문서와 화면 설계 자료를 기준으로 정보 구조를 정리하고, 사용자가 입력한 데이터를 저장과 미리보기 흐름에 연결할 수 있도록 구현했습니다.",
+  analysisLimitation:
+    "분석 한계 : GitHub 저장소 정보와 사용자가 입력한 설명만으로는 실제 기여도와 협업 맥락을 완전히 판단하기 어렵습니다.",
+};
+
+// 개발 단계에서 초안 생성 버튼 클릭 시 보여줄 AI 추천 설명/한 줄 요약 더미 데이터
+const developmentDraftGuide = {
+  aiDraftDescription:
+    "Portfolio+는 프로젝트 등록부터 이미지 관리, 카테고리와 기술 스택 기반 탐색, GitHub 저장소 분석 결과 표시까지 하나의 흐름으로 연결하는 포트폴리오 갤러리 서비스입니다. 제작자는 프로젝트 정보를 체계적으로 정리하고, 방문자는 작품의 핵심 기능과 기술적 특징을 빠르게 확인할 수 있습니다.",
+  aiShortSummary: "GitHub 분석으로 프로젝트 정보를 보완하고 작품 탐색부터 협업 문의까지 연결하는 포트폴리오 갤러리",
+};
+
+// 분석/초안 생성 시점을 화면에 표시하기 위한 YYYY-MM-DD HH:mm 형식 문자열 생성 함수
+const formatEditorTimestamp = date => {
+  const pad = value => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(
+    date.getMinutes(),
+  )}`;
+};
+
+// 임시저장 가능 여부 판단을 위해 값이 비어 있지 않은지 확인하는 함수
+const hasNonEmptyDraftValue = value => {
+  if (typeof value === "boolean") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.values(value).some(hasNonEmptyDraftValue);
+
+  return String(value ?? "").trim().length > 0;
+};
+
+// 이미지 제외 formData, AI 분석 결과, 초안 가이드 중 하나라도 입력값이 있는지 확인하는 함수
+const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) => {
+  const { images: _images, ...draftFormData } = formData;
+
+  return (
+    hasNonEmptyDraftValue(draftFormData) || hasNonEmptyDraftValue(aiAnalysisResult) || hasNonEmptyDraftValue(draftGuide)
+  );
+};
+
+// // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
+const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
+// 임시저장 목록에서 유지할 최대 저장본 개수
+const MAX_PORTFOLIO_DRAFT_COUNT = 5;
+// 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
+const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
+
+// 등록/수정 페이지가 들고 있는 전체 라우트, 폼 상태, AI 상태, 이미지 상태를 조합하는 최상위 에디터 컴포넌트
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -138,13 +199,7 @@ export default function PortfolioEditor({ data }) {
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
-  // 공개/비공개 토글 스위치 체크여부 상태
-  const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
-  // 임시저장용 키
-  const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-draft";
-
-  // 임시저장용 변수
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
@@ -183,6 +238,9 @@ export default function PortfolioEditor({ data }) {
     originalDescription: "", // AI 초안 생성 전 사용자가 입력했던 기존 설명
     aiDraftDescription: "", // AI가 생성한 설명 초안
     aiShortSummary: "", // AI가 생성한 한 줄 요약
+    generatedAt: "",
+    appliedDescriptionSource: "",
+    isSummaryApplied: false,
   });
 
   // 화면 동작 관리용 상태 객체.
@@ -193,15 +251,21 @@ export default function PortfolioEditor({ data }) {
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
-  // 폼 전송 함수
+  // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
-    const savedDraft = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
+    const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
 
-    if (savedDraft) {
-      setTemporaryDrafts([savedDraft]);
+    if (Array.isArray(savedDrafts)) {
+      setTemporaryDrafts(savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT));
+      return;
+    }
+
+    if (savedDrafts?.id) {
+      setTemporaryDrafts([savedDrafts]);
     }
   }, []);
 
+  // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
   const handleSubmit = useCallback(
     e => {
       e.preventDefault();
@@ -215,6 +279,7 @@ export default function PortfolioEditor({ data }) {
     [formData, aiAnalysisResult, draftGuide],
   );
 
+  // 미리보기 모달을 여는 함수
   const handleOpenPreview = useCallback(() => {
     setEditorUi(prev => ({
       ...prev,
@@ -222,6 +287,7 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
+  // 미리보기 모달을 닫는 함수
   const handleClosePreview = useCallback(() => {
     setEditorUi(prev => ({
       ...prev,
@@ -229,42 +295,127 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
+  // 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록하는 함수
+  const handleCompleteAiAnalysis = useCallback(() => {
+    setAiAnalysisResult(prev => ({
+      ...prev,
+      ...developmentAiAnalysisResult,
+      analyzedAt: formatEditorTimestamp(new Date()),
+    }));
+  }, []);
+
+  // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
+  const handleGenerateDraftGuide = useCallback(() => {
+    setDraftGuide(prev => ({
+      ...prev,
+      originalDescription: formData.description,
+      aiDraftDescription: developmentDraftGuide.aiDraftDescription,
+      aiShortSummary: developmentDraftGuide.aiShortSummary,
+      generatedAt: formatEditorTimestamp(new Date()),
+      appliedDescriptionSource: "current",
+      isSummaryApplied: false,
+    }));
+  }, [formData.description]);
+
+  // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
+  const handleApplyCurrentDescription = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      description: draftGuide.originalDescription,
+    }));
+
+    setDraftGuide(prev => ({
+      ...prev,
+      appliedDescriptionSource: "current",
+    }));
+  }, [draftGuide.originalDescription]);
+
+  // AI 추천 설명 초안을 프로젝트 설명 입력값에 적용하는 함수
+  const handleApplyDraftDescription = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      description: draftGuide.aiDraftDescription,
+    }));
+
+    setDraftGuide(prev => ({
+      ...prev,
+      appliedDescriptionSource: "ai",
+    }));
+  }, [draftGuide.aiDraftDescription]);
+
+  // AI 추천 한 줄 요약 미리보기 입력값을 draftGuide 상태에만 반영하고 적용 상태를 해제하는 함수
+  const handleDraftSummaryChange = useCallback(e => {
+    setDraftGuide(prev => ({
+      ...prev,
+      aiShortSummary: e.target.value,
+      isSummaryApplied: false,
+    }));
+  }, []);
+
+  // AI 추천 한 줄 요약 미리보기 값을 실제 formData.summary에 적용하는 함수
+  const handleApplyDraftSummary = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      summary: draftGuide.aiShortSummary,
+    }));
+
+    setDraftGuide(prev => ({
+      ...prev,
+      isSummaryApplied: true,
+    }));
+  }, [draftGuide.aiShortSummary]);
+
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleSaveDraft = useCallback(() => {
+    if (!hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+      alert("임시저장할 내용이 없습니다.");
+      return;
+    }
+
     const nextDraft = {
       id: crypto.randomUUID(),
+      title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
       savedAt: new Date().toISOString(),
       formData: createDraftFormData(formData),
       aiAnalysisResult,
       draftGuide,
     };
 
-    saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDraft);
+    setTemporaryDrafts(prev => {
+      const nextDrafts = [nextDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
 
-    setTemporaryDrafts([nextDraft]);
+      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+      return nextDrafts;
+    });
     alert("임시저장되었습니다.");
   }, [formData, aiAnalysisResult, draftGuide]);
 
-  const handleApplyLatestDraft = useCallback(() => {
-    const latestDraft = temporaryDrafts[0];
+  // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
+  const handleApplyDraft = useCallback(
+    draftId => {
+      const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
-    if (!latestDraft) return;
+      if (!selectedDraft) return;
 
-    setFormData(prev => ({
-      ...prev,
-      ...latestDraft.formData,
-      images: prev.images,
-    }));
+      setFormData(prev => ({
+        ...prev,
+        ...selectedDraft.formData,
+        images: prev.images,
+      }));
 
-    if (latestDraft.aiAnalysisResult) {
-      setAiAnalysisResult(latestDraft.aiAnalysisResult);
-    }
+      if (selectedDraft.aiAnalysisResult) {
+        setAiAnalysisResult(selectedDraft.aiAnalysisResult);
+      }
 
-    if (latestDraft.draftGuide) {
-      setDraftGuide(latestDraft.draftGuide);
-    }
-  }, [temporaryDrafts]);
+      if (selectedDraft.draftGuide) {
+        setDraftGuide(selectedDraft.draftGuide);
+      }
+    },
+    [temporaryDrafts],
+  );
 
+  // 선택한 카테고리가 비어 있거나 최대 개수를 넘거나 이미 추가된 값이면 무시하고, 새 카테고리만 formData.categories에 추가하는 함수
   const handleAddCategory = useCallback(category => {
     if (!category) return;
 
@@ -282,6 +433,17 @@ export default function PortfolioEditor({ data }) {
         ...prev,
         categories: [...prev.categories, category],
       };
+    });
+  }, []);
+
+  // 선택한 임시저장 데이터를 목록과 localStorage에서 삭제하는 함수
+  const handleDeleteDraft = useCallback(draftId => {
+    setTemporaryDrafts(prev => {
+      const nextDrafts = prev.filter(draft => draft.id !== draftId);
+
+      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+      return nextDrafts;
     });
   }, []);
 
@@ -309,7 +471,12 @@ export default function PortfolioEditor({ data }) {
             value: techStack.trim().toLowerCase().replace(/\s+/g, "-"),
             label: techStack.trim(),
           }
-        : techStack;
+        : techStack.inputValue
+          ? {
+              value: techStack.inputValue.trim().toLowerCase().replace(/\s+/g, "-"),
+              label: techStack.inputValue.trim(),
+            }
+          : techStack;
 
     // 위에서 저장한 값의 라벨이 없으면 그대로 리턴
     if (!nextTechStack.label) return;
@@ -363,7 +530,6 @@ export default function PortfolioEditor({ data }) {
   // 공개/비공개 토글 스위치 핸들링 함수
   const handlePortfolioVisibilityChange = useCallback(
     e => {
-      setIsPortfolioPublic(e.target.checked);
       handleFormChange(e);
     },
     [handleFormChange],
@@ -528,7 +694,8 @@ export default function PortfolioEditor({ data }) {
         <EditorTitleSection
           isEdit={isEdit}
           temporaryDrafts={temporaryDrafts}
-          onApplyLatestDraft={handleApplyLatestDraft}
+          onApplyDraft={handleApplyDraft}
+          onDeleteDraft={handleDeleteDraft}
         />
 
         <Box component="form" onSubmit={handleSubmit}>
@@ -555,7 +722,11 @@ export default function PortfolioEditor({ data }) {
                   description={formData.description}
                   handleFormChange={handleFormChange}
                 />
-                <GithubAiAnalysisSection sectionCardSx={sectionCardSx} aiAnalysisResult={aiAnalysisResult} />
+                <GithubAiAnalysisSection
+                  sectionCardSx={sectionCardSx}
+                  aiAnalysisResult={aiAnalysisResult}
+                  onCompleteAiAnalysis={handleCompleteAiAnalysis}
+                />
               </Stack>
 
               <Stack spacing={3}>
@@ -592,7 +763,12 @@ export default function PortfolioEditor({ data }) {
               sectionCardSx={sectionCardSx}
               formInputSx={formInputSx}
               draftGuide={draftGuide}
-              handleFormChange={handleFormChange}
+              summary={draftGuide.aiShortSummary}
+              onGenerateDraftGuide={handleGenerateDraftGuide}
+              onApplyCurrentDescription={handleApplyCurrentDescription}
+              onApplyDraftDescription={handleApplyDraftDescription}
+              onDraftSummaryChange={handleDraftSummaryChange}
+              onApplyDraftSummary={handleApplyDraftSummary}
             />
             <EditorActionBar
               isEdit={isEdit}
