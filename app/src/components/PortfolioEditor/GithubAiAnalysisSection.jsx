@@ -19,9 +19,10 @@ import AnalysisResultCard from "./AnalysisResultCard";
 import { developmentAnalysisEvidenceTabs } from "./portfolioEditorData";
 import { memo, useState } from "react";
 
-function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
+function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAiAnalysis }) {
   const [isEvidenceExpanded, setIsEvidenceExpanded] = useState(false);
   const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
+  const isAnalysisCompleted = Boolean(aiAnalysisResult.analyzedAt);
   const analysisEvidenceTabs =
     Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
       ? aiAnalysisResult.analysisEvidence
@@ -61,13 +62,14 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
       }}
     >
       <Stack
+        className="portfolio-editor-section-header"
         direction={{ xs: "column", tablet: "row" }}
         spacing={2}
         sx={{
           mb: 2,
           width: "100%",
           justifyContent: "space-between",
-          alignItems: { xs: "flex-start", tablet: "center" },
+          alignItems: "flex-start",
         }}
       >
         <Stack
@@ -82,12 +84,20 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
           </Text>
         </Stack>
 
-        <Stack spacing={0.5} sx={{ alignItems: { xs: "flex-start", tablet: "flex-end" } }}>
+        <Stack className="portfolio-editor-section-header__actions" spacing={0.5}>
           {aiAnalysisResult.analyzedAt ? (
             <Text className="portfolio-editor-ai-section__analyzed-at">최종 분석: {aiAnalysisResult.analyzedAt}</Text>
           ) : null}
-          <Button variant="contained" disabled size="medium">
-            분석 완료
+          <Button
+            className="portfolio-editor-ai-action-button"
+            type="button"
+            variant="contained"
+            size="medium"
+            disabled={isAnalysisCompleted}
+            startIcon={isAnalysisCompleted ? null : <AwesomeIcon aria-hidden="true" />}
+            onClick={onCompleteAiAnalysis}
+          >
+            {isAnalysisCompleted ? "분석 완료" : "저장소 분석"}
           </Button>
         </Stack>
       </Stack>

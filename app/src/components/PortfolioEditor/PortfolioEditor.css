@@ -208,6 +208,46 @@ body {
   opacity: 0.6;
 }
 
+.portfolio-editor-section-header.MuiStack-root {
+  align-items: flex-start;
+}
+
+.portfolio-editor-section-header__actions.MuiStack-root {
+  align-items: flex-end;
+}
+
+.portfolio-editor-ai-action-button.MuiButton-root {
+  min-height: 40px;
+  border-radius: 8px;
+  background-color: var(--portfolio-primary);
+  color: #ffffff;
+  padding: 8px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.portfolio-editor-ai-action-button.MuiButton-root .MuiButton-startIcon {
+  margin-right: 8px;
+  margin-left: 0;
+}
+
+.portfolio-editor-ai-action-button.MuiButton-root .MuiSvgIcon-root {
+  color: currentColor;
+}
+
+.portfolio-editor-ai-action-button.MuiButton-root.Mui-disabled {
+  background-color: #d6d9e3;
+  color: var(--portfolio-text-secondary);
+  opacity: 1;
+}
+
+@media (max-width: 899px) {
+  .portfolio-editor-section-header__actions.MuiStack-root {
+    align-items: flex-start;
+  }
+}
+
 .portfolio-editor-page .MuiAlert-root {
   color: var(--portfolio-text-primary);
   font-size: 16px;
@@ -801,6 +841,10 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 22px;
+}
+
+.portfolio-editor-draft-guide__card-button.MuiButton-root {
+  align-self: flex-end;
 }
 
 .portfolio-editor-draft-guide__summary-field.MuiBox-root {
