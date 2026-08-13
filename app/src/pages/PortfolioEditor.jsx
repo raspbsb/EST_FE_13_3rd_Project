@@ -126,6 +126,22 @@ const createDraftFormData = formData => ({
   images: [],
 });
 
+const hasNonEmptyDraftValue = value => {
+  if (typeof value === "boolean") return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (value && typeof value === "object") return Object.values(value).some(hasNonEmptyDraftValue);
+
+  return String(value ?? "").trim().length > 0;
+};
+
+const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) => {
+  const { images: _images, ...draftFormData } = formData;
+
+  return (
+    hasNonEmptyDraftValue(draftFormData) || hasNonEmptyDraftValue(aiAnalysisResult) || hasNonEmptyDraftValue(draftGuide)
+  );
+};
+
 const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 const MAX_PORTFOLIO_DRAFT_COUNT = 5;
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
@@ -238,6 +254,11 @@ export default function PortfolioEditor({ data }) {
 
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleSaveDraft = useCallback(() => {
+    if (!hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+      alert("임시저장할 내용이 없습니다.");
+      return;
+    }
+
     const nextDraft = {
       id: crypto.randomUUID(),
       title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
