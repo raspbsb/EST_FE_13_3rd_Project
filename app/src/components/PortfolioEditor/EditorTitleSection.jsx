@@ -9,7 +9,24 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { memo } from "react";
 
-function EditorTitleSection({ isEdit, temporaryDrafts }) {
+const formatDraftSavedAt = savedAt => {
+  if (!savedAt) return "";
+
+  const date = new Date(savedAt);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const pad = value => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}.${pad(date.getMonth() + 1)}.${pad(date.getDate())} ${pad(date.getHours())}:${pad(
+    date.getMinutes(),
+  )}`;
+};
+
+function EditorTitleSection({ isEdit, temporaryDrafts, onApplyLatestDraft }) {
+  const latestDraft = temporaryDrafts[0];
+  const latestSavedAt = formatDraftSavedAt(latestDraft?.savedAt);
+
   return (
     <Stack className="portfolio-editor-title" spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       {/* 타이틀 & 페이지 설명 */}
@@ -26,19 +43,20 @@ function EditorTitleSection({ isEdit, temporaryDrafts }) {
       </Box>
 
       {/* 임시저장 */}
-      {temporaryDrafts[0].id ? (
+      {latestDraft?.id ? (
         <Stack className="portfolio-editor-temporary-draft" direction={{ xs: "column", tablet: "row" }}>
           <Stack className="portfolio-editor-temporary-draft__text" spacing={2}>
             <Text className="portfolio-editor-temporary-draft__line">이전에 임시저장한 내용이 있습니다.</Text>
-            <Text className="portfolio-editor-temporary-draft__line">최신 저장 : 2026.08.02 18:30</Text>
+            <Text className="portfolio-editor-temporary-draft__line">최신 저장 : {latestSavedAt}</Text>
           </Stack>
 
           <Stack className="portfolio-editor-temporary-draft__actions" spacing={1}>
             <Button
               className="portfolio-editor-temporary-draft__button portfolio-editor-temporary-draft__button--primary"
-              type="submit"
+              type="button"
               variant="contained"
               size="small"
+              onClick={onApplyLatestDraft}
             >
               최신 저장 내용 적용
             </Button>

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /login
+Disallow: /signup
+Disallow: /mypage
+Disallow: /portfolios/new
+Disallow: /portfolios/*/edit
+
+Sitemap: 배포 주소/sitemap.xml
