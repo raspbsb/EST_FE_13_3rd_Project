@@ -14,8 +14,9 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon, DropDownIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
+import { memo } from "react";
 
-export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
+function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult }) {
   const analysisResultItems = [
     { title: "프로젝트 요약", description: aiAnalysisResult.projectSummary },
     { title: "주요 기능", description: aiAnalysisResult.mainFeatures },
@@ -150,3 +151,5 @@ export default function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResul
     </Box>
   );
 }
+
+export default memo(GithubAiAnalysisSection);

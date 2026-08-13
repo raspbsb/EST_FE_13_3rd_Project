@@ -7,8 +7,9 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
+import { memo } from "react";
 
-export default function EditorTitleSection({ isEdit, temporaryDrafts }) {
+function EditorTitleSection({ isEdit, temporaryDrafts }) {
   return (
     <Stack className="portfolio-editor-title" spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       {/* 타이틀 & 페이지 설명 */}
@@ -56,3 +57,5 @@ export default function EditorTitleSection({ isEdit, temporaryDrafts }) {
     </Stack>
   );
 }
+
+export default memo(EditorTitleSection);

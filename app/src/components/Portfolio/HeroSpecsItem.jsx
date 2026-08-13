@@ -1,9 +1,11 @@
+import { memo } from "react";
+
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Text from "@mui/material/Typography";
 import styles from "./HeroSpecsItem.module.css";
 
-export default function HeroSpecsItem({ label = "", half, children, noBox }) {
+function HeroSpecsItem({ label = "", half, children, noBox }) {
   return (
     <>
       <Grid component={"dt"} size={{ mobile: 12, tablet: 3, desktop: 2 }} className={`${styles["hero-specs-item"]}`}>
@@ -21,3 +23,5 @@ export default function HeroSpecsItem({ label = "", half, children, noBox }) {
     </>
   );
 }
+
+export default memo(HeroSpecsItem);
