@@ -592,6 +592,7 @@ export default function PortfolioEditor({ data }) {
               sectionCardSx={sectionCardSx}
               formInputSx={formInputSx}
               draftGuide={draftGuide}
+              summary={formData.summary}
               handleFormChange={handleFormChange}
             />
             <EditorActionBar

@@ -712,14 +712,30 @@ body {
   line-height: 22px;
 }
 
+.portfolio-editor-draft-guide__summary-field.MuiBox-root {
+  position: relative;
+}
+
 .portfolio-editor-draft-guide__summary-input.MuiOutlinedInput-root {
   border: 1px dashed var(--portfolio-primary);
   background-color: var(--portfolio-surface);
-  padding: 12px 17px;
+  padding: 12px 118px 58px 17px;
 }
 
 .portfolio-editor-draft-guide__summary-input textarea.MuiOutlinedInput-input {
   padding: 0;
+}
+
+.portfolio-editor-draft-guide__summary-button.MuiButton-root {
+  position: absolute;
+  right: 17px;
+  bottom: 13px;
+  min-width: 88px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
 }
 
 .portfolio-editor-action-bar.MuiBox-root {
