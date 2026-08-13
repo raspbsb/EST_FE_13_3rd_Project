@@ -211,7 +211,7 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
             <strong>{selectedCollection?.title}</strong> 컬렉션을 삭제하시겠습니까?
           </Text>
 
-          <Text component="caption" variant="body2" sx={{ mt: 1 }}>
+          <Text component="caption" variant="subtitle2" sx={{ display: "flex", mt: 1 }}>
             컬렉션을 삭제해도 북마크한 프로젝트는 삭제되지 않습니다.
           </Text>
         </DialogContent>

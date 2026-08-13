@@ -1,13 +1,13 @@
-import { supabase } from '../utils/supabase';
-import { useEffect, useState } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { supabase } from "../utils/supabase";
+import { useEffect, useState } from "react";
+import { Outlet, useParams } from "react-router-dom";
 
-import Container from '@mui/material/Container';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+import Container from "@mui/material/Container";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
-import ProfileHeader from '../components/mypage/ProfileHeader';
-import ActivityStats from '../components/mypage/ActivityStats';
+import ProfileHeader from "../components/mypage/ProfileHeader";
+import ActivityStats from "../components/mypage/ActivityStats";
 
 export default function PublicProfileLayout() {
   const { userId } = useParams();
@@ -18,10 +18,10 @@ export default function PublicProfileLayout() {
   //profiles 데이터 조회
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
 
       if (error) {
-        console.error('프로필 조회 실패:', error);
+        console.error("프로필 조회 실패:", error);
         setProfile(null);
       } else {
         setPeofile(data);
@@ -35,7 +35,7 @@ export default function PublicProfileLayout() {
   //로딩 화면
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
         <CircularProgress />
       </Box>
     );
@@ -52,14 +52,14 @@ export default function PublicProfileLayout() {
         maxWidth={false}
         disableGutters
         sx={{
-          maxWidth: '1272px',
-          mx: 'auto',
+          maxWidth: "1272px",
+          mx: "auto",
           py: 6,
         }}
       >
         <ProfileHeader mode="public" profile={profile} />
 
-        <ActivityStats />
+        <ActivityStats mode="public" profile={profile} />
 
         <Outlet context={{ profile }} />
       </Container>
