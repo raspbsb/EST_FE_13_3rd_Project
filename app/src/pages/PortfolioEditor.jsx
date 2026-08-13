@@ -16,6 +16,7 @@ import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmen
 import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPreviewDialog";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
+import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
 
 // CSS
 import "../components/PortfolioEditor/PortfolioEditor.css";
@@ -506,6 +507,14 @@ export default function PortfolioEditor({ data }) {
         // 실험용 콘솔 : 전체 페이지 렌더링 여부, 끝나면 지울것
         // console.log("PortfolioEditor 렌더")
       }
+
+      {/* 메타데이터 */}
+      <SeoMeta
+        title={`${isEdit ? "포트폴리오 수정" : "새 포트폴리오 작성"} | ${SITE_NAME}`}
+        description={isEdit ? "포트폴리오 내용을 수정합니다." : "새 포트폴리오를 작성합니다."}
+        path={isEdit ? `/portfolios/${id}/edit` : "/portfolios/new"}
+        noindex
+      />
 
       <Container
         className="portfolio-editor-page"

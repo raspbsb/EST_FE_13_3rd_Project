@@ -1,5 +1,5 @@
-import { Link, Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
+import SeoMeta, { SITE_NAME } from "./components/SeoMeta";
 import MainLayout from "./layouts/MainLayout";
 import MyPageLayout from "./layouts/MyPageLayout";
 import PublicProfileLayout from "./layouts/PublicProfileLayout";
@@ -12,7 +12,6 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login/Login.jsx";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
-import MyProjects from "./pages/MyProjects";
 import Collections from "./pages/Collections";
 import MyProjectsSection from "./components/mypage/MyProjectsSection";
 
@@ -20,9 +19,33 @@ export default function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <>
+              <SeoMeta
+                title={`${SITE_NAME} | Home`}
+                description="Create your portfolio and explore other projects."
+                path="/"
+              />
+              <Home />
+            </>
+          }
+        />
 
-        <Route path="/gallery" element={<Gallery />} />
+        <Route
+          path="/gallery"
+          element={
+            <>
+              <SeoMeta
+                title={`Gallery | ${SITE_NAME}`}
+                description="Browse public portfolios and projects."
+                path="/gallery"
+              />
+              <Gallery />
+            </>
+          }
+        />
         <Route path="/portfolios/new" element={<PortfolioEditor />} />
         <Route path="/portfolios/:id" element={<Portfolio />} />
         <Route path="/portfolios/:id/edit" element={<PortfolioEditor />} />
@@ -37,8 +60,29 @@ export default function App() {
           <Route index element={<MyProjectsSection mode="public" />} />
         </Route>
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/login"
+          element={
+            <>
+              <SeoMeta title={`Login | ${SITE_NAME}`} description="Log in to Portfolio+." path="/login" noindex />
+              <Login />
+            </>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <>
+              <SeoMeta
+                title={`Sign Up | ${SITE_NAME}`}
+                description="Create a Portfolio+ account."
+                path="/signup"
+                noindex
+              />
+              <Signup />
+            </>
+          }
+        />
 
         <Route path="*" element={<NotFound />} />
       </Route>
