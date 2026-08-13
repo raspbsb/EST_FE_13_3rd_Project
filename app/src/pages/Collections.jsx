@@ -93,8 +93,13 @@ export default function Collections() {
     navigate(`/mypage/collections/${collectionId}`);
   };
 
-  // 컬렉션 생성 insert 함수
+  // 컬렉션 생성 insert 함수 ( 8개로 생성 제한)
   const handleCreateCollection = async title => {
+    if (collections.length >= 8) {
+      console.warn("컬렉션은 최대 8개까지 생성할 수 있습니다.");
+      return;
+    }
+
     const { error } = await supabase.from("collections").insert({
       owner_id: "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe", // auth 연결되면 user.id 로 변경
       title,

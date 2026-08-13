@@ -62,9 +62,14 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
 
           <Divider />
 
-          <Button fullWidth sx={{ mt: 2 }} onClick={() => setOpenCreate(true)}>
+          <Button fullWidth sx={{ mt: 2 }} onClick={() => setOpenCreate(true)} disabled={collections.length >= 8}>
             + 새 컬렉션 만들기
           </Button>
+          {collections.length >= 8 && (
+            <Text variant="caption" color="error" sx={{ display: "block", textAlign: "center" }}>
+              컬렉션은 최대 8개까지 만들 수 있습니다.
+            </Text>
+          )}
         </DialogContent>
 
         <DialogActions>
