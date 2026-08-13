@@ -5,6 +5,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
+import Text from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
@@ -16,7 +17,7 @@ import Divider from "@mui/material/Divider";
 
 import { MoreVertIcon } from "../../lib/icons";
 
-export default function CollectionManageDialog({ open, onClose, collections, onCreate, onEdit }) {
+export default function CollectionManageDialog({ open, onClose, collections, onCreate, onEdit, onDelete }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedCollection, setSelectedCollection] = useState(null);
   // 컬렉션 생성 상태
@@ -25,13 +26,14 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
   // 컬렉션 타이틀 수정 상태
   const [openEdit, setOpenEdit] = useState(false);
   const [editTitle, setEditTitle] = useState("");
+  // 컬렉션 삭제 확인 상태
+  const [openDelete, setOpenDelete] = useState(false);
 
-  // 메뉴 열고 닫기
+  // 컬렉션 옵션 열고 닫기
   const handleMenuOpen = (event, collection) => {
     setAnchorEl(event.currentTarget);
     setSelectedCollection(collection);
   };
-
   const handleMenuClose = () => {
     setAnchorEl(null);
     setSelectedCollection(null);
@@ -80,7 +82,14 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
             이름 수정
           </MenuItem>
 
-          <MenuItem onClick={handleMenuClose}>삭제</MenuItem>
+          <MenuItem
+            onClick={() => {
+              setOpenDelete(true);
+              setAnchorEl(null);
+            }}
+          >
+            삭제
+          </MenuItem>
         </Menu>
       </Dialog>
       {/* 컬렉션 생성 dialog */}
@@ -177,6 +186,53 @@ export default function CollectionManageDialog({ open, onClose, collections, onC
             }}
           >
             저장
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* 컬렉션 삭제 확인 dialog */}
+      <Dialog
+        open={openDelete}
+        onClose={() => {
+          setOpenDelete(false);
+          setSelectedCollection(null);
+        }}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>컬렉션 삭제</DialogTitle>
+
+        <DialogContent>
+          <Text>
+            <strong>{selectedCollection?.title}</strong> 컬렉션을 삭제하시겠습니까?
+          </Text>
+
+          <Text variant="body2" sx={{ mt: 1 }}>
+            컬렉션을 삭제해도 북마크한 프로젝트는 삭제되지 않습니다.
+          </Text>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenDelete(false);
+              setSelectedCollection(null);
+            }}
+          >
+            취소
+          </Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            disabled={!selectedCollection}
+            onClick={() => {
+              onDelete(selectedCollection.id);
+
+              setOpenDelete(false);
+              setSelectedCollection(null);
+            }}
+          >
+            삭제
           </Button>
         </DialogActions>
       </Dialog>

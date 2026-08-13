@@ -131,6 +131,20 @@ export default function Collections() {
     await fetchCollections();
   };
 
+  // 컬렉션 delete 함수
+  const handleDeleteCollection = async collectionId => {
+    const { error } = await supabase.from("collections").delete().eq("collection_id", collectionId);
+
+    if (error) {
+      console.error("컬렉션 삭제 실패:", error);
+      return;
+    }
+
+    console.log("컬렉션 삭제 성공");
+
+    await fetchCollections();
+  };
+
   return (
     <Box component="section" className={styles.section}>
       <Box className={styles.header}>
@@ -147,6 +161,7 @@ export default function Collections() {
           collections={collections}
           onCreate={handleCreateCollection}
           onEdit={handleEditCollection}
+          onDelete={handleDeleteCollection}
         />
       </Box>
 
