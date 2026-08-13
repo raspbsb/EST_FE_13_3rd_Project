@@ -105,9 +105,8 @@ const gallerySlice = createSlice({
       console.log(state.featured.data);
     });
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
-      state.featured.data = action.payload.data;
       state.featured.status = "failed";
-      state.featured.error = action.payload.error;
+      state.featured.error = action.payload.error ?? action.error;
       console.error(state.featured.error);
     });
 
@@ -121,15 +120,18 @@ const gallerySlice = createSlice({
       console.log(state.data);
     });
     builder.addCase(fetchPortfolios.rejected, (state, action) => {
-      state.data = action.payload.data;
       state.status = "failed";
-      state.error = action.payload.error;
+      state.error = action.payload.error ?? action.error;
       console.error(state.error);
     });
 
     builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
       state.data.push(action.payload.data);
       console.log(state.data);
+    });
+    builder.addCase(fetchMorePortfolios.rejected, (state, action) => {
+      state.error = action.payload.error ?? action.error;
+      console.error(state.error);
     });
   },
 });
