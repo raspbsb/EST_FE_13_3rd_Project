@@ -63,9 +63,8 @@ const portfolioSlice = createSlice({
       console.log(state.data);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
-      state.data = action.payload.data;
       state.status = "failed";
-      state.error = action.payload.error;
+      state.error = action.payload.error ?? action.error;
       console.error(state.error);
     });
 
@@ -79,9 +78,8 @@ const portfolioSlice = createSlice({
       console.log(state.otherPortfolios.data);
     });
     builder.addCase(fetchOtherPortfolios.rejected, (state, action) => {
-      state.otherPortfolios.data = action.payload.data;
       state.otherPortfolios.status = "failed";
-      state.otherPortfolios.error = action.payload.error;
+      state.otherPortfolios.error = action.payload.error ?? action.error;
       console.error(state.otherPortfolios.error);
     });
   },

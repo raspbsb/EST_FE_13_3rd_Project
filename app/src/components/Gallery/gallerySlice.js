@@ -1,6 +1,22 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supabase } from "../../utils/supabase";
 
+const stringToColumnName = (sortBy = "created_at") => {
+  switch (sortBy) {
+    case "created_at":
+    case "latest": // 최신순
+      return "created_at";
+    case "view_count":
+    case "popular": // 조회순
+      return "view_count";
+    case "likes": // 좋아요순
+    // 좋아요 테이블 미구현
+    default:
+      console.warn('Invalid value for function "stringToColumnName()": ', sortBy);
+      return "created_at";
+  }
+};
+
 export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", async () => {
   const result = await supabase
     .schema("public")
@@ -12,26 +28,7 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
 });
 export const fetchPortfolios = createAsyncThunk(
   "gallery",
-  async ({
-    page = 1,
-    pageSize = 8,
-    searchTerm = "",
-    category = [],
-    techStack = [],
-    sortBy = "created_at",
-    ascending = false,
-  }) => {
-    switch (sortBy) {
-      case "latest": // 최신순
-        sortBy = "created_at";
-      case "popular": // 조회순
-        sortBy = "view_count";
-      case "likes": // 좋아요순
-      // 좋아요 테이블 미구현
-      default:
-        sortBy = sortBy;
-    }
-
+  async ({ searchTerm = "", category = [], techStack = [], sortBy = "created_at", ascending = false }) => {
     const result = await supabase
       .schema("public")
       .from("portfolios")
@@ -41,8 +38,33 @@ export const fetchPortfolios = createAsyncThunk(
       .ilike("title", `%${searchTerm.trim()}%`)
       // .???("category", category)
       // .???("tech_stack", techStack)
-      .order(sortBy, { ascending })
-      .range((page - 1) * pageSize, page * pageSize + 1);
+      .order(stringToColumnName(sortBy), { ascending })
+      .range(0, 7);
+    return result;
+  },
+);
+export const fetchMorePortfolios = createAsyncThunk(
+  "gallery/more",
+  async ({
+    searchTerm = "",
+    category = [],
+    techStack = [],
+    sortBy = "created_at",
+    ascending = false,
+    visibleCount,
+    fetchCount = 4,
+  }) => {
+    const result = await supabase
+      .schema("public")
+      .from("portfolios")
+      .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
+        count: "exact",
+      })
+      .ilike("title", `%${searchTerm.trim()}%`)
+      // .???("category", category)
+      // .???("tech_stack", techStack)
+      .order(stringToColumnName(sortBy), { ascending })
+      .range(visibleCount - 1, visibleCount + fetchCount - 1);
     return result;
   },
 );
@@ -66,11 +88,11 @@ const gallerySlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.count = 0;
-      featured: {
-        data = [];
-        status = idle;
-        error = null;
-      }
+      state.featured = {
+        data: [],
+        status: idle,
+        error: null,
+      };
     },
   },
   extraReducers: builder => {
@@ -83,9 +105,8 @@ const gallerySlice = createSlice({
       console.log(state.featured.data);
     });
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
-      state.featured.data = action.payload.data;
       state.featured.status = "failed";
-      state.featured.error = action.payload.error;
+      state.featured.error = action.payload.error ?? action.error;
       console.error(state.featured.error);
     });
 
@@ -99,9 +120,17 @@ const gallerySlice = createSlice({
       console.log(state.data);
     });
     builder.addCase(fetchPortfolios.rejected, (state, action) => {
-      state.data = action.payload.data;
       state.status = "failed";
-      state.error = action.payload.error;
+      state.error = action.payload.error ?? action.error;
+      console.error(state.error);
+    });
+
+    builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
+      state.data.push(action.payload.data);
+      console.log(state.data);
+    });
+    builder.addCase(fetchMorePortfolios.rejected, (state, action) => {
+      state.error = action.payload.error ?? action.error;
       console.error(state.error);
     });
   },
