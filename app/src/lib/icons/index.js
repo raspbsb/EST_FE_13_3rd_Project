@@ -1,41 +1,37 @@
-export { default as AccountCircleIcon } from "@mui/icons-material/AccountCircle";
-export { default as AddAPhotoIcon } from "@mui/icons-material/AddAPhoto";
+export { default as EditIcon } from "@mui/icons-material/Edit";
+export { default as ViewsIcon } from "@mui/icons-material/VisibilityOutlined";
+export { default as LikeIcon } from "@mui/icons-material/FavoriteBorder";
+export { default as LikeIconActive } from "@mui/icons-material/Favorite";
+export { default as StarIcon } from "@mui/icons-material/StarBorder";
+export { default as StarIconActive } from "@mui/icons-material/Star";
+export { default as LinkIcon } from "@mui/icons-material/Link";
+export { default as CodeIcon } from "@mui/icons-material/Code";
+export { default as AiIcon } from "@mui/icons-material/AutoAwesome";
+export { default as EmailIcon } from "@mui/icons-material/EmailOutlined";
 export { default as DropDownIcon } from "@mui/icons-material/ArrowDropDown";
 export { default as DropUpIcon } from "@mui/icons-material/ArrowDropUp";
-export { default as AiIcon } from "@mui/icons-material/AutoAwesome";
-export { default as AwesomeIcon } from "@mui/icons-material/AutoAwesomeOutlined";
-export { default as BookmarkIcon } from "@mui/icons-material/Bookmark";
-export { default as CalendarIcon } from "@mui/icons-material/CalendarMonthOutlined";
-export { default as CancelIcon } from "@mui/icons-material/Cancel";
-export { default as ChevronRightIcon } from "@mui/icons-material/ChevronRight";
-export { default as CloseIcon } from "@mui/icons-material/Close";
-export { default as CloudUploadIcon } from "@mui/icons-material/CloudUploadOutlined";
-export { default as CodeIcon } from "@mui/icons-material/Code";
-export { default as EditIcon } from "@mui/icons-material/Edit";
-export { default as EmailIcon, default as MailIcon, default as MailIcon } from "@mui/icons-material/EmailOutlined";
-export { default as ErrorCircleIcon } from "@mui/icons-material/ErrorOutlineOutlined";
-export { default as FavoriteIcon, default as LikeIconActive } from "@mui/icons-material/Favorite";
-export {
-  default as FavoriteBorderIcon,
-  default as FavoriteBorderIcon,
-  default as LikeIcon,
-} from "@mui/icons-material/FavoriteBorder";
-export { default as GithubIcon } from "@mui/icons-material/GitHub";
-export { default as LinkIcon } from "@mui/icons-material/Link";
-export { default as LockIcon } from "@mui/icons-material/Lock";
-export { default as NotificationsIcon } from "@mui/icons-material/Notifications";
-export { default as OpenWithIcon } from "@mui/icons-material/OpenWith";
-export { default as PersonIcon } from "@mui/icons-material/Person";
-export { default as PersonOutlinedIcon } from "@mui/icons-material/PersonOutlined";
 export { default as PublicIcon } from "@mui/icons-material/Public";
-export { default as PushPinIcon } from "@mui/icons-material/PushPin";
+export { default as LockIcon } from "@mui/icons-material/Lock";
 export { default as ErrorTriangleIcon } from "@mui/icons-material/ReportProblemOutlined";
+export { default as CalendarIcon } from "@mui/icons-material/CalendarMonthOutlined";
+export { default as AwesomeIcon } from "@mui/icons-material/AutoAwesomeOutlined";
+export { default as ErrorCircleIcon } from "@mui/icons-material/ErrorOutlineOutlined";
+export { default as CloudUploadIcon } from "@mui/icons-material/CloudUploadOutlined";
+export { default as PushPinIcon } from "@mui/icons-material/PushPin";
+export { default as OpenWithIcon } from "@mui/icons-material/OpenWith";
+export { default as CancelIcon } from "@mui/icons-material/Cancel";
+export { default as FavoriteIcon } from "@mui/icons-material/Favorite";
+export { default as CloseIcon } from "@mui/icons-material/Close";
+export { default as AccountCircleIcon } from "@mui/icons-material/AccountCircle";
+export { default as AddAPhotoIcon } from "@mui/icons-material/AddAPhoto";
+export { default as ChevronRightIcon } from "@mui/icons-material/ChevronRight";
+export { default as PersonOutlinedIcon } from "@mui/icons-material/PersonOutlined";
 export { default as ShareIcon } from "@mui/icons-material/Share";
-export { default as StarIconActive } from "@mui/icons-material/Star";
-export { default as StarIcon } from "@mui/icons-material/StarBorder";
-export {
-  default as ViewsIcon,
-  default as VisibilityOutlinedIcon,
-  default as VisibilityOutlinedIcon,
-} from "@mui/icons-material/VisibilityOutlined";
+export { default as GithubIcon } from "@mui/icons-material/GitHub";
+export { default as MailIcon } from "@mui/icons-material/EmailOutlined";
+export { default as VisibilityOutlinedIcon } from "@mui/icons-material/VisibilityOutlined";
+export { default as FavoriteBorderIcon } from "@mui/icons-material/FavoriteBorder";
 export { default as WorkIcon } from "@mui/icons-material/Work";
+export { default as BookmarkIcon } from "@mui/icons-material/Bookmark";
+export { default as NotificationsIcon } from "@mui/icons-material/Notifications";
+export { default as PersonIcon } from "@mui/icons-material/Person";
