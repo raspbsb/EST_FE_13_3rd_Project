@@ -853,7 +853,36 @@ body {
   color: var(--portfolio-danger);
 }
 
-.portfolio-editor-action-bar .MuiTypography-root:first-of-type {
+.portfolio-editor-visibility-control.MuiStack-root {
+  align-items: center;
+  gap: 16px;
+}
+
+.portfolio-editor-visibility-control__content.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.portfolio-editor-visibility-control__content > .MuiSvgIcon-root {
+  flex: 0 0 auto;
+  color: var(--portfolio-icon);
+  font-size: 22px;
+}
+
+.portfolio-editor-visibility-control__public-icon.MuiSvgIcon-root {
+  color: var(--portfolio-primary);
+}
+
+.portfolio-editor-visibility-control__text.MuiBox-root {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.portfolio-editor-visibility-control__title.MuiTypography-root {
   color: var(--portfolio-text-primary);
   font-size: 14px;
   font-weight: 500;
@@ -861,7 +890,7 @@ body {
   line-height: 20px;
 }
 
-.portfolio-editor-action-bar .MuiTypography-root:last-of-type {
+.portfolio-editor-visibility-control__description.MuiTypography-root {
   color: var(--portfolio-text-secondary);
   font-size: 12px;
   font-weight: 500;
