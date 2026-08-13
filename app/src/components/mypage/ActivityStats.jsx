@@ -29,7 +29,7 @@ export default function ActivityStats({ mode, profile }) {
         // 해당 사용자 프로젝트 조회
         const { data: portfolios, error: portfolioError } = await supabase
           .from("portfolios")
-          .select("project_id, view_count")
+          .select("project_id")
           .eq("author_id", userId);
 
         if (portfolioError) {
@@ -57,13 +57,35 @@ export default function ActivityStats({ mode, profile }) {
           likes = count ?? 0;
         }
 
-        // 프로젝트 조회수 합계
-        const views = projects.reduce((total, project) => total + (project.view_count ?? 0), 0);
+        // 프로필 조회수
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("profile_view")
+          .eq("user_id", userId)
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        const views = profileData?.profile_view ?? 0;
+
+        // 받은 메세지 수 가져오기
+        const { data: messages, error: messageError } = await supabase
+          .from("messages")
+          .select("id")
+          .eq("receiver_id", userId);
+
+        if (messageError) {
+          throw messageError;
+        }
+
+        const messageCount = messages?.length ?? 0;
 
         setStats({
           projects: projects.length,
           likes,
-          contacts: 0,
+          contacts: messageCount,
           views,
         });
       } catch (error) {

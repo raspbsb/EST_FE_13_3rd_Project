@@ -1,5 +1,5 @@
 import { supabase } from "../utils/supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Outlet, useParams } from "react-router-dom";
 
 import Container from "@mui/material/Container";
@@ -15,6 +15,8 @@ export default function PublicProfileLayout() {
   const [profile, setPeofile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const countedUserId = useRef(false);
+
   //profiles 데이터 조회
   useEffect(() => {
     const fetchProfile = async () => {
@@ -23,9 +25,28 @@ export default function PublicProfileLayout() {
       if (error) {
         console.error("프로필 조회 실패:", error);
         setProfile(null);
-      } else {
-        setPeofile(data);
+        setLoading(false);
+        return;
       }
+      // 프로필 조회수 중복 증가 방지 / 같은 프로필은 한 번만 조회수 증가
+      if (countedUserId.current !== userId) {
+        countedUserId.current = userId;
+
+        const { error: viewError } = await supabase.rpc("increment_profile_view", {
+          p_user_id: userId,
+        });
+
+        if (viewError) {
+          console.error("프로필 조회수 증가 실패:", viewError);
+        }
+      }
+
+      // 증가된 조회수를 화면 데이터에도 반영
+      setPeofile({
+        ...data,
+        profile_view: (data.profile_view ?? 0) + 1,
+      });
+
       setLoading(false);
     };
 
