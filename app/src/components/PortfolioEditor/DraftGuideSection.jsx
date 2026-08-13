@@ -9,10 +9,25 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
-import { EditIcon } from "../../lib/icons";
+import { AwesomeIcon, EditIcon } from "../../lib/icons";
 import { memo } from "react";
 
-function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, handleFormChange }) {
+function DraftGuideSection({
+  sectionCardSx,
+  formInputSx,
+  draftGuide,
+  summary,
+  onGenerateDraftGuide,
+  onApplyCurrentDescription,
+  onApplyDraftDescription,
+  onDraftSummaryChange,
+  onApplyDraftSummary,
+}) {
+  const isDraftGenerated = Boolean(draftGuide.generatedAt);
+  const isCurrentDescriptionApplied = draftGuide.appliedDescriptionSource === "current";
+  const isAiDescriptionApplied = draftGuide.appliedDescriptionSource === "ai";
+  const isSummaryApplied = draftGuide.isSummaryApplied;
+
   return (
     <Box>
       <Box
@@ -22,12 +37,13 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
         sx={sectionCardSx}
       >
         <Stack
+          className="portfolio-editor-section-header"
           direction={{ xs: "column", tablet: "row" }}
           spacing={2}
           sx={{
             mb: 3,
             justifyContent: "space-between",
-            alignItems: { xs: "flex-start", tablet: "center" },
+            alignItems: "flex-start",
           }}
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
@@ -38,9 +54,21 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
             </Text>
           </Stack>
 
-          <Button type="button" variant="contained" disabled>
-            생성 완료
-          </Button>
+          <Stack className="portfolio-editor-section-header__actions" spacing={0.5}>
+            {draftGuide.generatedAt ? (
+              <Text className="portfolio-editor-ai-section__analyzed-at">최종 생성: {draftGuide.generatedAt}</Text>
+            ) : null}
+            <Button
+              className="portfolio-editor-ai-action-button"
+              type="button"
+              variant="contained"
+              disabled={isDraftGenerated}
+              startIcon={isDraftGenerated ? null : <AwesomeIcon aria-hidden="true" />}
+              onClick={onGenerateDraftGuide}
+            >
+              {isDraftGenerated ? "생성 완료" : "초안 생성"}
+            </Button>
+          </Stack>
         </Stack>
 
         <Stack direction={{ xs: "column", tablet: "row" }} spacing={3} sx={{ mb: 3 }}>
@@ -67,8 +95,14 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
               {draftGuide.originalDescription}
             </Text>
 
-            <Button type="button" variant="contained" sx={{ alignSelf: "flex-end" }}>
-              되돌리기
+            <Button
+              className="portfolio-editor-ai-action-button portfolio-editor-draft-guide__card-button"
+              type="button"
+              variant="contained"
+              disabled={!isDraftGenerated || isCurrentDescriptionApplied}
+              onClick={onApplyCurrentDescription}
+            >
+              {isCurrentDescriptionApplied ? "되돌림" : "되돌리기"}
             </Button>
           </Paper>
 
@@ -91,8 +125,14 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
               {draftGuide.aiDraftDescription}
             </Text>
 
-            <Button type="button" variant="contained" disabled sx={{ alignSelf: "flex-end" }}>
-              적용됨
+            <Button
+              className="portfolio-editor-ai-action-button portfolio-editor-draft-guide__card-button"
+              type="button"
+              variant="contained"
+              disabled={!isDraftGenerated || isAiDescriptionApplied}
+              onClick={onApplyDraftDescription}
+            >
+              {isAiDescriptionApplied ? "적용됨" : "적용하기"}
             </Button>
           </Paper>
         </Stack>
@@ -118,7 +158,7 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
               multiline
               minRows={4}
               value={summary}
-              onChange={handleFormChange}
+              onChange={onDraftSummaryChange}
               sx={{
                 ...formInputSx,
               }}
@@ -127,8 +167,14 @@ function DraftGuideSection({ sectionCardSx, formInputSx, draftGuide, summary, ha
               }}
             />
 
-            <Button className="portfolio-editor-draft-guide__summary-button" type="button" variant="contained">
-              적용하기
+            <Button
+              className="portfolio-editor-ai-action-button portfolio-editor-draft-guide__summary-button"
+              type="button"
+              variant="contained"
+              disabled={!isDraftGenerated || isSummaryApplied}
+              onClick={onApplyDraftSummary}
+            >
+              {isSummaryApplied ? "적용됨" : "적용하기"}
             </Button>
           </Box>
         </Box>
