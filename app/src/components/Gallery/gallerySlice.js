@@ -22,7 +22,7 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
     )
     .order("created_at", { ascending: true })
     .limit(4);
@@ -35,7 +35,7 @@ export const fetchPortfolios = createAsyncThunk(
       .schema("public")
       .from("portfolios")
       .select(
-        "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)",
+        "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
         {
           count: "exact",
         },

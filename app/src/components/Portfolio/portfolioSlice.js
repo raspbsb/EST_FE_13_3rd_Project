@@ -6,7 +6,7 @@ export const fetchPortfolio = createAsyncThunk("portfolio", async portfolioId =>
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*), bookmarks(*), portfolio_ai_created(*)",
     )
     .eq("project_id", portfolioId)
     .maybeSingle();
@@ -17,7 +17,7 @@ export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", as
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
       {
         count: "exact",
       },
