@@ -47,7 +47,7 @@ export default function MyProjects({ mode }) {
             portfolio_tech_stacks (
               tech_stack
             ),
-            profiles (
+            profiles!portfolios_author_id_fkey (
               user_name,
               avatar_path
             )
@@ -92,7 +92,7 @@ export default function MyProjects({ mode }) {
         portfolio_tech_stacks (
           tech_stack
         ),
-        profiles (
+        profiles!portfolios_author_id_fkey (
           user_name,
           avatar_path
         )
