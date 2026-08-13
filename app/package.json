@@ -20,7 +20,7 @@
     "@mui/material": "^9.3.1",
     "@mui/x-date-pickers": "^9.11.0",
     "@reduxjs/toolkit": "^2.12.0",
-    "@supabase/supabase-js": "^2.112.0",
+    "@supabase/supabase-js": "^2.112.3",
     "dayjs": "^1.11.21",
     "puppeteer": "^25.6.0",
     "react": "^19.2.8",
