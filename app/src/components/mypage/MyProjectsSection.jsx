@@ -1,34 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
-import { supabase } from '../../utils/supabase';
+import { useEffect, useState } from "react";
+import { useOutletContext, useParams } from "react-router-dom";
+import { supabase } from "../../utils/supabase";
 
-import ProjectCard from '../ProjectCard';
-import styles from './MyProjectsSection.module.css';
+import ProjectCard from "../ProjectCard";
+import styles from "./MyProjectsSection.module.css";
 
-import List from '@mui/material/List';
-import Box from '@mui/material/Box';
-import Text from '@mui/material/Typography';
-import Link from '@mui/material/Link';
+import Box from "@mui/material/Box";
+import Text from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 
 export default function MyProjectsSection({ mode }) {
-  const { userId } = useParams();
+  const { userId: profileUserId } = useParams();
+
+  const { profile } = useOutletContext();
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const outletContext = useOutletContext();
-  const profile = outletContext?.profile;
+  //(현재 Auth 연결이 안되어 mypage모드와 잠시 분리, 로그인 연결되면 null; -> currentUserId; 로 변경 )
+  // Public Profile -> URL의 userId
+  // MyPage -> 현재 profile의 user_id
+  const targetUserId = mode === "public" ? profileUserId : profile?.user_id;
 
   // supabase portfolios 테이블 데이터 가져오기
   useEffect(() => {
     const fetchProducts = async () => {
-      if (!userId) {
+      if (!targetUserId) {
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from('portfolios')
+      let query = supabase
+        .from("portfolios")
         .select(
           `
             *,
@@ -48,31 +51,44 @@ export default function MyProjectsSection({ mode }) {
             )
           `,
         )
-        .eq('author_id', userId)
-        .eq('is_public', true)
-        .order('created_at', { ascending: false });
+        .eq("author_id", targetUserId)
+        .order("created_at", { ascending: false })
+        .limit(3);
 
-      if (error) {
-        console.error('프로젝트 조회 실패', error);
-        setLoading(false);
-        return;
+      // Public Profile에서는 공개 프로젝트만 조회
+      if (mode === "public") {
+        query = query.eq("is_public", true);
       }
 
-      setProjects(data);
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("프로젝트 조회 실패", error);
+        setProjects([]);
+      } else {
+        setProjects(data ?? []);
+      }
+
       setLoading(false);
     };
+
     fetchProducts();
-  }, [userId]);
+  }, [targetUserId, mode]);
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <Box
       component="section"
+      className={styles.section}
       sx={{
         pt: 9,
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        {mode === 'mypage' ? (
+      <Box className={styles.header} sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        {mode === "mypage" ? (
           <>
             <Text component="h2" variant="h6">
               내 프로젝트
