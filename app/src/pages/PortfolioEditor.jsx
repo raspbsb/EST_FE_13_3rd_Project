@@ -2,20 +2,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
-// mui Components
+// Material UI Components
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 
-// My Components & Modules
+// Components & Modules
 import DraftGuideSection from "../components/PortfolioEditor/DraftGuideSection";
 import EditorActionBar from "../components/PortfolioEditor/EditorActionBar";
 import EditorTitleSection from "../components/PortfolioEditor/EditorTitleSection";
 import GithubAiAnalysisSection from "../components/PortfolioEditor/GithubAiAnalysisSection";
 import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmentSection";
+import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPreviewDialog";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
+import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
+
+// CSS
 import "../components/PortfolioEditor/PortfolioEditor.css";
+
+// Utils
+import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -114,6 +121,11 @@ const normalizeImageOrder = images =>
     isThumbnail: index === 0,
   }));
 
+const createDraftFormData = formData => ({
+  ...formData,
+  images: [],
+});
+
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -125,10 +137,14 @@ export default function PortfolioEditor({ data }) {
   const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
-  const [temporaryDrafts, setTemporaryDrafts] = useState([{ id: 1 }]);
+  const [temporaryDrafts, setTemporaryDrafts] = useState([]);
   // 공개/비공개 토글 스위치 체크여부 상태
   const [isPortfolioPublic, setIsPortfolioPublic] = useState(false);
 
+  // 임시저장용 키
+  const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-draft";
+
+  // 임시저장용 변수
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
@@ -178,6 +194,14 @@ export default function PortfolioEditor({ data }) {
   });
 
   // 폼 전송 함수
+  useEffect(() => {
+    const savedDraft = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
+
+    if (savedDraft) {
+      setTemporaryDrafts([savedDraft]);
+    }
+  }, []);
+
   const handleSubmit = useCallback(
     e => {
       e.preventDefault();
@@ -191,7 +215,56 @@ export default function PortfolioEditor({ data }) {
     [formData, aiAnalysisResult, draftGuide],
   );
 
+  const handleOpenPreview = useCallback(() => {
+    setEditorUi(prev => ({
+      ...prev,
+      isPreviewOpen: true,
+    }));
+  }, []);
+
+  const handleClosePreview = useCallback(() => {
+    setEditorUi(prev => ({
+      ...prev,
+      isPreviewOpen: false,
+    }));
+  }, []);
+
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
+  const handleSaveDraft = useCallback(() => {
+    const nextDraft = {
+      id: crypto.randomUUID(),
+      savedAt: new Date().toISOString(),
+      formData: createDraftFormData(formData),
+      aiAnalysisResult,
+      draftGuide,
+    };
+
+    saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDraft);
+
+    setTemporaryDrafts([nextDraft]);
+    alert("임시저장되었습니다.");
+  }, [formData, aiAnalysisResult, draftGuide]);
+
+  const handleApplyLatestDraft = useCallback(() => {
+    const latestDraft = temporaryDrafts[0];
+
+    if (!latestDraft) return;
+
+    setFormData(prev => ({
+      ...prev,
+      ...latestDraft.formData,
+      images: prev.images,
+    }));
+
+    if (latestDraft.aiAnalysisResult) {
+      setAiAnalysisResult(latestDraft.aiAnalysisResult);
+    }
+
+    if (latestDraft.draftGuide) {
+      setDraftGuide(latestDraft.draftGuide);
+    }
+  }, [temporaryDrafts]);
+
   const handleAddCategory = useCallback(category => {
     if (!category) return;
 
@@ -435,6 +508,14 @@ export default function PortfolioEditor({ data }) {
         // console.log("PortfolioEditor 렌더")
       }
 
+      {/* 메타데이터 */}
+      <SeoMeta
+        title={`${isEdit ? "포트폴리오 수정" : "새 포트폴리오 작성"} | ${SITE_NAME}`}
+        description={isEdit ? "포트폴리오 내용을 수정합니다." : "새 포트폴리오를 작성합니다."}
+        path={isEdit ? `/portfolios/${id}/edit` : "/portfolios/new"}
+        noindex
+      />
+
       <Container
         className="portfolio-editor-page"
         component="main"
@@ -444,7 +525,11 @@ export default function PortfolioEditor({ data }) {
           maxWidth: "1272px",
         }}
       >
-        <EditorTitleSection isEdit={isEdit} temporaryDrafts={temporaryDrafts} />
+        <EditorTitleSection
+          isEdit={isEdit}
+          temporaryDrafts={temporaryDrafts}
+          onApplyLatestDraft={handleApplyLatestDraft}
+        />
 
         <Box component="form" onSubmit={handleSubmit}>
           <Stack spacing={4} sx={{ pb: 0 }}>
@@ -513,11 +598,20 @@ export default function PortfolioEditor({ data }) {
               isEdit={isEdit}
               isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
+              onSaveDraft={handleSaveDraft}
+              onPreviewOpen={handleOpenPreview}
               handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>
       </Container>
+      <PortfolioPreviewDialog
+        open={editorUi.isPreviewOpen}
+        onClose={handleClosePreview}
+        formData={formData}
+        aiAnalysisResult={aiAnalysisResult}
+        draftGuide={draftGuide}
+      />
     </>
   );
 }
