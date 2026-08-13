@@ -6,13 +6,30 @@
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
-export default function FieldLabel({ children, htmlFor, required = false, sx }) {
+export default function FieldLabel({ children, htmlFor, required = false, feedback = "", sx }) {
   return (
-    <Text component="label" htmlFor={htmlFor} sx={sx}>
-      {children}
-      {required ? (
-        <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
-          {" *"}
+    <Text
+      component="label"
+      htmlFor={htmlFor}
+      sx={{
+        ...sx,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 1,
+      }}
+    >
+      <Box component="span">
+        {children}
+        {required ? (
+          <Box component="span" sx={{ color: "error.main" }} aria-hidden="true">
+            {" *"}
+          </Box>
+        ) : null}
+      </Box>
+      {feedback ? (
+        <Box className="portfolio-editor-field-feedback" component="span">
+          {feedback}
         </Box>
       ) : null}
     </Text>

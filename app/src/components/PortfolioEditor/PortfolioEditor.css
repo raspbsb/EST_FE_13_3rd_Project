@@ -817,6 +817,20 @@ body {
   white-space: nowrap;
 }
 
+.portfolio-editor-page .portfolio-editor-field-feedback {
+  flex-shrink: 0;
+  color: var(--portfolio-danger);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.portfolio-editor-page .portfolio-editor-meta-limit-text--error.MuiTypography-root {
+  color: var(--portfolio-danger);
+}
+
 .portfolio-editor-draft-guide.MuiBox-root {
   border-radius: 12px;
   background-color: var(--portfolio-surface);

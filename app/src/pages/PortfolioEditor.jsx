@@ -161,6 +161,20 @@ const formatEditorTimestamp = date => {
   )}`;
 };
 
+// AI 사용자 입력 폼 분석 요청 전에 확인할 최소 입력 조건
+const AI_FORM_VALIDATION_LIMITS = {
+  title: 50,
+  descriptionMin: 20,
+  descriptionMax: 900,
+};
+
+// GitHub API 수집 기준이 되는 저장소 URL 형식인지 확인하는 함수
+const isGithubRepositoryUrl = value => {
+  const text = String(value ?? "").trim();
+
+  return /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/?$/.test(text);
+};
+
 // 임시저장 가능 여부 판단을 위해 값이 비어 있지 않은지 확인하는 함수
 const hasNonEmptyDraftValue = value => {
   if (typeof value === "boolean") return false;
@@ -177,6 +191,84 @@ const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) =>
   return (
     hasNonEmptyDraftValue(draftFormData) || hasNonEmptyDraftValue(aiAnalysisResult) || hasNonEmptyDraftValue(draftGuide)
   );
+};
+
+const createEmptyFormErrors = () => ({
+  title: "",
+  description: "",
+  repository_url: "",
+  categories: "",
+  tech_stacks: "",
+});
+
+const validateAiFormFieldErrors = formData => {
+  const errors = createEmptyFormErrors();
+  const title = formData.title.trim();
+  const description = formData.description.trim();
+
+  if (!title) {
+    errors.title = "입력 필요";
+  } else if (title.length > AI_FORM_VALIDATION_LIMITS.title) {
+    errors.title = `${AI_FORM_VALIDATION_LIMITS.title}자 이내`;
+  }
+
+  if (description.length < AI_FORM_VALIDATION_LIMITS.descriptionMin) {
+    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMin}자 이상`;
+  } else if (description.length > AI_FORM_VALIDATION_LIMITS.descriptionMax) {
+    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMax}자 이내`;
+  }
+
+  if (!isGithubRepositoryUrl(formData.repository_url)) {
+    errors.repository_url = "GitHub URL 필요";
+  }
+
+  return errors;
+};
+
+const validateDraftGuideFieldErrors = formData => {
+  const errors = createEmptyFormErrors();
+  const description = formData.description.trim();
+
+  if (description.length < AI_FORM_VALIDATION_LIMITS.descriptionMin) {
+    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMin}자 이상`;
+  } else if (description.length > AI_FORM_VALIDATION_LIMITS.descriptionMax) {
+    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMax}자 이내`;
+  }
+
+  return errors;
+};
+
+const validateSubmitFieldErrors = formData => {
+  const errors = validateDraftGuideFieldErrors(formData);
+  const title = formData.title.trim();
+
+  if (!title) {
+    errors.title = "입력 필요";
+  } else if (title.length > AI_FORM_VALIDATION_LIMITS.title) {
+    errors.title = `${AI_FORM_VALIDATION_LIMITS.title}자 이내`;
+  }
+
+  if (formData.categories.length === 0) {
+    errors.categories = "최소 1개 필요";
+  }
+
+  if (formData.tech_stacks.length === 0) {
+    errors.tech_stacks = "최소 1개 필요";
+  }
+
+  return errors;
+};
+
+const hasFormErrors = errors => Object.values(errors).some(Boolean);
+
+const getFirstFormErrorMessage = errors => {
+  if (errors.title) return `프로젝트명: ${errors.title}`;
+  if (errors.description) return `프로젝트 설명: ${errors.description}`;
+  if (errors.repository_url) return `GitHub 저장소 URL: ${errors.repository_url}`;
+  if (errors.categories) return `카테고리: ${errors.categories}`;
+  if (errors.tech_stacks) return `기술 스택: ${errors.tech_stacks}`;
+
+  return "";
 };
 
 // // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
@@ -251,6 +343,11 @@ export default function PortfolioEditor({ data }) {
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
+  // 분석/초안/제출 검증 이후 라벨 오른쪽에 표시할 필드별 피드백 상태
+  const [formErrors, setFormErrors] = useState(createEmptyFormErrors);
+  // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
+  const [formValidationMode, setFormValidationMode] = useState("");
+
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
     const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
@@ -265,10 +362,31 @@ export default function PortfolioEditor({ data }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (!formValidationMode) return;
+
+    const validatorByMode = {
+      analysis: validateAiFormFieldErrors,
+      draft: validateDraftGuideFieldErrors,
+      submit: validateSubmitFieldErrors,
+    };
+
+    setFormErrors(validatorByMode[formValidationMode](formData));
+  }, [formData, formValidationMode]);
+
   // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
   const handleSubmit = useCallback(
     e => {
       e.preventDefault();
+
+      const nextErrors = validateSubmitFieldErrors(formData);
+      setFormValidationMode("submit");
+      setFormErrors(nextErrors);
+
+      if (hasFormErrors(nextErrors)) {
+        alert(getFirstFormErrorMessage(nextErrors));
+        return;
+      }
 
       console.log({
         formData,
@@ -297,15 +415,33 @@ export default function PortfolioEditor({ data }) {
 
   // 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록하는 함수
   const handleCompleteAiAnalysis = useCallback(() => {
+    const nextErrors = validateAiFormFieldErrors(formData);
+    setFormValidationMode("analysis");
+    setFormErrors(nextErrors);
+
+    if (hasFormErrors(nextErrors)) {
+      alert(getFirstFormErrorMessage(nextErrors));
+      return;
+    }
+
     setAiAnalysisResult(prev => ({
       ...prev,
       ...developmentAiAnalysisResult,
       analyzedAt: formatEditorTimestamp(new Date()),
     }));
-  }, []);
+  }, [formData]);
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
   const handleGenerateDraftGuide = useCallback(() => {
+    const nextErrors = validateDraftGuideFieldErrors(formData);
+    setFormValidationMode("draft");
+    setFormErrors(nextErrors);
+
+    if (hasFormErrors(nextErrors)) {
+      alert(getFirstFormErrorMessage(nextErrors));
+      return;
+    }
+
     setDraftGuide(prev => ({
       ...prev,
       originalDescription: formData.description,
@@ -315,7 +451,7 @@ export default function PortfolioEditor({ data }) {
       appliedDescriptionSource: "current",
       isSummaryApplied: false,
     }));
-  }, [formData.description]);
+  }, [formData]);
 
   // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
   const handleApplyCurrentDescription = useCallback(() => {
@@ -698,7 +834,7 @@ export default function PortfolioEditor({ data }) {
           onDeleteDraft={handleDeleteDraft}
         />
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <Stack spacing={4} sx={{ pb: 0 }}>
             <Box
               sx={{
@@ -720,6 +856,7 @@ export default function PortfolioEditor({ data }) {
                   authorRole={formData.author_role}
                   repositoryUrl={formData.repository_url}
                   description={formData.description}
+                  formErrors={formErrors}
                   handleFormChange={handleFormChange}
                 />
                 <GithubAiAnalysisSection
@@ -755,6 +892,7 @@ export default function PortfolioEditor({ data }) {
                   handleDeleteTechStack={handleDeleteTechStack}
                   maxCategoryCount={MAX_CATEGORY_COUNT}
                   maxTechStackCount={MAX_TECH_STACK_COUNT}
+                  formErrors={formErrors}
                 />
               </Stack>
             </Box>

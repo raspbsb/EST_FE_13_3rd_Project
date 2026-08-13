@@ -52,6 +52,7 @@ function ProjectMetaSection({
   handleDeleteTechStack,
   maxCategoryCount,
   maxTechStackCount,
+  formErrors = {},
 }) {
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
@@ -165,7 +166,9 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
-              className="portfolio-editor-meta-limit-text"
+              className={`portfolio-editor-meta-limit-text${
+                formErrors.categories ? " portfolio-editor-meta-limit-text--error" : ""
+              }`}
               component="span"
               sx={{
                 fontSize: 10,
@@ -175,7 +178,7 @@ function ProjectMetaSection({
                 whiteSpace: "nowrap",
               }}
             >
-              최소 1, 최대 5
+              {formErrors.categories || "최소 1, 최대 5"}
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
@@ -221,7 +224,9 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
-              className="portfolio-editor-meta-limit-text"
+              className={`portfolio-editor-meta-limit-text${
+                formErrors.tech_stacks ? " portfolio-editor-meta-limit-text--error" : ""
+              }`}
               component="span"
               sx={{
                 fontSize: 10,
@@ -231,7 +236,7 @@ function ProjectMetaSection({
                 whiteSpace: "nowrap",
               }}
             >
-              최소 1, 최대 8
+              {formErrors.tech_stacks || "최소 1, 최대 8"}
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>

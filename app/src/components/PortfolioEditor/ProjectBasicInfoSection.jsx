@@ -28,6 +28,7 @@ function ProjectBasicInfoSection({
   authorRole,
   repositoryUrl,
   description,
+  formErrors = {},
   handleFormChange,
 }) {
   const [localTitle, setLocalTitle] = useState(title);
@@ -68,6 +69,14 @@ function ProjectBasicInfoSection({
     [handleFormChange],
   );
 
+  const handleLocalFieldChange = useCallback(
+    (name, setLocalValue) => e => {
+      setLocalValue(e.target.value);
+      commitField(name, e.target.value);
+    },
+    [commitField],
+  );
+
   // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
   const handleDateChange = useCallback(
     (name, nextDate) => {
@@ -93,7 +102,7 @@ function ProjectBasicInfoSection({
 
       <Stack spacing={2}>
         <FormControl fullWidth required>
-          <FieldLabel htmlFor="title" required sx={fieldLabelSx}>
+          <FieldLabel htmlFor="title" required feedback={formErrors.title} sx={fieldLabelSx}>
             프로젝트명
           </FieldLabel>
 
@@ -102,7 +111,7 @@ function ProjectBasicInfoSection({
             name="title"
             size="small"
             value={localTitle}
-            onChange={event => setLocalTitle(event.target.value)}
+            onChange={handleLocalFieldChange("title", setLocalTitle)}
             onBlur={() => commitField("title", localTitle)}
             sx={formInputSx}
           />
@@ -176,7 +185,7 @@ function ProjectBasicInfoSection({
             </LocalizationProvider>
           </Box>
 
-          <FormControl fullWidth required>
+          <FormControl fullWidth>
             <FieldLabel htmlFor="deploy_url" sx={fieldLabelSx}>
               배포 URL
             </FieldLabel>
@@ -185,7 +194,7 @@ function ProjectBasicInfoSection({
               name="deploy_url"
               size="small"
               value={localDeployUrl}
-              onChange={event => setLocalDeployUrl(event.target.value)}
+              onChange={handleLocalFieldChange("deploy_url", setLocalDeployUrl)}
               onBlur={() => commitField("deploy_url", localDeployUrl)}
               sx={formInputSx}
             />
@@ -193,7 +202,7 @@ function ProjectBasicInfoSection({
         </Box>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", tablet: "1fr 1fr" }, gap: 2 }}>
-          <FormControl fullWidth required>
+          <FormControl fullWidth>
             <FieldLabel htmlFor="author_role" sx={fieldLabelSx}>
               담당 역할
             </FieldLabel>
@@ -203,14 +212,14 @@ function ProjectBasicInfoSection({
               name="author_role"
               size="small"
               value={localAuthorRole}
-              onChange={event => setLocalAuthorRole(event.target.value)}
+              onChange={handleLocalFieldChange("author_role", setLocalAuthorRole)}
               onBlur={() => commitField("author_role", localAuthorRole)}
               sx={formInputSx}
             />
           </FormControl>
 
-          <FormControl fullWidth required>
-            <FieldLabel htmlFor="repository_url" sx={fieldLabelSx}>
+          <FormControl fullWidth>
+            <FieldLabel htmlFor="repository_url" feedback={formErrors.repository_url} sx={fieldLabelSx}>
               GitHub 저장소 URL (저장소 분석 시 필수)
             </FieldLabel>
 
@@ -219,7 +228,7 @@ function ProjectBasicInfoSection({
               name="repository_url"
               size="small"
               value={localRepositoryUrl}
-              onChange={event => setLocalRepositoryUrl(event.target.value)}
+              onChange={handleLocalFieldChange("repository_url", setLocalRepositoryUrl)}
               onBlur={() => commitField("repository_url", localRepositoryUrl)}
               sx={formInputSx}
             />
@@ -227,7 +236,7 @@ function ProjectBasicInfoSection({
         </Box>
 
         <FormControl fullWidth required>
-          <FieldLabel htmlFor="description" required sx={fieldLabelSx}>
+          <FieldLabel htmlFor="description" required feedback={formErrors.description} sx={fieldLabelSx}>
             프로젝트 설명
           </FieldLabel>
 
@@ -239,7 +248,7 @@ function ProjectBasicInfoSection({
             multiline
             minRows={5}
             value={localDescription}
-            onChange={event => setLocalDescription(event.target.value)}
+            onChange={handleLocalFieldChange("description", setLocalDescription)}
             onBlur={() => commitField("description", localDescription)}
             sx={formInputSx}
           />
