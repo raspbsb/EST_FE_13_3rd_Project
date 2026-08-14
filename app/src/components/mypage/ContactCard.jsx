@@ -23,7 +23,7 @@ export default function ContactCard({ item, onMessageClick }) {
 
   return (
     <>
-      <ListItem disablePadding>
+      <ListItem disablePadding="true">
         <ListItemButton
           onClick={handleClick}
           sx={{
