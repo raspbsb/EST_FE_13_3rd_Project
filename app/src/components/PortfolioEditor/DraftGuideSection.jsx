@@ -5,12 +5,12 @@
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
-import { AwesomeIcon, EditIcon } from "../../lib/icons";
 import { memo } from "react";
+import { AwesomeIcon, EditIcon } from "../../lib/icons";
+import DraftSummaryField from "./DraftSummaryField";
 
 function DraftGuideSection({
   sectionCardSx,
@@ -20,7 +20,6 @@ function DraftGuideSection({
   onGenerateDraftGuide,
   onApplyCurrentDescription,
   onApplyDraftDescription,
-  onDraftSummaryChange,
   onApplyDraftSummary,
 }) {
   const isDraftGenerated = Boolean(draftGuide.generatedAt);
@@ -149,34 +148,13 @@ function DraftGuideSection({
             AI 추천 한 줄 요약 (미리보기)
           </Text>
 
-          <Box className="portfolio-editor-draft-guide__summary-field">
-            <OutlinedInput
-              id="summary"
-              name="summary"
-              className="portfolio-editor-draft-guide__summary-input"
-              fullWidth
-              multiline
-              minRows={4}
-              value={summary}
-              onChange={onDraftSummaryChange}
-              sx={{
-                ...formInputSx,
-              }}
-              inputProps={{
-                "aria-label": "AI 추천 한 줄 요약",
-              }}
-            />
-
-            <Button
-              className="portfolio-editor-ai-action-button portfolio-editor-draft-guide__summary-button"
-              type="button"
-              variant="contained"
-              disabled={!isDraftGenerated || isSummaryApplied}
-              onClick={onApplyDraftSummary}
-            >
-              {isSummaryApplied ? "적용됨" : "적용하기"}
-            </Button>
-          </Box>
+          <DraftSummaryField
+            formInputSx={formInputSx}
+            summary={summary}
+            isDraftGenerated={isDraftGenerated}
+            isSummaryApplied={isSummaryApplied}
+            onApplyDraftSummary={onApplyDraftSummary}
+          />
         </Box>
       </Box>
     </Box>

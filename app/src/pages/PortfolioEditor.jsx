@@ -403,26 +403,19 @@ export default function PortfolioEditor({ data }) {
   }, [draftGuide.aiDraftDescription]);
 
   // AI 추천 한 줄 요약 미리보기 입력값을 draftGuide 상태에만 반영하고 적용 상태를 해제하는 함수
-  const handleDraftSummaryChange = useCallback(e => {
-    setDraftGuide(prev => ({
-      ...prev,
-      aiShortSummary: e.target.value,
-      isSummaryApplied: false,
-    }));
-  }, []);
-
   // AI 추천 한 줄 요약 미리보기 값을 실제 formData.summary에 적용하는 함수
-  const handleApplyDraftSummary = useCallback(() => {
+  const handleApplyDraftSummary = useCallback(nextSummary => {
     setFormData(prev => ({
       ...prev,
-      summary: draftGuide.aiShortSummary,
+      summary: nextSummary,
     }));
 
     setDraftGuide(prev => ({
       ...prev,
+      aiShortSummary: nextSummary,
       isSummaryApplied: true,
     }));
-  }, [draftGuide.aiShortSummary]);
+  }, []);
 
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleSaveDraft = useCallback(() => {
@@ -846,7 +839,6 @@ export default function PortfolioEditor({ data }) {
               onGenerateDraftGuide={handleGenerateDraftGuide}
               onApplyCurrentDescription={handleApplyCurrentDescription}
               onApplyDraftDescription={handleApplyDraftDescription}
-              onDraftSummaryChange={handleDraftSummaryChange}
               onApplyDraftSummary={handleApplyDraftSummary}
             />
             <EditorActionBar

@@ -27,6 +27,16 @@ import PortfolioMetaChip from "./PortfolioMetaChip";
 const selectableCategoryOptions = categoryOptions.filter(option => option.value !== "search-web");
 const selectableTechStackOptions = techStackOptions;
 const filterTechStackOptions = createFilterOptions();
+const selectMenuProps = {
+  disableScrollLock: true,
+  slotProps: {
+    root: {
+      sx: {
+        zIndex: 1200,
+      },
+    },
+  },
+};
 
 function renderSelectMenuItems(options) {
   return options.map(option => (
@@ -116,6 +126,7 @@ function ProjectMetaSection({
               size="small"
               value={projectType}
               onChange={handleFormChange}
+              MenuProps={selectMenuProps}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationTypeOptions)}
@@ -130,6 +141,7 @@ function ProjectMetaSection({
               size="small"
               value={teamSize}
               onChange={handleFormChange}
+              MenuProps={selectMenuProps}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationScaleOptions)}
@@ -145,6 +157,7 @@ function ProjectMetaSection({
             size="small"
             value={environment}
             onChange={handleFormChange}
+            MenuProps={selectMenuProps}
             sx={formInputSx}
           >
             {renderSelectMenuItems(progressEnvironmentOptions)}

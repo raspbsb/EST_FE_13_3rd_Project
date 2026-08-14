@@ -1,11 +1,9 @@
 /**
  * 프로젝트명, 기간, 배포 URL, 담당 역할, 저장소 URL, 프로젝트 설명 입력 섹션
- * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object, formData: object, handleFormChange: Function }} props
+ * @param {{ sectionCardSx: object, fieldLabelSx: object, formInputSx: object, handleFormChange: Function }} props
  * @returns {JSX.Element} 프로젝트 기본 정보 입력 폼 섹션
  */
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -13,9 +11,10 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
-import { ErrorCircleIcon } from "../../lib/icons";
-import FieldLabel from "./FieldLabel";
 import { memo, useCallback, useEffect, useState } from "react";
+import { ErrorCircleIcon } from "../../lib/icons";
+import BasicInfoTextField from "./BasicInfoTextField";
+import FieldLabel from "./FieldLabel";
 
 function ProjectBasicInfoSection({
   sectionCardSx,
@@ -31,33 +30,15 @@ function ProjectBasicInfoSection({
   formErrors = {},
   handleFormChange,
 }) {
-  const [localTitle, setLocalTitle] = useState(title);
-  const [localDeployUrl, setLocalDeployUrl] = useState(deployUrl);
-  const [localAuthorRole, setLocalAuthorRole] = useState(authorRole);
-  const [localRepositoryUrl, setLocalRepositoryUrl] = useState(repositoryUrl);
-  const [localDescription, setLocalDescription] = useState(description);
+  const [localStartedAt, setLocalStartedAt] = useState(startedAt);
+  const [localEndedAt, setLocalEndedAt] = useState(endedAt);
 
   useEffect(() => {
-    setLocalTitle(title);
-  }, [title]);
+    setLocalStartedAt(startedAt);
+    setLocalEndedAt(endedAt);
+  }, [startedAt, endedAt]);
 
-  useEffect(() => {
-    setLocalDeployUrl(deployUrl);
-  }, [deployUrl]);
-
-  useEffect(() => {
-    setLocalAuthorRole(authorRole);
-  }, [authorRole]);
-
-  useEffect(() => {
-    setLocalRepositoryUrl(repositoryUrl);
-  }, [repositoryUrl]);
-
-  useEffect(() => {
-    setLocalDescription(description);
-  }, [description]);
-
-  const commitField = useCallback(
+  const handleTextFieldValueCommit = useCallback(
     (name, value) => {
       handleFormChange({
         target: {
@@ -69,24 +50,25 @@ function ProjectBasicInfoSection({
     [handleFormChange],
   );
 
-  const handleLocalFieldChange = useCallback(
-    (name, setLocalValue) => e => {
-      setLocalValue(e.target.value);
-      commitField(name, e.target.value);
-    },
-    [commitField],
-  );
-
-  // 해당 폼의 키값(stated_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
+  // 해당 폼의 키값(started_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
   const handleDateChange = useCallback(
     (name, nextDate) => {
+      const value = nextDate ? nextDate.format("YYYY-MM-DD") : "";
+
+      if (name === "started_at") {
+        setLocalStartedAt(value);
+      }
+
+      if (name === "ended_at") {
+        setLocalEndedAt(value);
+      }
+
       handleFormChange({
         target: {
           name,
-          value: nextDate ? nextDate.format("YYYY-MM-DD") : "",
+          value,
         },
       });
-      // console.log(nextDate ? nextDate.format("YYYY-MM-DD") : ""); // 2026-08-11
     },
     [handleFormChange],
   );
@@ -101,21 +83,17 @@ function ProjectBasicInfoSection({
       </Box>
 
       <Stack spacing={2}>
-        <FormControl fullWidth required>
-          <FieldLabel htmlFor="title" required feedback={formErrors.title} sx={fieldLabelSx}>
-            프로젝트명
-          </FieldLabel>
-
-          <OutlinedInput
-            id="title"
-            name="title"
-            size="small"
-            value={localTitle}
-            onChange={handleLocalFieldChange("title", setLocalTitle)}
-            onBlur={() => commitField("title", localTitle)}
-            sx={formInputSx}
-          />
-        </FormControl>
+        <BasicInfoTextField
+          id="title"
+          name="title"
+          label="프로젝트명"
+          value={title}
+          required
+          feedback={formErrors.title}
+          fieldLabelSx={fieldLabelSx}
+          formInputSx={formInputSx}
+          onValueCommit={handleTextFieldValueCommit}
+        />
 
         <Box
           sx={{
@@ -142,7 +120,7 @@ function ProjectBasicInfoSection({
                 }}
               >
                 <DatePicker
-                  value={startedAt ? dayjs(startedAt) : null}
+                  value={localStartedAt ? dayjs(localStartedAt) : null}
                   format="YYYY.MM.DD"
                   onChange={nextDate => handleDateChange("started_at", nextDate)}
                   slotProps={{
@@ -164,8 +142,8 @@ function ProjectBasicInfoSection({
                 </Text>
 
                 <DatePicker
-                  value={endedAt ? dayjs(endedAt) : null}
-                  minDate={startedAt ? dayjs(startedAt) : undefined}
+                  value={localEndedAt ? dayjs(localEndedAt) : null}
+                  minDate={localStartedAt ? dayjs(localStartedAt) : undefined}
                   format="YYYY.MM.DD"
                   onChange={nextDate => handleDateChange("ended_at", nextDate)}
                   slotProps={{
@@ -185,74 +163,54 @@ function ProjectBasicInfoSection({
             </LocalizationProvider>
           </Box>
 
-          <FormControl fullWidth>
-            <FieldLabel htmlFor="deploy_url" sx={fieldLabelSx}>
-              배포 URL
-            </FieldLabel>
-            <OutlinedInput
-              id="deploy_url"
-              name="deploy_url"
-              size="small"
-              value={localDeployUrl}
-              onChange={handleLocalFieldChange("deploy_url", setLocalDeployUrl)}
-              onBlur={() => commitField("deploy_url", localDeployUrl)}
-              sx={formInputSx}
-            />
-          </FormControl>
+          <BasicInfoTextField
+            id="deploy_url"
+            name="deploy_url"
+            label="배포 URL"
+            value={deployUrl}
+            fieldLabelSx={fieldLabelSx}
+            formInputSx={formInputSx}
+            onValueCommit={handleTextFieldValueCommit}
+          />
         </Box>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", tablet: "1fr 1fr" }, gap: 2 }}>
-          <FormControl fullWidth>
-            <FieldLabel htmlFor="author_role" sx={fieldLabelSx}>
-              담당 역할
-            </FieldLabel>
+          <BasicInfoTextField
+            id="author_role"
+            name="author_role"
+            label="담당 역할"
+            value={authorRole}
+            fieldLabelSx={fieldLabelSx}
+            formInputSx={formInputSx}
+            onValueCommit={handleTextFieldValueCommit}
+          />
 
-            <OutlinedInput
-              id="author_role"
-              name="author_role"
-              size="small"
-              value={localAuthorRole}
-              onChange={handleLocalFieldChange("author_role", setLocalAuthorRole)}
-              onBlur={() => commitField("author_role", localAuthorRole)}
-              sx={formInputSx}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <FieldLabel htmlFor="repository_url" feedback={formErrors.repository_url} sx={fieldLabelSx}>
-              GitHub 저장소 URL (저장소 분석 시 필수)
-            </FieldLabel>
-
-            <OutlinedInput
-              id="repository_url"
-              name="repository_url"
-              size="small"
-              value={localRepositoryUrl}
-              onChange={handleLocalFieldChange("repository_url", setLocalRepositoryUrl)}
-              onBlur={() => commitField("repository_url", localRepositoryUrl)}
-              sx={formInputSx}
-            />
-          </FormControl>
+          <BasicInfoTextField
+            id="repository_url"
+            name="repository_url"
+            label="GitHub 저장소 URL (저장소 분석 시 필수)"
+            value={repositoryUrl}
+            feedback={formErrors.repository_url}
+            fieldLabelSx={fieldLabelSx}
+            formInputSx={formInputSx}
+            onValueCommit={handleTextFieldValueCommit}
+          />
         </Box>
 
-        <FormControl fullWidth required>
-          <FieldLabel htmlFor="description" required feedback={formErrors.description} sx={fieldLabelSx}>
-            프로젝트 설명
-          </FieldLabel>
-
-          <OutlinedInput
-            className="portfolio-editor-description-input"
-            id="description"
-            name="description"
-            size="small"
-            multiline
-            minRows={5}
-            value={localDescription}
-            onChange={handleLocalFieldChange("description", setLocalDescription)}
-            onBlur={() => commitField("description", localDescription)}
-            sx={formInputSx}
-          />
-        </FormControl>
+        <BasicInfoTextField
+          id="description"
+          name="description"
+          label="프로젝트 설명"
+          value={description}
+          required
+          feedback={formErrors.description}
+          fieldLabelSx={fieldLabelSx}
+          formInputSx={formInputSx}
+          className="portfolio-editor-description-input"
+          multiline
+          minRows={5}
+          onValueCommit={handleTextFieldValueCommit}
+        />
       </Stack>
     </Box>
   );

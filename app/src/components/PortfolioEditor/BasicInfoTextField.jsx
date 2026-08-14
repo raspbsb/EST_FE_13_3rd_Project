@@ -15,7 +15,7 @@ function BasicInfoTextField({
   className,
   multiline = false,
   minRows,
-  onValueChange,
+  onValueCommit,
 }) {
   const [localValue, setLocalValue] = useState(value);
 
@@ -25,12 +25,16 @@ function BasicInfoTextField({
 
   const handleChange = useCallback(
     e => {
-      const nextValue = e.target.value;
-
-      setLocalValue(nextValue);
-      onValueChange(name, nextValue);
+      setLocalValue(e.target.value);
     },
-    [name, onValueChange],
+    [],
+  );
+
+  const handleBlur = useCallback(
+    () => {
+      onValueCommit(name, localValue);
+    },
+    [name, localValue, onValueCommit],
   );
 
   return (
@@ -48,6 +52,7 @@ function BasicInfoTextField({
         minRows={minRows}
         value={localValue}
         onChange={handleChange}
+        onBlur={handleBlur}
         sx={formInputSx}
       />
     </FormControl>
