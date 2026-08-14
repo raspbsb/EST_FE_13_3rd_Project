@@ -292,6 +292,9 @@ export default function PortfolioEditor({ data }) {
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
 
+  // 현재 적용된 임시저장본 Id를 저장해두고 제출 시 자동 삭제
+  const [appliedDraftId, setAppliedDraftId] = useState(null);
+
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
@@ -525,6 +528,7 @@ export default function PortfolioEditor({ data }) {
       return nextDrafts;
     });
     alert("임시저장되었습니다.");
+    setAppliedDraftId(nextDraft.id);
   }, [formData, aiAnalysisResult, draftGuide]);
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
@@ -532,7 +536,13 @@ export default function PortfolioEditor({ data }) {
     draftId => {
       const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
-      if (!selectedDraft) return;
+      if (!selectedDraft) return false;
+
+      const shouldApply = confirm(
+        "현재 작성 중인 내용이 선택한 임시저장 내용으로 바뀝니다.\n기존에 작성 중이던 내용은 사라질 수 있습니다.\n이 저장본을 불러올까요?",
+      );
+
+      if (!shouldApply) return false;
 
       setFormData(prev => ({
         ...prev,
@@ -547,6 +557,10 @@ export default function PortfolioEditor({ data }) {
       if (selectedDraft.draftGuide) {
         setDraftGuide(selectedDraft.draftGuide);
       }
+
+      setAppliedDraftId(draftId);
+
+      return true;
     },
     [temporaryDrafts],
   );
@@ -573,15 +587,22 @@ export default function PortfolioEditor({ data }) {
   }, []);
 
   // 선택한 임시저장 데이터를 목록과 localStorage에서 삭제하는 함수
-  const handleDeleteDraft = useCallback(draftId => {
-    setTemporaryDrafts(prev => {
-      const nextDrafts = prev.filter(draft => draft.id !== draftId);
+  const handleDeleteDraft = useCallback(
+    draftId => {
+      setTemporaryDrafts(prev => {
+        const nextDrafts = prev.filter(draft => draft.id !== draftId);
 
-      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+        saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
 
-      return nextDrafts;
-    });
-  }, []);
+        return nextDrafts;
+      });
+
+      if (appliedDraftId === draftId) {
+        setAppliedDraftId(null);
+      }
+    },
+    [appliedDraftId],
+  );
 
   // 카테고리 칩의 삭제 버튼을 클릭하면 카테고리 배열에서 해당 카테고리를 삭제하는 함수
   const handleDeleteCategory = useCallback(categoryValue => {
