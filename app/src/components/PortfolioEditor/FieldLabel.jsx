@@ -6,7 +6,7 @@
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
-export default function FieldLabel({ children, htmlFor, required = false, feedback = "", sx }) {
+export default function FieldLabel({ children, htmlFor, required = false, feedback = "", feedbackId, sx }) {
   return (
     <Text
       component="label"
@@ -28,7 +28,7 @@ export default function FieldLabel({ children, htmlFor, required = false, feedba
         ) : null}
       </Box>
       {feedback ? (
-        <Box className="portfolio-editor-field-feedback" component="span">
+        <Box id={feedbackId} className="portfolio-editor-field-feedback" component="span">
           {feedback}
         </Box>
       ) : null}

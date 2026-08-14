@@ -127,6 +127,7 @@ function ProjectMetaSection({
               value={projectType}
               onChange={handleFormChange}
               MenuProps={selectMenuProps}
+              inputProps={{ "aria-label": "참여 형태" }}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationTypeOptions)}
@@ -142,6 +143,7 @@ function ProjectMetaSection({
               value={teamSize}
               onChange={handleFormChange}
               MenuProps={selectMenuProps}
+              inputProps={{ "aria-label": "참여 규모" }}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationScaleOptions)}
@@ -158,6 +160,7 @@ function ProjectMetaSection({
             value={environment}
             onChange={handleFormChange}
             MenuProps={selectMenuProps}
+            inputProps={{ "aria-label": "진행 환경" }}
             sx={formInputSx}
           >
             {renderSelectMenuItems(progressEnvironmentOptions)}
@@ -179,6 +182,7 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
+              id="category-feedback"
               className={`portfolio-editor-meta-limit-text${
                 formErrors.categories ? " portfolio-editor-meta-limit-text--error" : ""
               }`}
@@ -218,7 +222,19 @@ function ProjectMetaSection({
               if (reason === "clear") setCategoryInputValue("");
             }}
             onChange={handleCategoryChange}
-            renderInput={params => <TextField {...params} size="small" sx={formInputSx} />}
+            renderInput={params => (
+              <TextField
+                {...params}
+                size="small"
+                sx={formInputSx}
+                inputProps={{
+                  ...params.inputProps,
+                  "aria-label": "카테고리 추가",
+                  "aria-invalid": Boolean(formErrors.categories),
+                  "aria-describedby": "category-feedback",
+                }}
+              />
+            )}
           />
         </FormControl>
 
@@ -237,6 +253,7 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
+              id="tech-stack-feedback"
               className={`portfolio-editor-meta-limit-text${
                 formErrors.tech_stacks ? " portfolio-editor-meta-limit-text--error" : ""
               }`}
@@ -278,7 +295,19 @@ function ProjectMetaSection({
               if (reason === "clear") setTechStackInputValue("");
             }}
             onChange={handleTechStackChange}
-            renderInput={params => <TextField {...params} size="small" sx={formInputSx} />}
+            renderInput={params => (
+              <TextField
+                {...params}
+                size="small"
+                sx={formInputSx}
+                inputProps={{
+                  ...params.inputProps,
+                  "aria-label": "기술 스택 추가",
+                  "aria-invalid": Boolean(formErrors.tech_stacks),
+                  "aria-describedby": "tech-stack-feedback",
+                }}
+              />
+            )}
           />
         </FormControl>
       </Stack>

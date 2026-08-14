@@ -45,13 +45,23 @@ function EditorActionBar({
       >
         {/* 공개/비공개 토글 그룹 */}
         <Stack className="portfolio-editor-visibility-control" direction="row">
-          <Switch id="is_public" name="is_public" checked={isPortfolioPublic} onChange={onVisibilityChange} />
+          <Switch
+            id="is_public"
+            name="is_public"
+            checked={isPortfolioPublic}
+            onChange={onVisibilityChange}
+            slotProps={{
+              input: {
+                "aria-label": isPortfolioPublic ? "포트폴리오 공개 설정 끄기" : "포트폴리오 공개 설정 켜기",
+              },
+            }}
+          />
 
           <Box className="portfolio-editor-visibility-control__content">
             {isPortfolioPublic ? (
-              <PublicIcon className="portfolio-editor-visibility-control__public-icon" />
+              <PublicIcon className="portfolio-editor-visibility-control__public-icon" aria-hidden="true" />
             ) : (
-              <LockIcon />
+              <LockIcon aria-hidden="true" />
             )}
             {/* 공개/비공개 텍스트 */}
             <Box className="portfolio-editor-visibility-control__text">
@@ -67,14 +77,14 @@ function EditorActionBar({
 
         {/* 임시저장/미리보기/수정완료 버튼 */}
         <Stack direction="row" sx={{ gap: 1.5, alignItems: "center" }}>
-          <Button type="button" variant="outlined" onClick={onSaveDraft}>
+          <Button type="button" variant="outlined" aria-label="현재 작성 내용을 임시저장" onClick={onSaveDraft}>
             임시저장
           </Button>
-          <Button type="button" variant="outlined" onClick={onPreviewOpen}>
-            <ViewsIcon />
+          <Button type="button" variant="outlined" aria-label="현재 작성 내용 미리보기" onClick={onPreviewOpen}>
+            <ViewsIcon aria-hidden="true" />
             미리보기
           </Button>
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" aria-label={isEdit ? "포트폴리오 수정 완료" : "포트폴리오 작성 완료"}>
             {isEdit ? "수정 완료" : "작성 완료"}
           </Button>
         </Stack>

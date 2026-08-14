@@ -99,8 +99,14 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
             </Stack>
           </Stack>
 
-          <Dialog open={isDraftListOpen} onClose={handleCloseDraftList} fullWidth maxWidth="xs">
-            <DialogTitle>전체 저장 목록 확인</DialogTitle>
+          <Dialog
+            open={isDraftListOpen}
+            onClose={handleCloseDraftList}
+            aria-labelledby="temporary-draft-list-title"
+            fullWidth
+            maxWidth="xs"
+          >
+            <DialogTitle id="temporary-draft-list-title">전체 저장 목록 확인</DialogTitle>
             <DialogContent>
               <Stack className="portfolio-editor-temporary-draft-dialog__list" spacing={1}>
                 {temporaryDrafts.map(draft => (
@@ -114,6 +120,7 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
                       className="portfolio-editor-temporary-draft-dialog__apply-button"
                       type="button"
                       variant="outlined"
+                      aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 불러오기`}
                       onClick={() => handleApplySelectedDraft(draft.id)}
                     >
                       <Box className="portfolio-editor-temporary-draft-dialog__item-text">
@@ -131,6 +138,7 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
                       type="button"
                       variant="outlined"
                       color="error"
+                      aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 삭제`}
                       onClick={() => handleDeleteSelectedDraft(draft.id)}
                     >
                       삭제
@@ -140,7 +148,7 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
               </Stack>
             </DialogContent>
             <DialogActions>
-              <Button type="button" onClick={handleCloseDraftList}>
+              <Button type="button" aria-label="전체 저장 목록 닫기" onClick={handleCloseDraftList}>
                 닫기
               </Button>
             </DialogActions>

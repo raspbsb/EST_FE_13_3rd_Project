@@ -18,6 +18,7 @@ function BasicInfoTextField({
   onValueCommit,
 }) {
   const [localValue, setLocalValue] = useState(value);
+  const feedbackId = feedback ? `${id}-feedback` : undefined;
 
   useEffect(() => {
     setLocalValue(value);
@@ -38,8 +39,8 @@ function BasicInfoTextField({
   );
 
   return (
-    <FormControl fullWidth required={required}>
-      <FieldLabel htmlFor={id} required={required} feedback={feedback} sx={fieldLabelSx}>
+    <FormControl fullWidth required={required} error={Boolean(feedback)}>
+      <FieldLabel htmlFor={id} required={required} feedback={feedback} feedbackId={feedbackId} sx={fieldLabelSx}>
         {label}
       </FieldLabel>
 
@@ -53,6 +54,10 @@ function BasicInfoTextField({
         value={localValue}
         onChange={handleChange}
         onBlur={handleBlur}
+        inputProps={{
+          "aria-invalid": Boolean(feedback),
+          "aria-describedby": feedbackId,
+        }}
         sx={formInputSx}
       />
     </FormControl>
