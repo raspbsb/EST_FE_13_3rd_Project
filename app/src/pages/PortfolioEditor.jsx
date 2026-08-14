@@ -19,7 +19,7 @@ import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
 
 // CSS
-import "../components/PortfolioEditor/PortfolioEditor.css";
+import styles from "./PortfolioEditor.module.css";
 
 // Utils
 import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
@@ -753,12 +753,13 @@ export default function PortfolioEditor({ data }) {
       />
 
       <Container
-        className="portfolio-editor-page"
+        className={styles.page}
         component="main"
         maxWidth={false}
         disableGutters
         sx={{
           maxWidth: "1272px",
+          px: { xs: 2, tablet: 3, desktop: 0 },
         }}
       >
         <EditorTitleSection
