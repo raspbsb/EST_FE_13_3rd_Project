@@ -6,12 +6,9 @@ import {
   resetGallery,
   resetGalleryAll,
 } from "../components/Gallery/gallerySlice";
-import React, { useState, useEffect } from "react";
-import Header from "../components/Header/Header";
-import Footer from "../components/Footer/Footer";
+import { useState, useEffect } from "react";
 import ProjectCard from "../components/ProjectCard";
 import TagChip from "../components/TagChip";
-import { supabase } from "../utils/supabase";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";

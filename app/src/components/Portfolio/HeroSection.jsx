@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 import Box from "@mui/material/Box";
 
 import HeroHeading from "./HeroHeading";

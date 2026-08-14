@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 
 import Text from "@mui/material/Typography";
-import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import MuiLink from "@mui/material/Link";
