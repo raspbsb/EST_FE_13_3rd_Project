@@ -2,6 +2,9 @@
 
 import { supabase } from "../utils/supabase";
 
+// 포트폴리오 버킷 지정
+const PORTFOLIO_IMAGE_BUCKET = "portfolio_images";
+
 // 현재 로그인한 Supabase Auth 사용자를 조회하는 함수
 export const getAuthenticatedUser = async () => {
   const { data: authData, error } = await supabase.auth.getUser();
@@ -55,6 +58,34 @@ const insertPortfolioTechStacks = async ({ projectId, techStacks }) => {
   if (error) throw error;
 };
 
+// 첨부 이미지를 Supabase Storage에 업로드하고 portfolio_images 테이블에 이미지 메타데이터를 저장하는 함수
+const insertPortfolioImages = async ({ userId, projectId, images }) => {
+  if (images.length === 0) return;
+
+  const uploadedImages = [];
+
+  for (const image of images) {
+    const extension = image.name.split(".").pop();
+    const imagePath = `${userId}/${projectId}/${image.order}-${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage.from(PORTFOLIO_IMAGE_BUCKET).upload(imagePath, image.file);
+
+    if (uploadError) throw uploadError;
+
+    uploadedImages.push({
+      project_id: projectId,
+      image_path: imagePath,
+      display_order: image.order,
+      is_thumbnail: image.is_thumbnail,
+      alt_text: image.name,
+    });
+  }
+
+  const { error } = await supabase.from("portfolio_images").insert(uploadedImages);
+
+  if (error) throw error;
+};
+
 // payload를 기반으로 포트폴리오 등록에 필요한 Supabase insert를 순서대로 실행하는 함수
 export const createPortfolio = async ({ payload }) => {
   const user = await getAuthenticatedUser();
@@ -76,6 +107,12 @@ export const createPortfolio = async ({ payload }) => {
   await insertPortfolioTechStacks({
     projectId,
     techStacks: payload.techStacks,
+  });
+
+  await insertPortfolioImages({
+    userId: user.id,
+    projectId,
+    images: payload.images,
   });
 
   return { projectId, needsLogin: false };
