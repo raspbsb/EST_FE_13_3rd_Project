@@ -1,5 +1,11 @@
 import { useSelector, useDispatch } from "react-redux";
-import { fetchFeaturedPortfolios, fetchMorePortfolios, fetchPortfolios } from "../components/Gallery/gallerySlice";
+import {
+  fetchFeaturedPortfolios,
+  fetchMorePortfolios,
+  fetchPortfolios,
+  resetGallery,
+  resetGalleryAll,
+} from "../components/Gallery/gallerySlice";
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -48,10 +54,16 @@ export default function Gallery() {
 
   useEffect(() => {
     dispatch(fetchFeaturedPortfolios());
+    return () => {
+      dispatch(resetGalleryAll());
+    };
   }, []);
   useEffect(() => {
     // handleFetchPortfolios();
     dispatch(fetchPortfolios({ searchTerm, category, sortBy }));
+    return () => {
+      dispatch(resetGallery());
+    };
   }, [searchTerm, category, sortBy]);
 
   const handleShowMore = () => {

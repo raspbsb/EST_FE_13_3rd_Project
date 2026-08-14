@@ -93,9 +93,15 @@ const gallerySlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.count = 0;
+    },
+    resetGalleryAll: state => {
+      state.data = [];
+      state.status = "idle";
+      state.error = null;
+      state.count = 0;
       state.featured = {
         data: [],
-        status: idle,
+        status: "idle",
         error: null,
       };
     },
@@ -109,7 +115,7 @@ const gallerySlice = createSlice({
       state.featured.error = error;
       state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
       state.featured.data = data ?? [];
-      error ? console.warn(error) : console.log(state.featured.data);
+      if (error) console.warn(error);
     });
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
       state.featured.status = "failed";
@@ -126,7 +132,7 @@ const gallerySlice = createSlice({
       state.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
       state.data = data ?? [];
       state.count = count ?? 0;
-      error ? console.warn(error) : console.log(state.data);
+      if (error) console.warn(error);
     });
     builder.addCase(fetchPortfolios.rejected, (state, action) => {
       state.status = "failed";
@@ -137,7 +143,7 @@ const gallerySlice = createSlice({
     builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
       const { data, error, count } = action.payload;
       if (!error && count > 0) state.data.push(action.payload.data);
-      error ? console.warn(error) : console.log(state.data);
+      if (error) console.warn(error);
     });
     builder.addCase(fetchMorePortfolios.rejected, (state, action) => {
       state.error = action.error;
@@ -146,4 +152,5 @@ const gallerySlice = createSlice({
   },
 });
 
+export const { resetGallery, resetGalleryAll } = gallerySlice.actions;
 export default gallerySlice.reducer;

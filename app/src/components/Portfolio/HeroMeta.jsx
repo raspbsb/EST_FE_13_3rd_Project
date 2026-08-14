@@ -13,34 +13,22 @@ import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from ".
 import { fetchLikes } from "./portfolioSlice";
 
 export default function HeroMeta({}) {
-  const [user, setUser] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user, status: statusU } = useSelector(state => state.user);
   const { data, status } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
-  async function fetchUser() {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.warn(error);
-      return;
-    }
-    console.log(user);
-    setUser(user);
-    setIsLiked(data?.portfolio_likes?.some(l => l?.user_id === user?.id) ?? false);
-    setIsBookmarked(data?.bookmarks?.some(b => b?.user_id === user?.id) ?? false);
-  }
   useEffect(() => {
-    fetchUser();
-  }, [data]);
+    setIsLiked(data?.portfolio_likes?.some(l => l.user_id === user?.id) ?? false);
+    setIsBookmarked(data?.bookmarks?.some(b => b.user_id === user?.id) ?? false);
+  }, [user]);
 
   const handleLikeBtn = async () => {
+    if (statusU !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
       alert("로그인이 필요합니다!");
@@ -78,6 +66,7 @@ export default function HeroMeta({}) {
     }
   };
   const handleBookmarkBtn = async () => {
+    if (statusU !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
       alert("로그인이 필요합니다!");
