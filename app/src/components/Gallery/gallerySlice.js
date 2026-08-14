@@ -93,9 +93,15 @@ const gallerySlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.count = 0;
+    },
+    resetGalleryAll: state => {
+      state.data = [];
+      state.status = "idle";
+      state.error = null;
+      state.count = 0;
       state.featured = {
         data: [],
-        status: idle,
+        status: "idle",
         error: null,
       };
     },
@@ -146,5 +152,5 @@ const gallerySlice = createSlice({
   },
 });
 
-export const { resetGallery } = gallerySlice.actions;
+export const { resetGallery, resetGalleryAll } = gallerySlice.actions;
 export default gallerySlice.reducer;
