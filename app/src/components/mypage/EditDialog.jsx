@@ -220,8 +220,10 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 name="bio"
                 value={form.bio}
                 onChange={handleChange}
-                inputProps={{
-                  maxLength: 100,
+                slotProps={{
+                  htmlInput: {
+                    maxLength: 100,
+                  },
                 }}
               />
               <Text variant="caption" align="right" sx={{ display: "block" }}>

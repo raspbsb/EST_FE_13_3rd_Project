@@ -69,6 +69,7 @@ function ImageAttachmentSection({
       <input
         ref={fileInputRef}
         type="file"
+        aria-label="포트폴리오 이미지 파일 선택"
         accept="image/png,image/jpeg,image/webp"
         multiple
         hidden
@@ -81,19 +82,26 @@ function ImageAttachmentSection({
       <ButtonBase
         className="portfolio-editor-image-section__dropzone"
         disabled={isImageLimitReached}
+        aria-label={isImageLimitReached ? "이미지는 최대 5장까지 업로드할 수 있습니다" : "이미지 파일 업로드"}
+        aria-describedby="portfolio-image-upload-help portfolio-image-upload-count"
         onClick={() => {
           if (isImageLimitReached) return;
           fileInputRef.current?.click();
         }}
       >
         <Stack className="portfolio-editor-image-section__dropzone-content" spacing={1}>
-          <CloudUploadIcon className="portfolio-editor-image-section__dropzone-icon" />
+          <CloudUploadIcon className="portfolio-editor-image-section__dropzone-icon" aria-hidden="true" />
 
           <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
             {isImageLimitReached ? "최대 5장 업로드됨" : "파일을 끌어서 놓거나 클릭하여 업로드"}
           </Text>
 
-          <Text className="portfolio-editor-image-section__dropzone-help" color="text.secondary" fontSize={12}>
+          <Text
+            id="portfolio-image-upload-help"
+            className="portfolio-editor-image-section__dropzone-help"
+            color="text.secondary"
+            fontSize={12}
+          >
             PNG, JPG, WebP (최대 10MB)
           </Text>
 
@@ -153,7 +161,9 @@ function ImageAttachmentSection({
 
       <Stack className="portfolio-editor-image-section__footer" direction="row">
         <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
-          {images.length}/5장 업로드됨
+          <Box id="portfolio-image-upload-count" component="span">
+            {images.length}/5장 업로드됨
+          </Box>
         </Text>
 
         <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>

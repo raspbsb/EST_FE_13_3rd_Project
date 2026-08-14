@@ -24,6 +24,7 @@ import styles from "./PortfolioEditor.module.css";
 // Utils
 import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 import { createPortfolioPayload } from "../utils/portfolioPayload";
+import { supabase } from "../utils/supabase";
 import {
   createEmptyFormErrors,
   getFirstFormErrorMessage,
@@ -206,6 +207,8 @@ export default function PortfolioEditor({ data }) {
   // 현재 경로가 id/edit이면 true
   const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
 
@@ -267,6 +270,26 @@ export default function PortfolioEditor({ data }) {
   const [formErrors, setFormErrors] = useState(createEmptyFormErrors);
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: authData, error } = await supabase.auth.getUser();
+
+      if (error || !authData.user) {
+        navigate("/login", {
+          replace: true,
+          state: {
+            from: isEdit ? `/portfolios/${id}/edit` : "/portfolios/new",
+          },
+        });
+        return;
+      }
+
+      setIsAuthChecking(false);
+    };
+
+    checkAuth();
+  }, [navigate, isEdit, id]);
 
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
@@ -736,6 +759,10 @@ export default function PortfolioEditor({ data }) {
   // useEffect(() => {
   //   console.log(isPortfolioPublic);
   // }, [isPortfolioPublic]);
+
+  if (isAuthChecking) {
+    return null;
+  }
 
   return (
     <>
