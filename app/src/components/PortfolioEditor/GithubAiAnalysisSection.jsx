@@ -16,7 +16,7 @@ import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon, DropDownIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
-import { developmentAnalysisEvidenceTabs } from "./portfolioEditorData";
+import { evidenceTabs } from "../../constants/portfolioOptions";
 import { memo, useState } from "react";
 
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAiAnalysis }) {
@@ -26,7 +26,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAi
   const analysisEvidenceTabs =
     Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
       ? aiAnalysisResult.analysisEvidence
-      : developmentAnalysisEvidenceTabs;
+      : evidenceTabs;
   const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
 
   const handleEvidenceAccordionChange = (_, isExpanded) => {

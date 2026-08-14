@@ -16,11 +16,11 @@ import Text from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import {
   categoryOptions,
-  participationScaleOptions,
-  participationTypeOptions,
-  progressEnvironmentOptions,
+  environmentOptions,
+  scaleOptions,
   techStackOptions,
-} from "./portfolioEditorData";
+  typeOptions,
+} from "../../constants/portfolioOptions";
 import FieldLabel from "./FieldLabel";
 import PortfolioMetaChip from "./PortfolioMetaChip";
 
@@ -130,7 +130,7 @@ function ProjectMetaSection({
               inputProps={{ "aria-label": "참여 형태" }}
               sx={formInputSx}
             >
-              {renderSelectMenuItems(participationTypeOptions)}
+              {renderSelectMenuItems(typeOptions)}
             </Select>
           </FormControl>
 
@@ -146,7 +146,7 @@ function ProjectMetaSection({
               inputProps={{ "aria-label": "참여 규모" }}
               sx={formInputSx}
             >
-              {renderSelectMenuItems(participationScaleOptions)}
+              {renderSelectMenuItems(scaleOptions)}
             </Select>
           </FormControl>
         </Box>
@@ -163,7 +163,7 @@ function ProjectMetaSection({
             inputProps={{ "aria-label": "진행 환경" }}
             sx={formInputSx}
           >
-            {renderSelectMenuItems(progressEnvironmentOptions)}
+            {renderSelectMenuItems(environmentOptions)}
           </Select>
         </FormControl>
 
