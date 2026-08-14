@@ -14,7 +14,7 @@ import Text from "@mui/material/Typography";
 
 import { CloseIcon } from "../../lib/icons";
 
-export default function MessageDialog({ open, onClose, message }) {
+export default function MessageDialog({ open, onClose, message, onMessageRead }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -34,6 +34,8 @@ export default function MessageDialog({ open, onClose, message }) {
     }
 
     console.log("메시지 읽음 처리 성공");
+
+    onMessageRead?.(message.id);
 
     onClose();
   };

@@ -114,6 +114,10 @@ export default function ContactSection() {
     setSelectedMessage(item);
     setOpenMessage(true);
   };
+  // 메세지 읽음 처리
+  const handleMessageRead = messageId => {
+    setNotifications(prev => prev.map(item => (item.id === messageId ? { ...item, isRead: true } : item)));
+  };
 
   return (
     <Box component="section" sx={{ width: "100%" }}>
@@ -130,7 +134,12 @@ export default function ContactSection() {
           <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
         ))}
       </List>
-      <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />
+      <MessageDialog
+        open={openMessage}
+        onClose={() => setOpenMessage(false)}
+        message={selectedMessage}
+        onMessageRead={handleMessageRead}
+      />
     </Box>
   );
 }
