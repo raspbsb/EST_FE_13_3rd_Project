@@ -9,6 +9,8 @@ import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
+  const [currentUserId, setCurrentUserId] = useState(null);
+
   const { userId: profileUserId, collectionId } = useParams();
   const { profile } = useOutletContext();
 
@@ -17,18 +19,31 @@ export default function MyProjects({ mode }) {
 
   const targetUserId = mode === "public" ? profileUserId : profile?.user_id;
 
+  //auth user 가져오기
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setCurrentUserId(user?.id ?? null);
+    };
+
+    getCurrentUser();
+  }, []);
+
   useEffect(() => {
     const fetchProjects = async () => {
       setLoading(true);
 
       // 컬렉션 상세 페이지
       if (mode === "collection") {
-        if (!collectionId) {
+        if (!collectionId || !currentUserId) {
           setProjects([]);
           setLoading(false);
           return;
         }
-
+        // 컬렉션 조회
         const { data, error } = await supabase
           .from("bookmarks")
           .select(
@@ -55,6 +70,7 @@ export default function MyProjects({ mode }) {
         `,
           )
           .eq("collection_id", collectionId)
+          .eq("user_id", currentUserId)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -119,7 +135,7 @@ export default function MyProjects({ mode }) {
     };
 
     fetchProjects();
-  }, [targetUserId, collectionId, mode]);
+  }, [targetUserId, collectionId, mode, currentUserId]);
 
   if (loading) {
     return null;
