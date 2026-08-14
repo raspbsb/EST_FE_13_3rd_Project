@@ -196,7 +196,86 @@ const MAX_PORTFOLIO_DRAFT_COUNT = 5;
 // 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
 
-// 등록/수정 페이지가 들고 있는 전체 라우트, 폼 상태, AI 상태, 이미지 상태를 조합하는 최상위 에디터 컴포넌트
+// 인증된 사용자 정보를 확인하고, 없으면 로그인 페이지로 이동하기 위해 null을 반환하는 함수
+const getAuthenticatedUser = async () => {
+  const { data: authData, error } = await supabase.auth.getUser();
+
+  if (error || !authData.user) return null;
+
+  return authData.user;
+};
+
+// portfolios 테이블에 기본 포트폴리오 정보를 저장하고 생성된 project_id를 반환하는 함수
+const insertPortfolio = async ({ authorId, portfolio }) => {
+  const { data, error } = await supabase
+    .from("portfolios")
+    .insert({
+      author_id: authorId,
+      ...portfolio,
+    })
+    .select("project_id")
+    .single();
+
+  if (error) throw error;
+
+  return data.project_id;
+};
+
+// 선택된 카테고리 배열을 portfolio_categories 테이블 저장 형식으로 변환해 추가하는 함수
+const insertPortfolioCategories = async ({ projectId, categories }) => {
+  if (categories.length === 0) return;
+
+  const { error } = await supabase.from("portfolio_categories").insert(
+    categories.map(category => ({
+      project_id: projectId,
+      category: category.category_label,
+    })),
+  );
+
+  if (error) throw error;
+};
+
+// 선택된 기술 스택 배열을 portfolio_tech_stacks 테이블 저장 형식으로 변환해 추가하는 함수
+const insertPortfolioTechStacks = async ({ projectId, techStacks }) => {
+  if (techStacks.length === 0) return;
+
+  const { error } = await supabase.from("portfolio_tech_stacks").insert(
+    techStacks.map(techStack => ({
+      project_id: projectId,
+      tech_stack: techStack.tech_stack_label,
+    })),
+  );
+
+  if (error) throw error;
+};
+
+// 인증 사용자 확인부터 portfolios, 카테고리, 기술 스택 저장까지 등록 저장 흐름을 한 번에 실행하는 함수
+const createPortfolio = async ({ payload }) => {
+  const user = await getAuthenticatedUser();
+
+  if (!user) {
+    return { projectId: null, needsLogin: true };
+  }
+
+  const projectId = await insertPortfolio({
+    authorId: user.id,
+    portfolio: payload.portfolio,
+  });
+
+  await insertPortfolioCategories({
+    projectId,
+    categories: payload.categories,
+  });
+
+  await insertPortfolioTechStacks({
+    projectId,
+    techStacks: payload.techStacks,
+  });
+
+  return { projectId, needsLogin: false };
+};
+
+// 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -248,7 +327,7 @@ export default function PortfolioEditor({ data }) {
     analysisEvidence: null,
   });
 
-  // AI 초안 생성 저장 데이터 상태 객체.
+  // AI 초안 생성 저장 데이터 상태 객체
   const [draftGuide, setDraftGuide] = useState({
     originalDescription: "", // AI 초안 생성 전 사용자가 입력했던 기존 설명
     aiDraftDescription: "", // AI가 생성한 설명 초안
@@ -258,7 +337,7 @@ export default function PortfolioEditor({ data }) {
     isSummaryApplied: false,
   });
 
-  // 화면 동작 관리용 상태 객체.
+  // 화면 동작 관리용 상태 객체
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
@@ -271,6 +350,7 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
+  // 에디터 페이지 진입 시 로그인한 사용자 인증 확인 후 분기 : 비로그인 상태면 로그인 페이지로 이동
   useEffect(() => {
     const checkAuth = async () => {
       const { data: authData, error } = await supabase.auth.getUser();
@@ -320,7 +400,7 @@ export default function PortfolioEditor({ data }) {
 
   // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
   const handleSubmit = useCallback(
-    e => {
+    async e => {
       e.preventDefault();
 
       const nextErrors = validateSubmitFieldErrors(formData);
@@ -339,9 +419,35 @@ export default function PortfolioEditor({ data }) {
       });
 
       console.log(payload);
+
+      try {
+        const { projectId, needsLogin } = await createPortfolio({ payload });
+
+        if (needsLogin) {
+          redirectToLogin();
+          return;
+        }
+
+        console.log(payload);
+
+        alert("포트폴리오가 등록되었습니다.");
+        navigate(`/portfolios/${projectId}`);
+      } catch (error) {
+        alert(error.message);
+      }
     },
-    [formData, aiAnalysisResult, draftGuide],
+    [formData, aiAnalysisResult, draftGuide, navigate, redirectToLogin],
   );
+
+  // 로그인 페이지로 이동
+  const redirectToLogin = useCallback(() => {
+    navigate("/login", {
+      replace: true,
+      state: {
+        from: isEdit ? `/portfolios/${id}/edit` : "/portfolios/new",
+      },
+    });
+  }, [navigate, isEdit, id]);
 
   // 미리보기 모달을 여는 함수
   const handleOpenPreview = useCallback(() => {
