@@ -53,6 +53,7 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
   // 프사 삭제
   const handleDelete = () => {
     setImage(null);
+
     onChange?.(null);
   };
 
