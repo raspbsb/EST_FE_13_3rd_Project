@@ -29,8 +29,8 @@ export default function HeroMeta({}) {
     }
     console.log(user);
     setUser(user);
-    setIsLiked(data?.portfolio_likes.includes(like => like.user_id === user.id));
-    setIsBookmarked(data?.bookmarks.includes(bm => bm.user_id === user.id));
+    setIsLiked(data?.portfolio_likes?.some(l => l?.user_id === user?.id) ?? false);
+    setIsBookmarked(data?.bookmarks?.some(b => b?.user_id === user?.id) ?? false);
   }
   useEffect(() => {
     fetchUser();
