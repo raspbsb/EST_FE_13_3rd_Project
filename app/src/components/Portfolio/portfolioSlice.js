@@ -100,5 +100,5 @@ const portfolioSlice = createSlice({
   },
 });
 
-export const { setLoading, setPortfolio, resetPortfolio } = portfolioSlice.actions;
+export const { resetPortfolio } = portfolioSlice.actions;
 export default portfolioSlice.reducer;

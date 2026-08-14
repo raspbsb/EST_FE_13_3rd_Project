@@ -13,32 +13,14 @@ import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from ".
 import { fetchLikes } from "./portfolioSlice";
 
 export default function HeroMeta({}) {
-  const [user, setUser] = useState(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector(state => state.user);
   const { data, status } = useSelector(state => state.portfolio);
   const author = data?.profiles;
-
-  async function fetchUser() {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) {
-      console.warn(error);
-      return;
-    }
-    console.log(user);
-    setUser(user);
-    setIsLiked(data?.portfolio_likes?.some(l => l?.user_id === user?.id) ?? false);
-    setIsBookmarked(data?.bookmarks?.some(b => b?.user_id === user?.id) ?? false);
-  }
-  useEffect(() => {
-    fetchUser();
-  }, [data]);
 
   const handleLikeBtn = async () => {
     if (!user) {
