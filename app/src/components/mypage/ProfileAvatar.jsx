@@ -1,26 +1,27 @@
-import { useState } from 'react';
+import { supabase } from "../../utils/supabase";
+import { useState } from "react";
 
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import { styled } from '@mui/material/styles';
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import { styled } from "@mui/material/styles";
 
-import { AccountCircleIcon, AddAPhotoIcon, CloseIcon } from '../../lib/icons';
+import { AccountCircleIcon, AddAPhotoIcon, CloseIcon } from "../../lib/icons";
 
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
   height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
+  overflow: "hidden",
+  position: "absolute",
   bottom: 0,
   left: 0,
-  whiteSpace: 'nowrap',
+  whiteSpace: "nowrap",
   width: 1,
 });
 
 export default function ProfileAvatar({ avatarPath, editable = false, onChange }) {
-  const [image, setImage] = useState(avatarPath || null);
+  const [image, setImage] = useState(getAvatarUrl(avatarPath));
   const [isHover, setIsHover] = useState(false);
 
   // 파일 선택 함수
@@ -35,6 +36,21 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
     onChange?.(file);
   };
 
+  //avatarPath -> public URL로 변환
+  const getAvatarUrl = avatarPath => {
+    if (!avatarPath) return null;
+
+    const { data } = supabase.storage.from("profile_avatars").getPublicUrl(avatarPath);
+
+    return data.publicUrl;
+  };
+
+  //avatarPath 변경 됐을 때 이미지 리렌더링
+  useEffect(() => {
+    setImage(getAvatarUrl(avatarPath));
+  }, [avatarPath]);
+
+  // 프사 삭제
   const handleDelete = () => {
     setImage(null);
     onChange?.(null);
@@ -43,9 +59,9 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
   return (
     <Box
       sx={{
-        width: '191px',
-        height: '192px',
-        position: 'relative',
+        width: "191px",
+        height: "192px",
+        position: "relative",
       }}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
@@ -57,20 +73,20 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
           src={image}
           alt="프로필 이미지"
           sx={{
-            width: '191px',
-            height: '192px',
-            borderRadius: '50%',
-            border: '1px solid #e0e0e0',
-            objectFit: 'cover',
+            width: "191px",
+            height: "192px",
+            borderRadius: "50%",
+            border: "1px solid #e0e0e0",
+            objectFit: "cover",
           }}
         />
       ) : (
         <AccountCircleIcon
           sx={{
-            width: '191px',
-            height: '192px',
-            borderRadius: '50%',
-            border: '1px solid #e0e0e0',
+            width: "191px",
+            height: "192px",
+            borderRadius: "50%",
+            border: "1px solid #e0e0e0",
           }}
         />
       )}
@@ -81,19 +97,19 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
           onClick={handleDelete}
           startIcon={<CloseIcon />}
           sx={{
-            position: 'absolute',
-            top: '80px',
-            left: '30px',
-            minWidth: 'auto',
+            position: "absolute",
+            top: "80px",
+            left: "30px",
+            minWidth: "auto",
             px: 1,
             py: 0.5,
-            bgcolor: 'secondary.main',
-            color: 'text.primary',
-            fontSize: '14px',
-            borderRadius: '8px',
+            bgcolor: "secondary.main",
+            color: "text.primary",
+            fontSize: "14px",
+            borderRadius: "8px",
             boxShadow: 1,
-            '&:hover': {
-              bgcolor: '#ccc',
+            "&:hover": {
+              bgcolor: "#ccc",
             },
           }}
         >
@@ -109,9 +125,9 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
           sx={{
             width: 45,
             height: 45,
-            background: '#fff',
-            border: '1px solid #aaa',
-            position: 'absolute',
+            background: "#fff",
+            border: "1px solid #aaa",
+            position: "absolute",
             right: 0,
             bottom: 0,
           }}
