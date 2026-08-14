@@ -23,6 +23,15 @@ import "../components/PortfolioEditor/PortfolioEditor.css";
 
 // Utils
 import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
+import { createPortfolioPayload } from "../utils/portfolioPayload";
+import {
+  createEmptyFormErrors,
+  getFirstFormErrorMessage,
+  hasFormErrors,
+  validateAiFormFieldErrors,
+  validateDraftGuideFieldErrors,
+  validateSubmitFieldErrors,
+} from "../utils/portfolioValidation";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -161,20 +170,6 @@ const formatEditorTimestamp = date => {
   )}`;
 };
 
-// AI 사용자 입력 폼 분석 요청 전에 확인할 최소 입력 조건
-const AI_FORM_VALIDATION_LIMITS = {
-  title: 50,
-  descriptionMin: 20,
-  descriptionMax: 900,
-};
-
-// GitHub API 수집 기준이 되는 저장소 URL 형식인지 확인하는 함수
-const isGithubRepositoryUrl = value => {
-  const text = String(value ?? "").trim();
-
-  return /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+\/?$/.test(text);
-};
-
 // 임시저장 가능 여부 판단을 위해 값이 비어 있지 않은지 확인하는 함수
 const hasNonEmptyDraftValue = value => {
   if (typeof value === "boolean") return false;
@@ -191,84 +186,6 @@ const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) =>
   return (
     hasNonEmptyDraftValue(draftFormData) || hasNonEmptyDraftValue(aiAnalysisResult) || hasNonEmptyDraftValue(draftGuide)
   );
-};
-
-const createEmptyFormErrors = () => ({
-  title: "",
-  description: "",
-  repository_url: "",
-  categories: "",
-  tech_stacks: "",
-});
-
-const validateAiFormFieldErrors = formData => {
-  const errors = createEmptyFormErrors();
-  const title = formData.title.trim();
-  const description = formData.description.trim();
-
-  if (!title) {
-    errors.title = "입력 필요";
-  } else if (title.length > AI_FORM_VALIDATION_LIMITS.title) {
-    errors.title = `${AI_FORM_VALIDATION_LIMITS.title}자 이내`;
-  }
-
-  if (description.length < AI_FORM_VALIDATION_LIMITS.descriptionMin) {
-    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMin}자 이상`;
-  } else if (description.length > AI_FORM_VALIDATION_LIMITS.descriptionMax) {
-    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMax}자 이내`;
-  }
-
-  if (!isGithubRepositoryUrl(formData.repository_url)) {
-    errors.repository_url = "GitHub URL 필요";
-  }
-
-  return errors;
-};
-
-const validateDraftGuideFieldErrors = formData => {
-  const errors = createEmptyFormErrors();
-  const description = formData.description.trim();
-
-  if (description.length < AI_FORM_VALIDATION_LIMITS.descriptionMin) {
-    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMin}자 이상`;
-  } else if (description.length > AI_FORM_VALIDATION_LIMITS.descriptionMax) {
-    errors.description = `${AI_FORM_VALIDATION_LIMITS.descriptionMax}자 이내`;
-  }
-
-  return errors;
-};
-
-const validateSubmitFieldErrors = formData => {
-  const errors = validateDraftGuideFieldErrors(formData);
-  const title = formData.title.trim();
-
-  if (!title) {
-    errors.title = "입력 필요";
-  } else if (title.length > AI_FORM_VALIDATION_LIMITS.title) {
-    errors.title = `${AI_FORM_VALIDATION_LIMITS.title}자 이내`;
-  }
-
-  if (formData.categories.length === 0) {
-    errors.categories = "최소 1개 필요";
-  }
-
-  if (formData.tech_stacks.length === 0) {
-    errors.tech_stacks = "최소 1개 필요";
-  }
-
-  return errors;
-};
-
-const hasFormErrors = errors => Object.values(errors).some(Boolean);
-
-const getFirstFormErrorMessage = errors => {
-  if (errors.title) return `프로젝트명: ${errors.title}`;
-  if (errors.description) return `프로젝트 설명: ${errors.description}`;
-  if (errors.repository_url) return `GitHub 저장소 URL: ${errors.repository_url}`;
-  if (errors.categories) return `카테고리: ${errors.categories}`;
-  if (errors.tech_stacks) return `기술 스택: ${errors.tech_stacks}`;
-
-  return "";
 };
 
 // // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
@@ -365,6 +282,7 @@ export default function PortfolioEditor({ data }) {
     }
   }, []);
 
+  // 사용자가 한 번 검증을 실행한 뒤에는 같은 검증 기준으로 입력 변경마다 라벨 피드백을 갱신
   useEffect(() => {
     if (!formValidationMode) return;
 
@@ -391,11 +309,13 @@ export default function PortfolioEditor({ data }) {
         return;
       }
 
-      console.log({
+      const payload = createPortfolioPayload({
         formData,
         aiAnalysisResult,
         draftGuide,
       });
+
+      console.log(payload);
     },
     [formData, aiAnalysisResult, draftGuide],
   );
