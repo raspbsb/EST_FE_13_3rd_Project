@@ -14,10 +14,11 @@ import Text from "@mui/material/Typography";
 
 import { CloseIcon } from "../../lib/icons";
 
-export default function MessageDialog({ open, onClose, message, onMessageRead }) {
+export default function MessageDialog({ open, onClose, message, onMessageRead, onMessageDelete }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
+  // 메세지 읽음 처리 DB에 업데이트
   const handleMarkAsRead = async () => {
     if (!message?.id) return;
 
@@ -38,6 +39,44 @@ export default function MessageDialog({ open, onClose, message, onMessageRead })
     onMessageRead?.(message.id);
 
     onClose();
+  };
+
+  // 메세지 삭제
+  const handleDelete = async () => {
+    if (!message?.id) return;
+
+    try {
+      // 현재 로그인한 사용자 확인
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) {
+        throw authError;
+      }
+
+      if (!user) {
+        console.error("로그인한 사용자가 없습니다.");
+        return;
+      }
+
+      const { error } = await supabase.from("messages").delete().eq("id", message.id).eq("receiver_id", user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("메시지 삭제 성공:", message.id);
+
+      // ContactSection의 목록에서도 제거
+      onMessageDelete?.(message.id);
+
+      // Dialog 닫기
+      onClose();
+    } catch (error) {
+      console.error("메시지 삭제 실패:", error);
+    }
   };
 
   if (!message) return null;
@@ -117,7 +156,7 @@ export default function MessageDialog({ open, onClose, message, onMessageRead })
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button variant="contained" color="error" onClick={onClose}>
+        <Button variant="contained" color="error" onClick={handleDelete}>
           삭제
         </Button>
         <Button variant="contained" sx={{ bgcolor: "text.primary" }} onClick={handleMarkAsRead}>

@@ -118,6 +118,10 @@ export default function ContactSection() {
   const handleMessageRead = messageId => {
     setNotifications(prev => prev.map(item => (item.id === messageId ? { ...item, isRead: true } : item)));
   };
+  // 메세지 삭제
+  const handleMessageDelete = messageId => {
+    setNotifications(prev => prev.filter(item => item.id !== messageId));
+  };
 
   return (
     <Box component="section" sx={{ width: "100%" }}>
@@ -139,6 +143,7 @@ export default function ContactSection() {
         onClose={() => setOpenMessage(false)}
         message={selectedMessage}
         onMessageRead={handleMessageRead}
+        onMessageDelete={handleMessageDelete}
       />
     </Box>
   );
