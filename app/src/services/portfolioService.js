@@ -86,6 +86,28 @@ const insertPortfolioImages = async ({ userId, projectId, images }) => {
   if (error) throw error;
 };
 
+// AI 분석 결과와 초안 생성 데이터를 portfolio_ai_created 테이블에 저장하는 함수
+const insertPortfolioAiCreated = async ({ projectId, aiAnalysis, draftGuide }) => {
+  const { error } = await supabase.from("portfolio_ai_created").insert({
+    project_id: projectId,
+    project_summary: aiAnalysis.project_summary,
+    main_features: aiAnalysis.main_features,
+    technical_features: aiAnalysis.technical_features,
+    project_structure: aiAnalysis.project_structure,
+    analyzed_role: aiAnalysis.analyzed_role,
+    participation_details: aiAnalysis.participation_details,
+    analysis_limitation: aiAnalysis.analysis_limitation,
+    analysis_evidence: aiAnalysis.analysis_evidence,
+    github_analyzed_at: aiAnalysis.analyzed_at,
+    draft_source_content: draftGuide.original_description,
+    generated_content: draftGuide.ai_draft_description,
+    ai_short_summary: draftGuide.ai_short_summary,
+    draft_generated_at: draftGuide.generated_at,
+  });
+
+  if (error) throw error;
+};
+
 // payload를 기반으로 포트폴리오 등록에 필요한 Supabase insert를 순서대로 실행하는 함수
 export const createPortfolio = async ({ payload }) => {
   const user = await getAuthenticatedUser();
@@ -113,6 +135,12 @@ export const createPortfolio = async ({ payload }) => {
     userId: user.id,
     projectId,
     images: payload.images,
+  });
+
+  await insertPortfolioAiCreated({
+    projectId,
+    aiAnalysis: payload.aiAnalysis,
+    draftGuide: payload.draftGuide,
   });
 
   return { projectId, needsLogin: false };
