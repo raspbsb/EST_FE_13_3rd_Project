@@ -1,5 +1,5 @@
 import { supabase } from "../../utils/supabase";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -21,6 +21,15 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 export default function ProfileAvatar({ avatarPath, editable = false, onChange }) {
+  //avatarPath -> public URL로 변환
+  const getAvatarUrl = avatarPath => {
+    if (!avatarPath) return null;
+
+    const { data } = supabase.storage.from("profile_avatars").getPublicUrl(avatarPath);
+
+    return data.publicUrl;
+  };
+
   const [image, setImage] = useState(getAvatarUrl(avatarPath));
   const [isHover, setIsHover] = useState(false);
 
@@ -34,15 +43,6 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
 
     setImage(imageUrl);
     onChange?.(file);
-  };
-
-  //avatarPath -> public URL로 변환
-  const getAvatarUrl = avatarPath => {
-    if (!avatarPath) return null;
-
-    const { data } = supabase.storage.from("profile_avatars").getPublicUrl(avatarPath);
-
-    return data.publicUrl;
   };
 
   //avatarPath 변경 됐을 때 이미지 리렌더링
