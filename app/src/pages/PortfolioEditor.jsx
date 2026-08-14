@@ -17,6 +17,7 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
+import { createPortfolio, getAuthenticatedUser } from "../services/portfolioService";
 
 // CSS
 import styles from "./PortfolioEditor.module.css";
@@ -24,7 +25,6 @@ import styles from "./PortfolioEditor.module.css";
 // Utils
 import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 import { createPortfolioPayload } from "../utils/portfolioPayload";
-import { supabase } from "../utils/supabase";
 import {
   createEmptyFormErrors,
   getFirstFormErrorMessage,
@@ -196,7 +196,7 @@ const MAX_PORTFOLIO_DRAFT_COUNT = 5;
 // 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
 
-// 등록/수정 페이지가 들고 있는 전체 라우트, 폼 상태, AI 상태, 이미지 상태를 조합하는 최상위 에디터 컴포넌트
+// 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
   // 경로에서 파라미터 받기
   const { id } = useParams();
@@ -207,6 +207,7 @@ export default function PortfolioEditor({ data }) {
   // 현재 경로가 id/edit이면 true
   const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
+  // 현재 인증됐는지 확인하는 상태 변수
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
@@ -248,7 +249,7 @@ export default function PortfolioEditor({ data }) {
     analysisEvidence: null,
   });
 
-  // AI 초안 생성 저장 데이터 상태 객체.
+  // AI 초안 생성 저장 데이터 상태 객체
   const [draftGuide, setDraftGuide] = useState({
     originalDescription: "", // AI 초안 생성 전 사용자가 입력했던 기존 설명
     aiDraftDescription: "", // AI가 생성한 설명 초안
@@ -258,7 +259,7 @@ export default function PortfolioEditor({ data }) {
     isSummaryApplied: false,
   });
 
-  // 화면 동작 관리용 상태 객체.
+  // 화면 동작 관리용 상태 객체
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
@@ -271,17 +272,23 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
+  // 로그인 페이지로 이동
+  const redirectToLogin = useCallback(() => {
+    navigate("/login", {
+      replace: true,
+      state: {
+        from: isEdit ? `/portfolios/${id}/edit` : "/portfolios/new",
+      },
+    });
+  }, [navigate, isEdit, id]);
+
+  // 에디터 페이지 진입 시 로그인한 사용자 인증 확인 후 분기 : 비로그인 상태면 로그인 페이지로 이동
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: authData, error } = await supabase.auth.getUser();
+      const user = await getAuthenticatedUser();
 
-      if (error || !authData.user) {
-        navigate("/login", {
-          replace: true,
-          state: {
-            from: isEdit ? `/portfolios/${id}/edit` : "/portfolios/new",
-          },
-        });
+      if (!user) {
+        redirectToLogin();
         return;
       }
 
@@ -289,7 +296,7 @@ export default function PortfolioEditor({ data }) {
     };
 
     checkAuth();
-  }, [navigate, isEdit, id]);
+  }, [redirectToLogin]);
 
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
@@ -320,7 +327,7 @@ export default function PortfolioEditor({ data }) {
 
   // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
   const handleSubmit = useCallback(
-    e => {
+    async e => {
       e.preventDefault();
 
       const nextErrors = validateSubmitFieldErrors(formData);
@@ -339,8 +346,24 @@ export default function PortfolioEditor({ data }) {
       });
 
       console.log(payload);
+
+      try {
+        const { projectId, needsLogin } = await createPortfolio({ payload });
+
+        if (needsLogin) {
+          redirectToLogin();
+          return;
+        }
+
+        console.log(payload);
+
+        alert("포트폴리오가 등록되었습니다.");
+        navigate(`/portfolios/${projectId}`);
+      } catch (error) {
+        alert(error.message);
+      }
     },
-    [formData, aiAnalysisResult, draftGuide],
+    [formData, aiAnalysisResult, draftGuide, navigate, redirectToLogin],
   );
 
   // 미리보기 모달을 여는 함수
