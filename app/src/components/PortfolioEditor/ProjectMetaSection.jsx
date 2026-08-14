@@ -227,12 +227,9 @@ function ProjectMetaSection({
                 {...params}
                 size="small"
                 sx={formInputSx}
-                inputProps={{
-                  ...params.inputProps,
-                  "aria-label": "카테고리 추가",
-                  "aria-invalid": Boolean(formErrors.categories),
-                  "aria-describedby": "category-feedback",
-                }}
+                aria-label="카테고리 추가"
+                aria-invalid={Boolean(formErrors.categories)}
+                aria-describedby="category-feedback"
               />
             )}
           />
@@ -300,12 +297,9 @@ function ProjectMetaSection({
                 {...params}
                 size="small"
                 sx={formInputSx}
-                inputProps={{
-                  ...params.inputProps,
-                  "aria-label": "기술 스택 추가",
-                  "aria-invalid": Boolean(formErrors.tech_stacks),
-                  "aria-describedby": "tech-stack-feedback",
-                }}
+                aria-label="기술 스택 추가"
+                aria-invalid={Boolean(formErrors.tech_stacks)}
+                aria-describedby="tech-stack-feedback"
               />
             )}
           />

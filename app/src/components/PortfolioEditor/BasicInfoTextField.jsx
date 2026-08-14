@@ -54,9 +54,11 @@ function BasicInfoTextField({
         value={localValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        inputProps={{
-          "aria-invalid": Boolean(feedback),
-          "aria-describedby": feedbackId,
+        slotProps={{
+          input: {
+            "aria-invalid": Boolean(feedback),
+            "aria-describedby": feedbackId,
+          },
         }}
         sx={formInputSx}
       />

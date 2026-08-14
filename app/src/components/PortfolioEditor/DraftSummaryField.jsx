@@ -34,8 +34,10 @@ function DraftSummaryField({ formInputSx, summary, isDraftGenerated, isSummaryAp
         sx={{
           ...formInputSx,
         }}
-        inputProps={{
-          "aria-label": "AI 추천 한 줄 요약",
+        slotProps={{
+          input: {
+            "aria-label": "AI 추천 한 줄 요약",
+          },
         }}
       />
 
