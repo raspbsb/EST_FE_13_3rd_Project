@@ -23,6 +23,15 @@ import "../components/PortfolioEditor/PortfolioEditor.css";
 
 // Utils
 import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
+import { createPortfolioPayload } from "../utils/portfolioPayload";
+import {
+  createEmptyFormErrors,
+  getFirstFormErrorMessage,
+  hasFormErrors,
+  validateAiFormFieldErrors,
+  validateDraftGuideFieldErrors,
+  validateSubmitFieldErrors,
+} from "../utils/portfolioValidation";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -200,6 +209,9 @@ export default function PortfolioEditor({ data }) {
   // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
 
+  // 현재 적용된 임시저장본 Id를 저장해두고 제출 시 자동 삭제
+  const [appliedDraftId, setAppliedDraftId] = useState(null);
+
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
   // deploy_url, repository_url, project_type, team_size, author_role, environment, is_public, categories, tech_stacks, images
   const [formData, setFormData] = useState({
@@ -251,6 +263,11 @@ export default function PortfolioEditor({ data }) {
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
+  // 분석/초안/제출 검증 이후 라벨 오른쪽에 표시할 필드별 피드백 상태
+  const [formErrors, setFormErrors] = useState(createEmptyFormErrors);
+  // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
+  const [formValidationMode, setFormValidationMode] = useState("");
+
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
     const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
@@ -265,16 +282,40 @@ export default function PortfolioEditor({ data }) {
     }
   }, []);
 
+  // 사용자가 한 번 검증을 실행한 뒤에는 같은 검증 기준으로 입력 변경마다 라벨 피드백을 갱신
+  useEffect(() => {
+    if (!formValidationMode) return;
+
+    const validatorByMode = {
+      analysis: validateAiFormFieldErrors,
+      draft: validateDraftGuideFieldErrors,
+      submit: validateSubmitFieldErrors,
+    };
+
+    setFormErrors(validatorByMode[formValidationMode](formData));
+  }, [formData, formValidationMode]);
+
   // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
   const handleSubmit = useCallback(
     e => {
       e.preventDefault();
 
-      console.log({
+      const nextErrors = validateSubmitFieldErrors(formData);
+      setFormValidationMode("submit");
+      setFormErrors(nextErrors);
+
+      if (hasFormErrors(nextErrors)) {
+        alert(getFirstFormErrorMessage(nextErrors));
+        return;
+      }
+
+      const payload = createPortfolioPayload({
         formData,
         aiAnalysisResult,
         draftGuide,
       });
+
+      console.log(payload);
     },
     [formData, aiAnalysisResult, draftGuide],
   );
@@ -297,15 +338,33 @@ export default function PortfolioEditor({ data }) {
 
   // 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록하는 함수
   const handleCompleteAiAnalysis = useCallback(() => {
+    const nextErrors = validateAiFormFieldErrors(formData);
+    setFormValidationMode("analysis");
+    setFormErrors(nextErrors);
+
+    if (hasFormErrors(nextErrors)) {
+      alert(getFirstFormErrorMessage(nextErrors));
+      return;
+    }
+
     setAiAnalysisResult(prev => ({
       ...prev,
       ...developmentAiAnalysisResult,
       analyzedAt: formatEditorTimestamp(new Date()),
     }));
-  }, []);
+  }, [formData]);
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
   const handleGenerateDraftGuide = useCallback(() => {
+    const nextErrors = validateDraftGuideFieldErrors(formData);
+    setFormValidationMode("draft");
+    setFormErrors(nextErrors);
+
+    if (hasFormErrors(nextErrors)) {
+      alert(getFirstFormErrorMessage(nextErrors));
+      return;
+    }
+
     setDraftGuide(prev => ({
       ...prev,
       originalDescription: formData.description,
@@ -315,7 +374,7 @@ export default function PortfolioEditor({ data }) {
       appliedDescriptionSource: "current",
       isSummaryApplied: false,
     }));
-  }, [formData.description]);
+  }, [formData]);
 
   // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
   const handleApplyCurrentDescription = useCallback(() => {
@@ -344,26 +403,19 @@ export default function PortfolioEditor({ data }) {
   }, [draftGuide.aiDraftDescription]);
 
   // AI 추천 한 줄 요약 미리보기 입력값을 draftGuide 상태에만 반영하고 적용 상태를 해제하는 함수
-  const handleDraftSummaryChange = useCallback(e => {
-    setDraftGuide(prev => ({
-      ...prev,
-      aiShortSummary: e.target.value,
-      isSummaryApplied: false,
-    }));
-  }, []);
-
   // AI 추천 한 줄 요약 미리보기 값을 실제 formData.summary에 적용하는 함수
-  const handleApplyDraftSummary = useCallback(() => {
+  const handleApplyDraftSummary = useCallback(nextSummary => {
     setFormData(prev => ({
       ...prev,
-      summary: draftGuide.aiShortSummary,
+      summary: nextSummary,
     }));
 
     setDraftGuide(prev => ({
       ...prev,
+      aiShortSummary: nextSummary,
       isSummaryApplied: true,
     }));
-  }, [draftGuide.aiShortSummary]);
+  }, []);
 
   // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
   const handleSaveDraft = useCallback(() => {
@@ -389,6 +441,7 @@ export default function PortfolioEditor({ data }) {
       return nextDrafts;
     });
     alert("임시저장되었습니다.");
+    setAppliedDraftId(nextDraft.id);
   }, [formData, aiAnalysisResult, draftGuide]);
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
@@ -396,7 +449,13 @@ export default function PortfolioEditor({ data }) {
     draftId => {
       const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
-      if (!selectedDraft) return;
+      if (!selectedDraft) return false;
+
+      const shouldApply = confirm(
+        "현재 작성 중인 내용이 선택한 임시저장 내용으로 바뀝니다.\n기존에 작성 중이던 내용은 사라질 수 있습니다.\n이 저장본을 불러올까요?",
+      );
+
+      if (!shouldApply) return false;
 
       setFormData(prev => ({
         ...prev,
@@ -411,6 +470,10 @@ export default function PortfolioEditor({ data }) {
       if (selectedDraft.draftGuide) {
         setDraftGuide(selectedDraft.draftGuide);
       }
+
+      setAppliedDraftId(draftId);
+
+      return true;
     },
     [temporaryDrafts],
   );
@@ -437,15 +500,22 @@ export default function PortfolioEditor({ data }) {
   }, []);
 
   // 선택한 임시저장 데이터를 목록과 localStorage에서 삭제하는 함수
-  const handleDeleteDraft = useCallback(draftId => {
-    setTemporaryDrafts(prev => {
-      const nextDrafts = prev.filter(draft => draft.id !== draftId);
+  const handleDeleteDraft = useCallback(
+    draftId => {
+      setTemporaryDrafts(prev => {
+        const nextDrafts = prev.filter(draft => draft.id !== draftId);
 
-      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+        saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
 
-      return nextDrafts;
-    });
-  }, []);
+        return nextDrafts;
+      });
+
+      if (appliedDraftId === draftId) {
+        setAppliedDraftId(null);
+      }
+    },
+    [appliedDraftId],
+  );
 
   // 카테고리 칩의 삭제 버튼을 클릭하면 카테고리 배열에서 해당 카테고리를 삭제하는 함수
   const handleDeleteCategory = useCallback(categoryValue => {
@@ -698,7 +768,7 @@ export default function PortfolioEditor({ data }) {
           onDeleteDraft={handleDeleteDraft}
         />
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <Stack spacing={4} sx={{ pb: 0 }}>
             <Box
               sx={{
@@ -720,6 +790,7 @@ export default function PortfolioEditor({ data }) {
                   authorRole={formData.author_role}
                   repositoryUrl={formData.repository_url}
                   description={formData.description}
+                  formErrors={formErrors}
                   handleFormChange={handleFormChange}
                 />
                 <GithubAiAnalysisSection
@@ -755,6 +826,7 @@ export default function PortfolioEditor({ data }) {
                   handleDeleteTechStack={handleDeleteTechStack}
                   maxCategoryCount={MAX_CATEGORY_COUNT}
                   maxTechStackCount={MAX_TECH_STACK_COUNT}
+                  formErrors={formErrors}
                 />
               </Stack>
             </Box>
@@ -767,7 +839,6 @@ export default function PortfolioEditor({ data }) {
               onGenerateDraftGuide={handleGenerateDraftGuide}
               onApplyCurrentDescription={handleApplyCurrentDescription}
               onApplyDraftDescription={handleApplyDraftDescription}
-              onDraftSummaryChange={handleDraftSummaryChange}
               onApplyDraftSummary={handleApplyDraftSummary}
             />
             <EditorActionBar

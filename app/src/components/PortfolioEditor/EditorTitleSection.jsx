@@ -41,8 +41,11 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
   };
 
   const handleApplySelectedDraft = draftId => {
-    onApplyDraft(draftId);
-    handleCloseDraftList();
+    const didApply = onApplyDraft(draftId);
+
+    if (didApply) {
+      handleCloseDraftList();
+    }
   };
 
   const handleDeleteSelectedDraft = draftId => {

@@ -27,6 +27,16 @@ import PortfolioMetaChip from "./PortfolioMetaChip";
 const selectableCategoryOptions = categoryOptions.filter(option => option.value !== "search-web");
 const selectableTechStackOptions = techStackOptions;
 const filterTechStackOptions = createFilterOptions();
+const selectMenuProps = {
+  disableScrollLock: true,
+  slotProps: {
+    root: {
+      sx: {
+        zIndex: 1200,
+      },
+    },
+  },
+};
 
 function renderSelectMenuItems(options) {
   return options.map(option => (
@@ -52,6 +62,7 @@ function ProjectMetaSection({
   handleDeleteTechStack,
   maxCategoryCount,
   maxTechStackCount,
+  formErrors = {},
 }) {
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
@@ -115,6 +126,7 @@ function ProjectMetaSection({
               size="small"
               value={projectType}
               onChange={handleFormChange}
+              MenuProps={selectMenuProps}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationTypeOptions)}
@@ -129,6 +141,7 @@ function ProjectMetaSection({
               size="small"
               value={teamSize}
               onChange={handleFormChange}
+              MenuProps={selectMenuProps}
               sx={formInputSx}
             >
               {renderSelectMenuItems(participationScaleOptions)}
@@ -144,6 +157,7 @@ function ProjectMetaSection({
             size="small"
             value={environment}
             onChange={handleFormChange}
+            MenuProps={selectMenuProps}
             sx={formInputSx}
           >
             {renderSelectMenuItems(progressEnvironmentOptions)}
@@ -165,7 +179,9 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
-              className="portfolio-editor-meta-limit-text"
+              className={`portfolio-editor-meta-limit-text${
+                formErrors.categories ? " portfolio-editor-meta-limit-text--error" : ""
+              }`}
               component="span"
               sx={{
                 fontSize: 10,
@@ -175,7 +191,7 @@ function ProjectMetaSection({
                 whiteSpace: "nowrap",
               }}
             >
-              최소 1, 최대 5
+              {formErrors.categories || "최소 1, 최대 5"}
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
@@ -221,7 +237,9 @@ function ProjectMetaSection({
             </FieldLabel>
 
             <Text
-              className="portfolio-editor-meta-limit-text"
+              className={`portfolio-editor-meta-limit-text${
+                formErrors.tech_stacks ? " portfolio-editor-meta-limit-text--error" : ""
+              }`}
               component="span"
               sx={{
                 fontSize: 10,
@@ -231,7 +249,7 @@ function ProjectMetaSection({
                 whiteSpace: "nowrap",
               }}
             >
-              최소 1, 최대 8
+              {formErrors.tech_stacks || "최소 1, 최대 8"}
             </Text>
           </Box>
           <Stack direction="row" className="portfolio-editor-meta-chip-list" useFlexGap sx={stackSx}>
