@@ -2,10 +2,10 @@
 
 import { supabase } from "../utils/supabase";
 
-// 포트폴리오 버킷 지정
+// 포트폴리오 이미지 파일을 저장하는 Supabase Storage 버킷 이름
 const PORTFOLIO_IMAGE_BUCKET = "portfolio_images";
 
-// 현재 로그인한 Supabase Auth 사용자를 조회하는 함수
+// 현재 브라우저 세션의 Supabase Auth 사용자를 조회하고, 로그인 상태가 아니면 null을 반환
 export const getAuthenticatedUser = async () => {
   const { data: authData, error } = await supabase.auth.getUser();
 
@@ -14,7 +14,7 @@ export const getAuthenticatedUser = async () => {
   return authData.user;
 };
 
-// portfolios 테이블에 기본 포트폴리오 정보를 저장하고 생성된 project_id를 반환하는 함수
+// portfolios 테이블에 기본 정보를 먼저 저장하고, 하위 테이블 연결에 사용할 project_id를 반환
 const insertPortfolio = async ({ authorId, portfolio }) => {
   const { data, error } = await supabase
     .from("portfolios")
@@ -30,7 +30,7 @@ const insertPortfolio = async ({ authorId, portfolio }) => {
   return data.project_id;
 };
 
-// 선택된 카테고리 목록을 포트폴리오 연결 테이블에 저장하는 함수
+// 선택된 카테고리 칩 목록을 portfolio_categories 정규화 테이블에 일괄 저장
 const insertPortfolioCategories = async ({ projectId, categories }) => {
   if (categories.length === 0) return;
 
@@ -44,7 +44,7 @@ const insertPortfolioCategories = async ({ projectId, categories }) => {
   if (error) throw error;
 };
 
-// 선택된 기술 스택 목록을 포트폴리오 연결 테이블에 저장하는 함수
+// 선택된 기술 스택 칩 목록을 portfolio_tech_stacks 정규화 테이블에 일괄 저장
 const insertPortfolioTechStacks = async ({ projectId, techStacks }) => {
   if (techStacks.length === 0) return;
 
@@ -58,7 +58,7 @@ const insertPortfolioTechStacks = async ({ projectId, techStacks }) => {
   if (error) throw error;
 };
 
-// 첨부 이미지를 Supabase Storage에 업로드하고 portfolio_images 테이블에 이미지 메타데이터를 저장하는 함수
+// 첨부 파일을 Storage에 업로드하고, 렌더링에 필요한 경로/정렬/대표 여부를 portfolio_images에 저장
 const insertPortfolioImages = async ({ userId, projectId, images }) => {
   if (images.length === 0) return;
 
@@ -86,7 +86,7 @@ const insertPortfolioImages = async ({ userId, projectId, images }) => {
   if (error) throw error;
 };
 
-// AI 분석 결과와 초안 생성 데이터를 portfolio_ai_created 테이블에 저장하는 함수
+// AI 분석 결과와 초안 생성 결과를 portfolio_ai_created 테이블에 저장
 const insertPortfolioAiCreated = async ({ projectId, aiAnalysis, draftGuide }) => {
   const { error } = await supabase.from("portfolio_ai_created").insert({
     project_id: projectId,
@@ -108,7 +108,7 @@ const insertPortfolioAiCreated = async ({ projectId, aiAnalysis, draftGuide }) =
   if (error) throw error;
 };
 
-// payload를 기반으로 포트폴리오 등록에 필요한 Supabase insert를 순서대로 실행하는 함수
+// 인증 사용자 확인 후 portfolios와 하위 정규화 테이블 등록 작업을 순서대로 실행
 export const createPortfolio = async ({ payload }) => {
   const user = await getAuthenticatedUser();
 

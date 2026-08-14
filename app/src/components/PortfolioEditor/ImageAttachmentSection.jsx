@@ -22,10 +22,12 @@ function ImageAttachmentSection({
 }) {
   const fileInputRef = useRef(null);
 
+  // 대표 이미지는 큰 미리보기로 표시하고, 나머지 이미지만 드래그 정렬 대상으로 사용한다.
   const sortedImages = [...images].sort((a, b) => a.order - b.order);
   const primaryImage = sortedImages.find(image => image.isThumbnail) ?? sortedImages[0];
   const secondaryImages = sortedImages.filter(image => image.id !== primaryImage?.id);
 
+  // dnd-kit 드래그 입력 설정. 포인터 이동 거리가 8px 이상일 때 드래그를 시작한다.
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -36,8 +38,10 @@ function ImageAttachmentSection({
 
   const isImageLimitReached = images.length >= 5;
 
+  // 현재 첨부된 이미지 총 용량 표시용 값
   const totalImageSize = images.reduce((sum, image) => sum + image.size, 0);
 
+  // byte 단위 파일 크기를 화면 표시용 KB/MB 문자열로 변환한다.
   const formatFileSize = size => {
     if (size >= 1024 * 1024) {
       return `${(size / 1024 / 1024).toFixed(1)}MB`;
@@ -46,6 +50,7 @@ function ImageAttachmentSection({
     return `${Math.ceil(size / 1024)}KB`;
   };
 
+  // 드래그가 끝났을 때 dnd-kit의 active/over id를 부모 정렬 함수에 전달한다.
   const handleDragEnd = e => {
     const { active, over } = e;
 

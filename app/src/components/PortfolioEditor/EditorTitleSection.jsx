@@ -28,18 +28,23 @@ const formatDraftSavedAt = savedAt => {
 };
 
 function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDraft }) {
+  // 전체 임시저장 목록 모달의 열림 상태
   const [isDraftListOpen, setIsDraftListOpen] = useState(false);
+  // 임시저장 목록은 최신순으로 저장되므로 첫 번째 항목을 최신 저장본으로 사용
   const latestDraft = temporaryDrafts[0];
   const latestSavedAt = formatDraftSavedAt(latestDraft?.savedAt);
 
+  // 전체 저장 목록 확인 버튼을 누르면 임시저장 목록 모달을 연다.
   const handleOpenDraftList = () => {
     setIsDraftListOpen(true);
   };
 
+  // 모달 닫기 버튼 또는 바깥 클릭으로 임시저장 목록 모달을 닫는다.
   const handleCloseDraftList = () => {
     setIsDraftListOpen(false);
   };
 
+  // 저장본 적용이 성공하면 모달을 닫고, 취소되면 그대로 둔다.
   const handleApplySelectedDraft = draftId => {
     const didApply = onApplyDraft(draftId);
 
@@ -48,6 +53,7 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
     }
   };
 
+  // 삭제 전 확인창을 띄운 뒤 선택한 임시저장본만 삭제한다.
   const handleDeleteSelectedDraft = draftId => {
     if (!confirm("이 임시저장 데이터를 삭제할까요?")) return;
 

@@ -17,6 +17,7 @@ function BasicInfoTextField({
   minRows,
   onValueCommit,
 }) {
+  // 입력 중인 텍스트를 로컬 상태로 들고 있다가 blur 시점에만 부모 formData로 반영
   const [localValue, setLocalValue] = useState(value);
   const feedbackId = feedback ? `${id}-feedback` : undefined;
 
@@ -24,6 +25,7 @@ function BasicInfoTextField({
     setLocalValue(value);
   }, [value]);
 
+  // 사용자가 입력하는 동안에는 이 컴포넌트 내부 값만 갱신해 에디터 전체 리렌더링을 줄인다.
   const handleChange = useCallback(
     e => {
       setLocalValue(e.target.value);
@@ -31,6 +33,7 @@ function BasicInfoTextField({
     [],
   );
 
+  // 입력창에서 포커스가 빠질 때 최종 값을 부모 상태에 반영한다.
   const handleBlur = useCallback(
     () => {
       onValueCommit(name, localValue);
