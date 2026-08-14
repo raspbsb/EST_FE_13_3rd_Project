@@ -1,44 +1,44 @@
-import { supabase } from '../../utils/supabase';
-import { useState, useEffect } from 'react';
-import TagChip from '../TagChip';
+import { supabase } from "../../utils/supabase";
+import { useState, useEffect } from "react";
+import TagChip from "../TagChip";
 
-import { CloseIcon, LockIcon } from '../../lib/icons';
+import { CloseIcon, LockIcon } from "../../lib/icons";
 
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import Text from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import FormLabel from '@mui/material/FormLabel';
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import Text from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import FormLabel from "@mui/material/FormLabel";
 
 export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   //Edit dialog form 관리
   const [form, setForm] = useState({
-    user_name: '',
-    user_category: '',
-    bio: '',
+    user_name: "",
+    user_category: "",
+    bio: "",
     skills: [],
-    email: '',
-    github_url: '',
-    url2: '',
+    email: "",
+    github_url: "",
+    url2: "",
     is_public: true,
   });
 
   // 기술 스택 상태관리
-  const [skillInput, setSkillInput] = useState('');
+  const [skillInput, setSkillInput] = useState("");
 
   useEffect(() => {
     if (open) {
@@ -48,11 +48,11 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         bio: profile.bio,
         skills: profile.skills ?? [],
         email: profile.email,
-        github_url: profile.github_url ?? '',
-        url2: profile.personal_url ?? '',
+        github_url: profile.github_url ?? "",
+        url2: profile.url2 ?? "",
         is_public: profile.is_public,
       });
-      setSkillInput('');
+      setSkillInput("");
     }
   }, [open, profile]);
 
@@ -63,7 +63,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
 
   //엔터 누르면 chip 추가
   const handleSkillKeyDown = e => {
-    if (e.key !== 'Enter') return;
+    if (e.key !== "Enter") return;
 
     e.preventDefault();
 
@@ -73,7 +73,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
 
     // 중복 방지
     if (form.skills.includes(value)) {
-      setSkillInput('');
+      setSkillInput("");
       return;
     }
 
@@ -82,7 +82,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
       skills: [...prev.skills, value],
     }));
 
-    setSkillInput('');
+    setSkillInput("");
   };
 
   //chip 삭제
@@ -126,12 +126,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         throw userError;
       }
       if (!user) {
-        alert('로그인이 필요합니다.');
+        alert("로그인이 필요합니다.");
         return;
       }
       // Supabase 업데이트
       const { data, error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           user_name: form.user_name,
           user_category: form.user_category,
@@ -139,25 +139,25 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
           skills: form.skills,
           email: form.email,
           github_url: form.github_url,
-          url2: form.profile.personal_url,
+          url2: form.url2,
           is_public: form.is_public,
         })
-        .eq('user_id', user.id)
+        .eq("user_id", user.id)
         .select()
         .single();
 
       if (error) {
         throw error;
       }
-      console.log('프로필 수정 완료:', data);
+      console.log("프로필 수정 완료:", data);
 
       // DB 수정 성공 후 화면도 변경
       onProfileUpdate(data);
 
       onClose();
     } catch (error) {
-      console.error('프로필 수정 실패:', error);
-      alert('프로필 수정에 실패했습니다.');
+      console.error("프로필 수정 실패:", error);
+      alert("프로필 수정에 실패했습니다.");
     }
   };
 
@@ -172,12 +172,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
     >
       <DialogTitle
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        {'프로필 수정'}
+        {"프로필 수정"}
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -226,7 +226,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                   },
                 }}
               />
-              <Text variant="caption" align="right" sx={{ display: 'block' }}>
+              <Text variant="caption" align="right" sx={{ display: "block" }}>
                 {form.bio.length}/100
               </Text>
             </Box>
@@ -241,7 +241,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 onChange={handleSkillChange}
                 onKeyDown={handleSkillKeyDown}
               />
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ pt: '10px' }}>
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ pt: "10px" }}>
                 {form.skills.map(skill => (
                   <TagChip key={skill} label={skill} onDelete={() => handleDeleteSkill(skill)} />
                 ))}
@@ -272,7 +272,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 />
                 <TextField
                   label="사이트2"
-                  name="personal_url"
+                  name="url2"
                   value={form.url2}
                   onChange={handleChange}
                   placeholder="사이트를 입력해주세요."
@@ -285,12 +285,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
             <Box>
               <Box
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '56px',
-                  bgcolor: '#fff',
-                  border: '1px solid #f0f0f0',
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "56px",
+                  bgcolor: "#fff",
+                  border: "1px solid #f0f0f0",
                 }}
               >
                 <FormControlLabel
