@@ -10,7 +10,6 @@ import MuiLink from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { resetPortfolio, fetchPortfolio, fetchOtherPortfolios } from "../components/Portfolio/portfolioSlice";
-import { fetchUser } from "../store/userSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
 export default function Portfolio() {
@@ -18,9 +17,6 @@ export default function Portfolio() {
   const dispatch = useDispatch();
   const { data, status, error, otherPortfolios } = useSelector(state => state.portfolio);
 
-  useEffect(() => {
-    dispatch(fetchUser());
-  }, []);
   useEffect(() => {
     dispatch(fetchPortfolio(id));
     return () => {
