@@ -54,11 +54,14 @@ export default function App() {
           <Route index element={<Profile mode="mypage" />} />
           <Route path="projects" element={<MyProjects mode="mypage" />} />
           <Route path="collections" element={<Collections />} />
+          <Route path="collections/:collectionId" element={<MyProjects mode="collection" />} />
         </Route>
         {/* Public Profile */}
         <Route path="/profiles/:userId" element={<PublicProfileLayout />}>
           <Route index element={<MyProjects mode="public" />} />
         </Route>
+        {/* 테스트용 임시 라우트 */}
+        <Route path="/test/collections/:userId" element={<Collections />} />
 
         <Route
           path="/login"

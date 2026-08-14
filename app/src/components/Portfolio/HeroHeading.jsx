@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
@@ -9,15 +10,31 @@ import Box from "@mui/material/Box";
 import { EditIcon } from "../../lib/icons";
 
 export default function HeroHeading({}) {
+  const [user, setUser] = useState(null);
   const { data, status } = useSelector(state => state.portfolio);
+
+  async function fetchUser() {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      console.warn(error);
+      return;
+    }
+    console.log(user);
+    setUser(user);
+  }
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <>
       <Text component={"h1"} variant="h3" sx={{ fontWeight: "700", minWidth: "0px" }}>
         {data?.title ?? "제목 없음"}
       </Text>
-      {
-        // 사용자가 작성자일때만 표시
+      {data?.author_id === user?.id && (
         <Button
           component={Link}
           to={`/portfolios/${data?.project_id}/edit`}
@@ -33,7 +50,7 @@ export default function HeroHeading({}) {
         >
           수정하기
         </Button>
-      }
+      )}
       <Box
         sx={{
           display: "flex",

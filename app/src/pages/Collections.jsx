@@ -1,54 +1,153 @@
+import { supabase } from "../utils/supabase";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
 import BookmarkCard from "../components/mypage/BookmarkCard";
+import CollectionManageDialog from "../components/mypage/CollectionManageDialog";
 
 import styles from "./Collections.module.css";
 
-// 임시 데이터
-const collections = [
-  {
-    id: 1,
-    title: "Collection title",
-    total: 12,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-  {
-    id: 2,
-    title: "Collection title",
-    total: 8,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-  {
-    id: 3,
-    title: "Collection title",
-    total: 15,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-  {
-    id: 4,
-    title: "Collection title",
-    total: 6,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-  {
-    id: 5,
-    title: "Collection title",
-    total: 10,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-  {
-    id: 6,
-    title: "Collection title",
-    total: 4,
-    thumbnail: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=400",
-  },
-];
-
 export default function Collections() {
-  const handleCollectionClick = id => {
-    console.log("컬렉션 클릭:", id);
+  const { userId } = useParams();
+  const navigate = useNavigate();
+
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  //컬렉션 관리 dialog
+  const [openManage, setOpenManage] = useState(false);
+
+  //임시
+  const targetUserId = userId || "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe";
+
+  // collections DB 불러오기
+  const fetchCollections = async () => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("collections")
+      .select(
+        `
+        collection_id,
+        title,
+        created_at,
+        bookmarks (
+          bookmark_id,
+          project_id,
+          created_at,
+          portfolios (
+            project_id,
+            portfolio_images (
+              image_path,
+              is_thumbnail
+            )
+          )
+        )
+      `,
+      )
+      .eq("owner_id", targetUserId);
+
+    if (error) {
+      console.error("컬렉션 조회 실패:", error);
+      setLoading(false);
+      return;
+    }
+
+    console.log("컬렉션:", data);
+
+    const formattedCollections = data.map(collection => {
+      // 가장 최근에 북마크한 순서
+      const sortedBookmarks = [...collection.bookmarks].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const latestBookmark = sortedBookmarks[0];
+
+      // 가장 최근 북마크 한 프로젝트의 썸네일
+      const thumbnail =
+        latestBookmark?.portfolios?.portfolio_images?.find(image => image.is_thumbnail)?.image_path ?? null;
+
+      return {
+        id: collection.collection_id,
+        title: collection.title,
+        total: collection.bookmarks.length,
+        thumbnail,
+      };
+    });
+
+    setCollections(formattedCollections);
+    setLoading(false);
+  };
+
+  // 컴포넌트가 처음 렌더링될 때 컬렉션 조회
+  useEffect(() => {
+    fetchCollections();
+  }, [userId]);
+
+  // 컬렉션 상세페이지로 이동
+  const handleCollectionClick = collectionId => {
+    navigate(`/mypage/collections/${collectionId}`);
+  };
+
+  // 컬렉션 생성 insert 함수 ( 8개로 생성 제한)
+  const handleCreateCollection = async title => {
+    if (collections.length >= 8) {
+      console.warn("컬렉션은 최대 8개까지 생성할 수 있습니다.");
+      return;
+    }
+
+    const { error } = await supabase.from("collections").insert({
+      owner_id: "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe", // auth 연결되면 user.id 로 변경
+      title,
+    });
+
+    if (error) {
+      console.error("컬렉션 생성 실패:", error);
+      return;
+    }
+
+    console.log("컬렉션 생성 성공");
+
+    // 목록 다시 조회
+    await fetchCollections();
+  };
+
+  // 컬렉션 update 함수
+  const handleEditCollection = async (collectionId, title) => {
+    const { error } = await supabase
+      .from("collections")
+      .update({
+        title,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("collection_id", collectionId);
+
+    if (error) {
+      console.error("컬렉션 이름 수정 실패:", error);
+      return;
+    }
+
+    console.log("컬렉션 이름 수정 성공");
+
+    await fetchCollections();
+  };
+
+  // 컬렉션 delete 함수
+  const handleDeleteCollection = async collectionId => {
+    const { error } = await supabase.from("collections").delete().eq("collection_id", collectionId);
+
+    if (error) {
+      console.error("컬렉션 삭제 실패:", error);
+      return;
+    }
+
+    console.log("컬렉션 삭제 성공");
+
+    await fetchCollections();
   };
 
   return (
@@ -58,13 +157,23 @@ export default function Collections() {
           북마크 컬렉션
         </Text>
 
-        <Link component="button" underline="hover" variant="subtitle2">
-          + 컬렉션 관리
+        <Link component="button" underline="hover" variant="subtitle2" onClick={() => setOpenManage(true)}>
+          +컬렉션 관리
         </Link>
+        <CollectionManageDialog
+          open={openManage}
+          onClose={() => setOpenManage(false)}
+          collections={collections}
+          onCreate={handleCreateCollection}
+          onEdit={handleEditCollection}
+          onDelete={handleDeleteCollection}
+        />
       </Box>
 
       {/* 컬렉션 목록 */}
-      {collections.length === 0 ? (
+      {loading ? (
+        <Text>컬렉션을 불러오는 중...</Text>
+      ) : collections.length === 0 ? (
         <Box className={styles.empty}>
           <Text variant="body1">북마크 컬렉션을 생성해주세요.</Text>
         </Box>
@@ -75,6 +184,7 @@ export default function Collections() {
               key={collection.id}
               title={collection.title}
               total={collection.total}
+              thumbnail={collection.thumbnail}
               handleClick={() => handleCollectionClick(collection.id)}
             />
           ))}

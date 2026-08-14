@@ -6,19 +6,26 @@ export const fetchPortfolio = createAsyncThunk("portfolio", async portfolioId =>
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_ai_created(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*), bookmarks(*), portfolio_ai_created(*)",
     )
     .eq("project_id", portfolioId)
     .maybeSingle();
+  return result;
+});
+export const fetchLikes = createAsyncThunk("portfolio/likes", async portfolioId => {
+  const result = await supabase.schema("public").from("portfolio_likes").select("*").eq("project_id", portfolioId);
   return result;
 });
 export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", async ({ id, authorId }) => {
   const result = await supabase
     .schema("public")
     .from("portfolios")
-    .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
-      count: "exact",
-    })
+    .select(
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
+      {
+        count: "exact",
+      },
+    )
     .eq("author_id", authorId)
     .neq("project_id", id)
     .order("created_at", { ascending: false })
@@ -57,29 +64,37 @@ const portfolioSlice = createSlice({
       state.status = "loading";
     });
     builder.addCase(fetchPortfolio.fulfilled, (state, action) => {
-      state.data = action.payload.data;
-      state.status = action.payload ? "succeeded" : "notFound";
-      state.data?.portfolio_images.sort((a, b) => a.display_order - b.display_order);
-      console.log(state.data);
+      const { data, error } = action.payload;
+      state.error = error;
+      state.status = error ? "failed" : data ? "succeeded" : "notFound";
+      state.data = data;
+      error ? console.warn(error) : console.log(state.data);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
       state.status = "failed";
-      state.error = action.payload.error ?? action.error;
+      state.error = action.error;
       console.error(state.error);
+    });
+
+    builder.addCase(fetchLikes.fulfilled, (state, action) => {
+      const { data, error } = action.payload;
+      error ? console.warn(error) : (state.data.portfolio_likes = data);
     });
 
     builder.addCase(fetchOtherPortfolios.pending, (state, action) => {
       state.otherPortfolios.status = "loading";
     });
     builder.addCase(fetchOtherPortfolios.fulfilled, (state, action) => {
-      state.otherPortfolios.data = action.payload.data;
-      state.otherPortfolios.status = action.payload.count > 0 ? "succeeded" : "notFound";
-      state.otherPortfolios.count = action.payload.count;
-      console.log(state.otherPortfolios.data);
+      const { data, error, count } = action.payload;
+      state.error = error;
+      state.otherPortfolios.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
+      state.otherPortfolios.data = data ?? [];
+      state.otherPortfolios.count = count ?? 0;
+      error ? console.warn(error) : console.log(state.data);
     });
     builder.addCase(fetchOtherPortfolios.rejected, (state, action) => {
       state.otherPortfolios.status = "failed";
-      state.otherPortfolios.error = action.payload.error ?? action.error;
+      state.otherPortfolios.error = action.error;
       console.error(state.otherPortfolios.error);
     });
   },
