@@ -12,6 +12,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
+import Text from "@mui/material/Typography";
 
 import { CloseIcon } from "../../lib/icons";
 
@@ -119,9 +120,24 @@ export default function ContactDialog({ open, onClose, contacts = [], onMessageC
           </Box>
 
           <List disablePadding="true">
-            {filteredContacts.map(contact => (
-              <ContactCard key={contact.id} item={contact} onMessageClick={onMessageClick} />
-            ))}
+            {filteredContacts.length > 0 ? (
+              filteredContacts.map(contact => (
+                <ContactCard key={contact.id} item={contact} onMessageClick={onMessageClick} />
+              ))
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  minHeight: 200,
+                }}
+              >
+                <Text component="p" variant="body2" color="text.secondary">
+                  {filter === "new" ? "새로운 알람이 없습니다." : "관심 및 연락 내역이 없습니다."}
+                </Text>
+              </Box>
+            )}
           </List>
         </DialogContent>
       </Dialog>
