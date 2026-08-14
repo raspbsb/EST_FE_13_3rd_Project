@@ -28,7 +28,28 @@ export default function ContactDialog({ open, onClose, contacts = [], onMessageC
     }
   };
 
-  const filteredContacts = filter === "new" ? contacts.filter(contact => !contact.isRead) : contacts;
+  const filteredContacts =
+    filter === "new"
+      ? contacts.filter(contact => {
+          // 메시지 -> 읽지 않은 메시지만 New
+          if (contact.type === "message") {
+            return !contact.isRead;
+          }
+
+          // 좋아요 -> 알람 생성 후 7일 이내만 New
+          if (contact.type === "like") {
+            const createdAt = new Date(contact.createdAtRaw);
+            const now = new Date();
+
+            const diff = now - createdAt;
+            const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+            return diff < sevenDays;
+          }
+
+          return false;
+        })
+      : contacts;
 
   return (
     <>
