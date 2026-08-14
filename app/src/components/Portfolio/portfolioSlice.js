@@ -68,7 +68,7 @@ const portfolioSlice = createSlice({
       state.error = error;
       state.status = error ? "failed" : data ? "succeeded" : "notFound";
       state.data = data;
-      error ? console.warn(error) : console.log(state.data);
+      if (error) console.warn(error);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
       state.status = "failed";
@@ -90,7 +90,7 @@ const portfolioSlice = createSlice({
       state.otherPortfolios.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
       state.otherPortfolios.data = data ?? [];
       state.otherPortfolios.count = count ?? 0;
-      error ? console.warn(error) : console.log(state.data);
+      if (error) console.warn(error);
     });
     builder.addCase(fetchOtherPortfolios.rejected, (state, action) => {
       state.otherPortfolios.status = "failed";
