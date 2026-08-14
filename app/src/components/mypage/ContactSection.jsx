@@ -131,7 +131,12 @@ export default function ContactSection() {
           View all
         </Link>
         {/* Dialog 컴포넌트*/}
-        <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
+        <ContactDialog
+          open={openContact}
+          onClose={() => setOpenContact(false)}
+          contacts={notifications}
+          onMessageClick={handleMessageClick}
+        />
       </Box>
       <List>
         {notifications.map(item => (
