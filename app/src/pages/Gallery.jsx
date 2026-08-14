@@ -1,18 +1,14 @@
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchFeaturedPortfolios,
-  fetchMorePortfolios,
-  fetchPortfolios,
-  resetGallery,
-  resetGalleryAll,
-} from "../components/Gallery/gallerySlice";
-import { useState, useEffect } from "react";
+import { fetchFeaturedPortfolios, fetchPortfolios, fetchMorePortfolios } from "../components/Gallery/gallerySlice";
+import { techStackOptions } from "../constants/portfolioOptions";
+
 import ProjectCard from "../components/ProjectCard";
 import TagChip from "../components/TagChip";
+import Text from "@mui/material/Typography";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Text from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Button from "@mui/material/Button";
@@ -22,114 +18,103 @@ import FormControl from "@mui/material/FormControl";
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from "@mui/icons-material/Search";
 
-const DUMMY_DATA = Array.from({ length: 8 }, (_, i) => ({
-  id: `dummy-${i + 1}`,
-  title: `프로젝트 제목 ${i + 1}`,
-  ai_summary: "AI가 요약한 포트폴리오 설명입니다.",
-  tags: ["React", "AI"],
-  views: 100 + i,
-  likes: 10 + i,
-  created_at: new Date().toISOString(),
-}));
+const normalizeOption = opt => {
+  if (typeof opt === "object" && opt !== null) {
+    return {
+      value: opt.value || opt.label || "",
+      label: opt.label || opt.value || "",
+    };
+  }
+  return { value: String(opt), label: String(opt) };
+};
+
+const formatCardData = item => {
+  if (!item) return {};
+  const base = item.portfolio || item;
+
+  let img = base.image_url || base.imageUrl || base.thumbnail_url || base.cover_image;
+
+  if (!img && Array.isArray(base.portfolio_images) && base.portfolio_images.length > 0) {
+    img = base.portfolio_images[0]?.image_url || base.portfolio_images[0]?.url;
+  }
+
+  return {
+    ...base,
+    image_url: img || "",
+    imageUrl: img || "",
+  };
+};
 
 export default function Gallery() {
-  // const [portfolios, setPortfolios] = useState([]);
-  // const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("latest");
-  // const [visibleCount, setVisibleCount] = useState(8);
+  const [sortBy, setSortBy] = useState("created_at");
+  const { data, status, count, featured } = useSelector(
+    state =>
+      state.gallery || {
+        data: [],
+        status: "idle",
+        count: 0,
+        featured: { data: [], status: "idle" },
+      },
+  );
 
-  const dispatch = useDispatch();
-  const {
-    data: portfolios,
-    status,
-    error,
-    count,
-    featured: { data: featuredPortfolios, status: statusF, error: errorF },
-  } = useSelector(state => state.gallery);
+  const featuredList = featured?.data || [];
+  const featuredStatus = featured?.status || "idle";
 
+  const normalizedTechOptions = (techStackOptions || []).map(normalizeOption);
   useEffect(() => {
     dispatch(fetchFeaturedPortfolios());
-    return () => {
-      dispatch(resetGalleryAll());
-    };
-  }, []);
+  }, [dispatch]);
   useEffect(() => {
-    // handleFetchPortfolios();
-    dispatch(fetchPortfolios({ searchTerm, category, sortBy }));
-    return () => {
-      dispatch(resetGallery());
-    };
-  }, [searchTerm, category, sortBy]);
-
+    dispatch(
+      fetchPortfolios({
+        searchTerm,
+        category: category === "all" ? [] : [category],
+        sortBy,
+        ascending: false,
+      }),
+    );
+  }, [dispatch, searchTerm, category, sortBy]);
   const handleShowMore = () => {
-    // setVisibleCount(prev => prev + 4);
-    fetchMorePortfolios({ searchTerm, category, sortBy, visibleCount: portfolios?.length });
-  };
-  /*
-  const handleFetchPortfolios = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("portfolios")
-        .select(
-          `
-          *,
-          portfolio_images (*),
-          profiles (*)
-        `,
-        )
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      const fetchedList = data && data.length > 0 ? data : [];
-      if (fetchedList.length < 8) {
-        setPortfolios([...fetchedList, ...DUMMY_DATA.slice(0, 8 - fetchedList.length)]);
-      } else {
-        setPortfolios(fetchedList);
-      }
-    } catch (err) {
-      console.error("데이터 로드 실패, 더미 데이터로 대체합니다:", err.message);
-      setPortfolios(DUMMY_DATA);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(
+      fetchMorePortfolios({
+        searchTerm,
+        category: category === "all" ? [] : [category],
+        sortBy,
+        ascending: false,
+        visibleCount: data.length,
+        fetchCount: 4,
+      }),
+    );
   };
 
-  const filteredPortfolios = portfolios.filter(item => {
-    const query = searchTerm.toLowerCase().trim();
-    const titleMatch = item?.title?.toLowerCase().includes(query) || false;
-    const summaryMatch = item?.ai_summary?.toLowerCase().includes(query) || false;
-    const isSearchMatched = !query || titleMatch || summaryMatch;
-    const isCategoryMatched = category === "all" || (item?.tags && item.tags.includes(category));
-
-    return isSearchMatched && isCategoryMatched;
-  });
-
-  const sortedPortfolios = [...filteredPortfolios].sort((a, b) => {
-    if (sortBy === "popular") return (b?.views || 0) - (a?.views || 0);
-    if (sortBy === "likes") return (b?.likes || 0) - (a?.likes || 0);
-    return new Date(b?.created_at) - new Date(a?.created_at);
-  });
-
-  const featuredPortfolios = portfolios.slice(0, 4);
-  const allPortfolios = sortedPortfolios.slice(0, visibleCount);
-*/
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#FFFFFF" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        backgroundColor: "background.paper",
+      }}
+    >
       <Box component="main" sx={{ flexGrow: 1, py: { mobile: 3, tablet: 5, desktop: 8 } }}>
         <Container maxWidth="xl" sx={{ px: { mobile: 2, tablet: 4, desktop: 6 } }}>
           <Box sx={{ mb: { mobile: 4, desktop: 7 } }}>
-            <Text variant="h5" sx={{ fontWeight: 800, mb: 2, fontSize: { mobile: "1.2rem", desktop: "1.5rem" } }}>
+            <Text variant="h5" color="text.primary" sx={{ fontWeight: 800, mb: 2.5 }}>
               추천 포트폴리오
             </Text>
 
-            {statusF === "loading" ? (
+            {featuredStatus === "loading" ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-                <CircularProgress size={30} />
+                <CircularProgress size={32} />
               </Box>
+            ) : featuredStatus === "notFound" || featuredList.length === 0 ? (
+              <Text variant="body2" color="text.secondary">
+                추천 포트폴리오가 없습니다.
+              </Text>
             ) : (
               <Box
                 sx={{
@@ -142,11 +127,17 @@ export default function Gallery() {
                   },
                 }}
               >
-                {featuredPortfolios?.map(item => (
-                  <Box key={`featured-${item.id}`} sx={{ width: "100%" }}>
-                    <ProjectCard portfolio={item} project={item} data={item} />
-                  </Box>
-                ))}
+                {featuredList.map((item, index) => {
+                  const cardItem = formatCardData(item);
+                  return (
+                    <Box
+                      key={cardItem?.id ? `featured-${cardItem.id}` : `featured-idx-${index}`}
+                      sx={{ width: "100%" }}
+                    >
+                      <ProjectCard portfolio={cardItem} project={cardItem} data={cardItem} {...cardItem} />
+                    </Box>
+                  );
+                })}
               </Box>
             )}
           </Box>
@@ -161,7 +152,7 @@ export default function Gallery() {
                 mb: 3,
               }}
             >
-              <Text variant="h5" sx={{ fontWeight: 800, fontSize: { mobile: "1.2rem", desktop: "1.5rem" } }}>
+              <Text variant="h5" color="text.primary" sx={{ fontWeight: 800 }}>
                 전체 포트폴리오
               </Text>
 
@@ -174,13 +165,15 @@ export default function Gallery() {
                 }}
               >
                 <Box sx={{ display: { mobile: "none", desktop: "flex" }, gap: 0.5, mr: 1 }}>
-                  {["React", "Next.js", "AI"].map(tag => (
-                    <Box key={tag} onClick={() => setCategory(category === tag ? "all" : tag)}>
-                      <TagChip label={tag} className={category === tag ? "acitve" : ""} />
+                  {normalizedTechOptions.slice(0, 3).map(tech => (
+                    <Box
+                      key={`chip-${tech.value}`}
+                      onClick={() => setCategory(category === tech.value ? "all" : tech.value)}
+                    >
+                      <TagChip label={tech.label} className={category === tech.value ? "active" : ""} />
                     </Box>
                   ))}
                 </Box>
-
                 <TextField
                   size="small"
                   placeholder="포트폴리오 검색..."
@@ -197,80 +190,71 @@ export default function Gallery() {
                   }}
                   sx={{ width: { mobile: "100%", tablet: "220px" } }}
                 />
-
-                <FormControl size="small" sx={{ minWidth: 110, width: { mobile: "100%", tablet: "auto" } }}>
+                <FormControl size="small" sx={{ minWidth: 130, width: { mobile: "100%", tablet: "auto" } }}>
                   <Select value={category} onChange={e => setCategory(e.target.value)}>
-                    <MenuItem value="all">Category</MenuItem>
-                    <MenuItem value="React">React</MenuItem>
-                    <MenuItem value="Next.js">Next.js</MenuItem>
-                    <MenuItem value="AI">AI</MenuItem>
+                    <MenuItem value="all">전체 기술스택</MenuItem>
+                    {normalizedTechOptions.map(tech => (
+                      <MenuItem key={`opt-${tech.value}`} value={tech.value}>
+                        {tech.label}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
-
-                <FormControl size="small" sx={{ minWidth: 100, width: { mobile: "100%", tablet: "auto" } }}>
+                <FormControl size="small" sx={{ minWidth: 110, width: { mobile: "100%", tablet: "auto" } }}>
                   <Select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                    <MenuItem value="latest">최신순</MenuItem>
-                    <MenuItem value="popular">조회순</MenuItem>
+                    <MenuItem value="created_at">최신순</MenuItem>
+                    <MenuItem value="view_count">조회순</MenuItem>
                     <MenuItem value="likes">좋아요순</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
             </Box>
-
             {status === "loading" ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
                 <CircularProgress />
               </Box>
-            ) : status === "notFound" ? (
-              <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
-                <Text variant="body1">조건에 맞는 포트폴리오가 없습니다.</Text>
+            ) : status === "notFound" || data.length === 0 ? (
+              <Box sx={{ textAlign: "center", py: 8 }}>
+                <Text variant="body1" color="text.secondary">
+                  조건에 맞는 포트폴리오가 없습니다.
+                </Text>
               </Box>
             ) : (
               <>
                 <Box
                   sx={{
-                    display: { mobile: "none", tablet: "grid" },
-                    gap: { tablet: 2.5, desktop: 3 },
+                    display: "grid",
+                    gap: { mobile: 2, tablet: 2.5, desktop: 3 },
                     gridTemplateColumns: {
+                      mobile: "repeat(1, 1fr)",
                       tablet: "repeat(3, 1fr)",
                       desktop: "repeat(4, 1fr)",
                     },
                   }}
                 >
-                  {portfolios?.map(item => (
-                    <Box key={`desktop-gallery-${item.id}`} sx={{ width: "100%" }}>
-                      <ProjectCard portfolio={item} project={item} data={item} />
-                    </Box>
-                  ))}
-                </Box>
-                <Box sx={{ display: { mobile: "block", tablet: "none" } }}>
-                  {portfolios?.[0] && (
-                    <Box sx={{ mb: 2, width: "100%" }}>
-                      <ProjectCard portfolio={portfolios[0]} project={portfolios[0]} data={portfolios[0]} />
-                    </Box>
-                  )}
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gap: 1.5,
-                      gridTemplateColumns: "repeat(2, 1fr)",
-                    }}
-                  >
-                    {portfolios?.slice(1).map(item => (
-                      <Box key={`mobile-gallery-${item.id}`} sx={{ width: "100%" }}>
-                        <ProjectCard portfolio={item} project={item} data={item} />
+                  {data.map((item, idx) => {
+                    const cardItem = formatCardData(item);
+                    return (
+                      <Box key={cardItem?.id ? `gallery-${cardItem.id}` : `gallery-idx-${idx}`} sx={{ width: "100%" }}>
+                        <ProjectCard portfolio={cardItem} project={cardItem} data={cardItem} {...cardItem} />
                       </Box>
-                    ))}
-                  </Box>
+                    );
+                  })}
                 </Box>
-                {portfolios?.length < count && (
+                {data.length < count && (
                   <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
                     <Button
                       variant="outlined"
                       onClick={handleShowMore}
-                      sx={{ px: 4, py: 1, color: "#374151", borderColor: "#D1D5DB", fontWeight: 600 }}
+                      sx={{
+                        px: 4,
+                        py: 1,
+                        color: "text.primary",
+                        borderColor: "divider",
+                        fontWeight: 600,
+                      }}
                     >
-                      더보기
+                      더보기 ({data.length} / {count})
                     </Button>
                   </Box>
                 )}
