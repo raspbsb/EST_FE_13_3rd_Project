@@ -91,6 +91,7 @@ export default function ContactSection() {
           id: message.id,
           type: "message",
           sender: message.profiles?.user_name ?? "알 수 없는 사용자",
+          job: message.profiles?.user_category ?? "",
           senderId: message.sender_id,
           projectId: message.project_id,
           content: message.content,
