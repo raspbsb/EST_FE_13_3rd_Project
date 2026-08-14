@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
 import Text from "@mui/material/Typography";
-import Box from "@mui/material/Box";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 

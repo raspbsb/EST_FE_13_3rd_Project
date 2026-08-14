@@ -20,21 +20,55 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
 
   // 프로필 이미지 DB와 연동
   const handleAvatarChange = async file => {
-    if (!file) return;
-
     if (!profile?.user_id) {
       console.error("로그인한 사용자 정보가 없습니다.");
       return;
     }
 
     try {
+      // --------------프로필 이미지 삭제------------------
+      if (!file) {
+        const avatarPath = profile.avatar_path;
+
+        if (avatarPath) {
+          const { data: deletedFiles, error: deleteError } = await supabase.storage
+            .from("profile_avatars")
+            .remove([avatarPath]);
+
+          if (deleteError) {
+            throw deleteError;
+          }
+        }
+
+        // DB에서 avatar_path 제거
+        const { data, error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            avatar_path: null,
+          })
+          .eq("user_id", profile.user_id)
+          .select()
+          .single();
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        // 부모 profile state 업데이트
+        onProfileUpdate(data);
+
+        console.log("프로필 이미지 삭제 성공");
+        return;
+      }
+      // --------------프로필 이미지 업로드------------------
+      // 기존 이미지 경로
+      const oldAvatarPath = profile.avatar_path;
       // 파일 확장자
       const extension = file.name.split(".").pop();
+      // 사용자별 프로필 새 이미지 경로
+      const filePath = `${profile.user_id}/avatar_${Date.now()}.${extension}`;
 
-      // 사용자별 프로필 이미지 경로
-      const filePath = `${profile.user_id}/avatar.${extension}`;
-
-      // Storage 업로드
+      // Storage 업로드 (새 이미지)
       const { error: uploadError } = await supabase.storage.from("profile_avatars").upload(filePath, file, {
         cacheControl: "3600",
         upsert: true,
@@ -43,11 +77,6 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
       if (uploadError) {
         throw uploadError;
       }
-
-      // Public URL 가져오기
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("profile_avatars").getPublicUrl(filePath);
 
       // profiles.avatar_path 업데이트
       const { data, error: profileError } = await supabase
@@ -60,15 +89,27 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
         .single();
 
       if (profileError) {
+        // 업뎃 실패 시 새로 올린 파일도 삭제
+        await supabase.storage.from("profile_avatars").remove([filePath]);
+
         throw profileError;
       }
 
-      // 부모 profile state 업데이트
+      // 기존 이미지 삭제
+      if (oldAvatarPath) {
+        const { error: deleteError } = await supabase.storage.from("profile_avatars").remove([oldAvatarPath]);
+
+        if (deleteError) {
+          console.warn("기존 프로필 이미지 삭제 실패:", deleteError);
+        }
+      }
+
+      // 화면에 업데이트
       onProfileUpdate(data);
 
       console.log("프로필 이미지 업로드 성공:", filePath);
     } catch (error) {
-      console.error("프로필 이미지 업로드 실패:", error);
+      console.error("프로필 이미지 처리 실패:", error);
     }
   };
 

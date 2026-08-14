@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { supabase } from "../../utils/supabase";
 
 import Text from "@mui/material/Typography";
 import Button from "@mui/material/Button";

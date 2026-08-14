@@ -40,8 +40,7 @@ export const fetchPortfolios = createAsyncThunk(
           count: "exact",
         },
       )
-      .ilike("title", `%${searchTerm.trim()}%`)
-      // .???("category", category)
+      .ilike("title", `%${searchTerm.trim()}%`) // .???("category", category)
       // .???("tech_stack", techStack)
       .order(stringToColumnName(sortBy), { ascending })
       .range(0, 7);
@@ -65,8 +64,7 @@ export const fetchMorePortfolios = createAsyncThunk(
       .select("*, profiles(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)", {
         count: "exact",
       })
-      .ilike("title", `%${searchTerm.trim()}%`)
-      // .???("category", category)
+      .ilike("title", `%${searchTerm.trim()}%`) // .???("category", category)
       // .???("tech_stack", techStack)
       .order(stringToColumnName(sortBy), { ascending })
       .range(visibleCount - 1, visibleCount + fetchCount - 1);

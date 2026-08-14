@@ -6,10 +6,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import MuiLink from "@mui/material/Link";
 
-import { EmailIcon, CodeIcon, LinkIcon } from "../../lib/icons";
+import { EmailIcon, CodeIcon } from "../../lib/icons";
 
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
