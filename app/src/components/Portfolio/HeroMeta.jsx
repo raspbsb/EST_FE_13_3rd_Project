@@ -18,11 +18,17 @@ export default function HeroMeta({}) {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user } = useSelector(state => state.user);
+  const { user, status: statusU } = useSelector(state => state.user);
   const { data, status } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
+  useEffect(() => {
+    setIsLiked(data?.portfolio_likes?.some(l => l.user_id === user?.id) ?? false);
+    setIsBookmarked(data?.bookmarks?.some(b => b.user_id === user?.id) ?? false);
+  }, [user]);
+
   const handleLikeBtn = async () => {
+    if (statusU !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
       alert("로그인이 필요합니다!");
@@ -60,6 +66,7 @@ export default function HeroMeta({}) {
     }
   };
   const handleBookmarkBtn = async () => {
+    if (statusU !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
       alert("로그인이 필요합니다!");
