@@ -36,6 +36,4 @@ const userSlice = createSlice({
   },
 });
 
-// supabase.auth.onAuthStateChange(fetchUser());
-
 export default userSlice.reducer;
