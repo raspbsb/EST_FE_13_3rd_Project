@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async"; // SEO 메타태그 설정용
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import PortfolioCard from "../components/Home/PortfolioCard";
@@ -25,12 +26,12 @@ export default function Home() {
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
-
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+
+        let query = supabase
           .from("portfolios")
           .select(
             `
@@ -41,11 +42,19 @@ export default function Home() {
             )
           `,
           )
-          .order("created_at", { ascending: false });
+          .order("created_at", { ascending: false })
+          .limit(12);
+        const cleanedQuery = searchTerm.toLowerCase().trim();
+        if (cleanedQuery) {
+          query = query.or(
+            `title.ilike.%${cleanedQuery}%,ai_summary.ilike.%${cleanedQuery}%,description.ilike.%${cleanedQuery}%`,
+          );
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
-        console.log("Supabase 가져온 데이터:", data);
         setPortfolios(data && data.length > 0 ? data : []);
       } catch (err) {
         console.error("DB 데이터 로드 오류:", err.message);
@@ -53,26 +62,23 @@ export default function Home() {
         setLoading(false);
       }
     };
+    const timer = setTimeout(() => {
+      fetchPortfolios();
+    }, 300);
 
-    fetchPortfolios();
-  }, []);
-  const filteredPortfolios = portfolios.filter(item => {
-    const query = searchTerm.toLowerCase().trim();
-    if (!query) return true;
-
-    const title = item?.title?.toLowerCase() || "";
-    const summary = item?.ai_summary?.toLowerCase() || item?.description?.toLowerCase() || "";
-    return title.includes(query) || summary.includes(query);
-  });
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
   const getInfinitePortfolios = () => {
-    if (filteredPortfolios.length === 0) return [];
-    let list = [...filteredPortfolios];
+    if (portfolios.length === 0) return [];
+    let list = [...portfolios];
     while (list.length < 12) {
-      list = [...list, ...filteredPortfolios];
+      list = [...list, ...portfolios];
     }
     return list;
   };
+
   const infinitePortfolios = getInfinitePortfolios();
+
   const handleScroll = () => {
     const container = scrollRef.current;
     if (!container) return;
@@ -85,6 +91,7 @@ export default function Home() {
       container.scrollLeft = maxScrollLeft - 6;
     }
   };
+
   return (
     <Box
       sx={{
@@ -95,6 +102,14 @@ export default function Home() {
         overflowX: "hidden",
       }}
     >
+      <Helmet>
+        <title>PORTFOLIOS - 개발자 포트폴리오 모음</title>
+        <meta name="description" content="개발자들의 포트폴리오를 탐색하고 AI 요약 인사이트를 확인해보세요." />
+        <meta property="og:title" content="PORTFOLIOS - 개발자 포트폴리오 탐색" />
+        <meta property="og:description" content="개발자들의 포트폴리오를 탐색하고 AI 요약 인사이트를 확인해보세요." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       <Box
         component="main"
         sx={{
@@ -113,7 +128,6 @@ export default function Home() {
         >
           <ProfileDropdown />
         </Box>
-
         <Box
           sx={{
             pt: { mobile: 5, tablet: 7, desktop: 9 },
@@ -153,11 +167,13 @@ export default function Home() {
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 slotProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon sx={{ color: "text.secondary", cursor: "pointer" }} />
-                    </InputAdornment>
-                  ),
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchIcon sx={{ color: "text.secondary", cursor: "pointer" }} />
+                      </InputAdornment>
+                    ),
+                  },
                 }}
                 sx={{
                   backgroundColor: "#FFFFFF",
@@ -173,7 +189,6 @@ export default function Home() {
             </Box>
           </Container>
         </Box>
-
         <Box
           sx={{
             display: "flex",
@@ -196,7 +211,7 @@ export default function Home() {
               <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
                 <CircularProgress sx={{ color: "#3B82F6" }} />
               </Box>
-            ) : filteredPortfolios.length === 0 ? (
+            ) : portfolios.length === 0 ? (
               <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
                 <Text variant="body1">등록된 포트폴리오가 없거나 검색 결과가 없습니다.</Text>
               </Box>
@@ -241,9 +256,9 @@ export default function Home() {
                   }}
                 >
                   <Grid container spacing={{ mobile: 1.5, tablet: 2 }} sx={{ justifyContent: "center" }}>
-                    {(filteredPortfolios.length >= 4
-                      ? filteredPortfolios.slice(0, 4)
-                      : Array.from({ length: 4 }, (_, i) => filteredPortfolios[i % filteredPortfolios.length])
+                    {(portfolios.length >= 4
+                      ? portfolios.slice(0, 4)
+                      : Array.from({ length: 4 }, (_, i) => portfolios[i % portfolios.length])
                     ).map((item, index) => (
                       <Grid
                         key={`grid-${item?.id ?? "card"}-${index}`}

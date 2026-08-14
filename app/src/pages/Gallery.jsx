@@ -1,3 +1,5 @@
+import { useSelector, useDispatch } from "react-redux";
+import { fetchFeaturedPortfolios, fetchMorePortfolios, fetchPortfolios } from "../components/Gallery/gallerySlice";
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
@@ -28,17 +30,35 @@ const DUMMY_DATA = Array.from({ length: 8 }, (_, i) => ({
 }));
 
 export default function Gallery() {
-  const [portfolios, setPortfolios] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [portfolios, setPortfolios] = useState([]);
+  // const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("latest");
-  const [visibleCount, setVisibleCount] = useState(8);
+  // const [visibleCount, setVisibleCount] = useState(8);
+
+  const dispatch = useDispatch();
+  const {
+    data: portfolios,
+    status,
+    error,
+    count,
+    featured: { data: featuredPortfolios, status: statusF, error: errorF },
+  } = useSelector(state => state.gallery);
 
   useEffect(() => {
-    handleFetchPortfolios();
+    dispatch(fetchFeaturedPortfolios());
   }, []);
+  useEffect(() => {
+    // handleFetchPortfolios();
+    dispatch(fetchPortfolios({ searchTerm, category, sortBy }));
+  }, [searchTerm, category, sortBy]);
 
+  const handleShowMore = () => {
+    // setVisibleCount(prev => prev + 4);
+    fetchMorePortfolios({ searchTerm, category, sortBy, visibleCount: portfolios?.length });
+  };
+  /*
   const handleFetchPortfolios = async () => {
     try {
       setLoading(true);
@@ -87,7 +107,7 @@ export default function Gallery() {
 
   const featuredPortfolios = portfolios.slice(0, 4);
   const allPortfolios = sortedPortfolios.slice(0, visibleCount);
-
+*/
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", backgroundColor: "#FFFFFF" }}>
       <Box component="main" sx={{ flexGrow: 1, py: { mobile: 3, tablet: 5, desktop: 8 } }}>
@@ -97,7 +117,7 @@ export default function Gallery() {
               추천 포트폴리오
             </Text>
 
-            {loading ? (
+            {statusF === "loading" ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
                 <CircularProgress size={30} />
               </Box>
@@ -113,7 +133,7 @@ export default function Gallery() {
                   },
                 }}
               >
-                {featuredPortfolios.map(item => (
+                {featuredPortfolios?.map(item => (
                   <Box key={`featured-${item.id}`} sx={{ width: "100%" }}>
                     <ProjectCard portfolio={item} project={item} data={item} />
                   </Box>
@@ -147,7 +167,7 @@ export default function Gallery() {
                 <Box sx={{ display: { mobile: "none", desktop: "flex" }, gap: 0.5, mr: 1 }}>
                   {["React", "Next.js", "AI"].map(tag => (
                     <Box key={tag} onClick={() => setCategory(category === tag ? "all" : tag)}>
-                      <TagChip label={tag} active={category === tag} />
+                      <TagChip label={tag} className={category === tag ? "acitve" : ""} />
                     </Box>
                   ))}
                 </Box>
@@ -188,11 +208,11 @@ export default function Gallery() {
               </Box>
             </Box>
 
-            {loading ? (
+            {status === "loading" ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
                 <CircularProgress />
               </Box>
-            ) : sortedPortfolios.length === 0 ? (
+            ) : status === "notFound" ? (
               <Box sx={{ textAlign: "center", py: 8, color: "text.secondary" }}>
                 <Text variant="body1">조건에 맞는 포트폴리오가 없습니다.</Text>
               </Box>
@@ -208,16 +228,16 @@ export default function Gallery() {
                     },
                   }}
                 >
-                  {allPortfolios.map(item => (
+                  {portfolios?.map(item => (
                     <Box key={`desktop-gallery-${item.id}`} sx={{ width: "100%" }}>
                       <ProjectCard portfolio={item} project={item} data={item} />
                     </Box>
                   ))}
                 </Box>
                 <Box sx={{ display: { mobile: "block", tablet: "none" } }}>
-                  {allPortfolios[0] && (
+                  {portfolios?.[0] && (
                     <Box sx={{ mb: 2, width: "100%" }}>
-                      <ProjectCard portfolio={allPortfolios[0]} project={allPortfolios[0]} data={allPortfolios[0]} />
+                      <ProjectCard portfolio={portfolios[0]} project={portfolios[0]} data={portfolios[0]} />
                     </Box>
                   )}
                   <Box
@@ -227,18 +247,18 @@ export default function Gallery() {
                       gridTemplateColumns: "repeat(2, 1fr)",
                     }}
                   >
-                    {allPortfolios.slice(1).map(item => (
+                    {portfolios?.slice(1).map(item => (
                       <Box key={`mobile-gallery-${item.id}`} sx={{ width: "100%" }}>
                         <ProjectCard portfolio={item} project={item} data={item} />
                       </Box>
                     ))}
                   </Box>
                 </Box>
-                {visibleCount < sortedPortfolios.length && (
+                {portfolios?.length < count && (
                   <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
                     <Button
                       variant="outlined"
-                      onClick={() => setVisibleCount(prev => prev + 4)}
+                      onClick={handleShowMore}
                       sx={{ px: 4, py: 1, color: "#374151", borderColor: "#D1D5DB", fontWeight: 600 }}
                     >
                       더보기
