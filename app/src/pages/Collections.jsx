@@ -12,20 +12,30 @@ import CollectionManageDialog from "../components/mypage/CollectionManageDialog"
 import styles from "./Collections.module.css";
 
 export default function Collections() {
-  const { userId } = useParams();
   const navigate = useNavigate();
 
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   //컬렉션 관리 dialog
   const [openManage, setOpenManage] = useState(false);
 
-  //임시
-  const targetUserId = userId || "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe";
+  // auth user 가져오기
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setCurrentUserId(user?.id ?? null);
+    };
+
+    getCurrentUser();
+  }, []);
 
   // collections DB 불러오기
   const fetchCollections = async () => {
-    if (!userId) {
+    if (!currentUserId) {
       setLoading(false);
       return;
     }
@@ -51,7 +61,7 @@ export default function Collections() {
         )
       `,
       )
-      .eq("owner_id", targetUserId);
+      .eq("owner_id", currentUserId);
 
     if (error) {
       console.error("컬렉션 조회 실패:", error);
@@ -86,7 +96,7 @@ export default function Collections() {
   // 컴포넌트가 처음 렌더링될 때 컬렉션 조회
   useEffect(() => {
     fetchCollections();
-  }, [userId]);
+  }, [currentUserId]);
 
   // 컬렉션 상세페이지로 이동
   const handleCollectionClick = collectionId => {
@@ -95,13 +105,18 @@ export default function Collections() {
 
   // 컬렉션 생성 insert 함수 ( 8개로 생성 제한)
   const handleCreateCollection = async title => {
+    if (!currentUserId) {
+      console.error("로그인한 사용자가 없습니다.");
+      return;
+    }
+
     if (collections.length >= 8) {
       console.warn("컬렉션은 최대 8개까지 생성할 수 있습니다.");
       return;
     }
 
     const { error } = await supabase.from("collections").insert({
-      owner_id: "ac77e6ec-340c-425e-8fcb-9a1ca0e4e1fe", // auth 연결되면 user.id 로 변경
+      owner_id: currentUserId,
       title,
     });
 
