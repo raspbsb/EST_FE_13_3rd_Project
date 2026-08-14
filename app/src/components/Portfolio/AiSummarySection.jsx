@@ -3,12 +3,11 @@ import { alpha, useTheme } from "@mui/material/styles";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 
-import { AiIcon, DropDownIcon, DropUpIcon } from "../../lib/icons";
+import { AiIcon, DropDownIcon } from "../../lib/icons";
 import AiSummaryItem from "./AiSummaryItem";
 
 export default function AiSummarySection({}) {
