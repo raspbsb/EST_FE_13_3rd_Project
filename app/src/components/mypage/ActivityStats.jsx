@@ -46,7 +46,7 @@ export default function ActivityStats({ mode, profile }) {
 
         if (projectIds.length > 0) {
           const { count, error: likeError } = await supabase
-            .from("likes")
+            .from("portfolio_likes")
             .select("*", { count: "exact", head: true })
             .in("project_id", projectIds);
 

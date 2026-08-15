@@ -10,7 +10,7 @@ import { ChevronRightIcon } from "../../lib/icons";
 
 export default function BookmarkCard({ title, total, thumbnail, handleClick }) {
   return (
-    <ListItem disablePadding className={styles.item}>
+    <ListItem disablePadding="true" className={styles.item}>
       <ListItemButton onClick={handleClick} className={styles.card}>
         <Box component="img" src={thumbnail} alt={`${title} 컬렉션 썸네일`} className={styles.thumbnail} />
 

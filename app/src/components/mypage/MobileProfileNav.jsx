@@ -15,7 +15,7 @@ export default function MobileProfileNav() {
   return (
     <>
       <Box component="nav" className={styles.nav} aria-label="모바일 마이페이지 메뉴">
-        <NavLink to="/mypage/projects" className={styles.item} disabledPadding>
+        <NavLink to="/mypage/projects" className={styles.item}>
           <WorkIcon />
           <Text component="span">내 프로젝트</Text>
         </NavLink>
