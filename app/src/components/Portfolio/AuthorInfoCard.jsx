@@ -8,7 +8,7 @@ import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 
 import { EmailIcon, CodeIcon } from "../../lib/icons";
-import { toUrl } from "../../utils/toUrl";
+import { toUrl } from "../../services/toUrl";
 
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
