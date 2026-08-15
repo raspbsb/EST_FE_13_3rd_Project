@@ -11,6 +11,7 @@ import Avatar from "@mui/material/Avatar";
 
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 import { fetchLikes } from "./portfolioSlice";
+import { toUrl } from "../../utils/toUrl";
 
 export default function HeroMeta({}) {
   const [isLiked, setIsLiked] = useState(false);
@@ -116,7 +117,7 @@ export default function HeroMeta({}) {
         to={`/profiles/${author?.user_id ?? ""}`}
         label={author?.user_name ?? "-"}
         variant="outlined"
-        avatar={<Avatar src={author?.avatar_path ?? "."} alt={author?.user_name ?? "-"} />}
+        avatar={<Avatar src={toUrl("profile_avatars", author?.avatar_path)} alt={author?.user_name ?? "-"} />}
         clickable
       />
       <Box
