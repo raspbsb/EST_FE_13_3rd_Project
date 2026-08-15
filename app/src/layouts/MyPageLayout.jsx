@@ -1,4 +1,4 @@
-import { supabase } from "../utils/supabase";
+import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -10,42 +10,22 @@ import ProfileNav from "../components/mypage/ProfileNav";
 import MobileProfileNav from "../components/mypage/MobileProfileNav";
 
 export default function MyPageLayout() {
+  const { user } = useSelector(state => state.user);
+
   //프로필 상태 관리
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  //Redux에서 profile이 들어오면 local state에 넣기
   useEffect(() => {
-    const fetchMyProfile = async () => {
-      setLoading(true);
-
-      // 현재 로그인한 사용자 가져오기
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
-      if (authError || !user) {
-        console.error("로그인 사용자 조회 실패:", authError);
-        setProfile(null);
-        setLoading(false);
-        return;
-      }
-
-      // 로그인 사용자와 연결된 profile 조회
-      const { data, error: profileError } = await supabase.from("profiles").select("*").eq("user_id", user.id).single();
-
-      if (profileError) {
-        console.error("프로필 조회 실패:", profileError);
-        setProfile(null);
-      } else {
-        setProfile(data);
-      }
-
+    if (user?.profile) {
+      setProfile(user.profile);
       setLoading(false);
-    };
-
-    fetchMyProfile();
-  }, []);
+    } else if (user === null) {
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [user]);
 
   if (loading) {
     return null;

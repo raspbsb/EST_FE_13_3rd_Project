@@ -1,33 +1,87 @@
+import { supabase } from "../../utils/supabase";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toUrl } from "../../services/toUrl";
+
 import BookmarkCard from "./BookmarkCard";
 
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import Container from "@mui/material/Container";
 
 export default function BookmarkSection() {
   const navigate = useNavigate();
+  const { user } = useSelector(state => state.user);
 
-  // 임시데이터
-  const collections = [
-    {
-      id: 1,
-      title: "Collection title",
-      total: 10,
-    },
-    {
-      id: 2,
-      title: "Collection title",
-      total: 5,
-    },
-    {
-      id: 3,
-      title: "Collection title",
-      total: 6,
-    },
-  ];
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      if (!user?.id) {
+        setCollections([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from("collections")
+        .select(
+          `
+          collection_id,
+          title,
+          bookmarks (
+            project_id,
+            created_at,
+            portfolios (
+              project_id,
+              portfolio_images (
+                image_path,
+                is_thumbnail
+              )
+            )
+          )
+        `,
+        )
+        .eq("owner_id", user.id);
+
+      if (error) {
+        console.error("북마크 컬렉션 조회 실패:", error);
+        setCollections([]);
+        setLoading(false);
+        return;
+      }
+
+      const formattedCollections = (data ?? []).map(collection => {
+        const sortedBookmarks = [...(collection.bookmarks ?? [])].sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        );
+
+        const latestBookmark = sortedBookmarks[0];
+
+        const thumbnailPath =
+          latestBookmark?.portfolios?.portfolio_images?.find(image => image.is_thumbnail)?.image_path ?? null;
+
+        const thumbnail = thumbnailPath ? toUrl("portfolio_images", thumbnailPath) : null;
+
+        return {
+          id: collection.collection_id,
+          title: collection.title,
+          total: collection.bookmarks?.length ?? 0,
+          thumbnail,
+        };
+      });
+
+      setCollections(formattedCollections);
+      setLoading(false);
+    };
+
+    fetchCollections();
+  }, [user?.id]);
 
   return (
     <Box component="section" sx={{ width: "100%" }}>

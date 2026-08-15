@@ -1,7 +1,9 @@
-import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import useNotifications from "../../hooks/useNotifications";
 
 import ContactDialog from "./ContactDialog";
+import MessageDialog from "./MessageDialog";
 import styles from "./ProfileNav.module.css";
 
 import Tabs from "@mui/material/Tabs";
@@ -9,9 +11,12 @@ import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 
 export default function ProfileNav() {
+  const { notifications, handleMessageRead, handleMessageDelete } = useNotifications();
   const location = useLocation();
 
   const [openContact, setOpenContact] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [openMessage, setOpenMessage] = useState(false);
 
   // 현재 URL에 따라 선택된 탭 결정
   const getTabValue = () => {
@@ -19,6 +24,11 @@ export default function ProfileNav() {
     if (location.pathname === "/mypage/projects") return 1;
     if (location.pathname.startsWith("/mypage/collections")) return 2;
     return false;
+  };
+
+  const handleMessageClick = item => {
+    setSelectedMessage(item);
+    setOpenMessage(true);
   };
 
   return (
@@ -49,8 +59,20 @@ export default function ProfileNav() {
           <Tab label="Interest & Contact" onClick={() => setOpenContact(true)} />
         </Tabs>
         {/* Dialog 컴포넌트*/}
-        <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
+        <ContactDialog
+          open={openContact}
+          onClose={() => setOpenContact(false)}
+          contacts={notifications}
+          onMessageClick={handleMessageClick}
+        />
       </Box>
+      <MessageDialog
+        open={openMessage}
+        onClose={() => setOpenMessage(false)}
+        message={selectedMessage}
+        onMessageRead={handleMessageRead}
+        onMessageDelete={handleMessageDelete}
+      />
     </>
   );
 }

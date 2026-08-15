@@ -42,10 +42,9 @@ export default function ContactDialog({ open, onClose, contacts = [], onMessageC
             const createdAt = new Date(contact.createdAtRaw);
             const now = new Date();
 
-            const diff = now - createdAt;
             const sevenDays = 7 * 24 * 60 * 60 * 1000;
 
-            return diff < sevenDays;
+            return now - createdAt < sevenDays;
           }
 
           return false;

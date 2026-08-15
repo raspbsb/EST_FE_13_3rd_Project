@@ -1,6 +1,8 @@
 import { supabase } from "../utils/supabase";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toUrl } from "../services/toUrl";
 
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
@@ -12,33 +14,28 @@ import CollectionManageDialog from "../components/mypage/CollectionManageDialog"
 import styles from "./Collections.module.css";
 
 export default function Collections() {
+  // user 가져오기
+  const { user } = useSelector(state => state.user);
+
+  const { userId } = useParams();
   const navigate = useNavigate();
 
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const currentUserId = user?.id;
+
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   //컬렉션 관리 dialog
   const [openManage, setOpenManage] = useState(false);
 
-  // auth user 가져오기
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setCurrentUserId(user?.id ?? null);
-    };
-
-    getCurrentUser();
-  }, []);
-
   // collections DB 불러오기
   const fetchCollections = async () => {
     if (!currentUserId) {
+      setCollections([]);
       setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("collections")
@@ -78,8 +75,10 @@ export default function Collections() {
       const latestBookmark = sortedBookmarks[0];
 
       // 가장 최근 북마크 한 프로젝트의 썸네일
-      const thumbnail =
+      const thumbnailPath =
         latestBookmark?.portfolios?.portfolio_images?.find(image => image.is_thumbnail)?.image_path ?? null;
+
+      const thumbnail = thumbnailPath ? toUrl("portfolio_images", thumbnailPath) : null;
 
       return {
         id: collection.collection_id,
