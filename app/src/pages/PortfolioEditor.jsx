@@ -565,6 +565,18 @@ export default function PortfolioEditor({ data }) {
 
         console.log(payload);
 
+        // 현재 작성 중이던 내용이 임시저장본에서 불러온 상태였다면, 저장이 끝난 그 임시저장본만 정리한다.
+        if (appliedDraftId) {
+          setTemporaryDrafts(prev => {
+            const nextDrafts = prev.filter(draft => draft.id !== appliedDraftId);
+
+            saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+            return nextDrafts;
+          });
+          setAppliedDraftId(null);
+        }
+
         // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다.
         alert(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.");
         navigate(`/portfolios/${projectId}`);
@@ -573,7 +585,7 @@ export default function PortfolioEditor({ data }) {
         alert(error.message);
       }
     },
-    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin],
+    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId],
   );
 
   // 미리보기 모달을 여는 함수
