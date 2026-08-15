@@ -11,7 +11,7 @@ import Avatar from "@mui/material/Avatar";
 
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 import { fetchLikes } from "./portfolioSlice";
-import { toUrl } from "../../utils/toUrl";
+import { toUrl } from "../../services/toUrl";
 
 export default function HeroMeta({}) {
   const [isLiked, setIsLiked] = useState(false);

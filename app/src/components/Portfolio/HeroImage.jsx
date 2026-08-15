@@ -6,7 +6,7 @@ import Text from "@mui/material/Typography";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
-import { toUrl } from "../../utils/toUrl";
+import { toUrl } from "../../services/toUrl";
 
 export default function HeroImage({}) {
   const { data, status } = useSelector(state => state.portfolio);
