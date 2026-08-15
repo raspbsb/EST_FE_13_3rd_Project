@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import useNotifications from "../../hooks/useNotifications";
 
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
@@ -10,7 +11,13 @@ import ContactDialog from "./ContactDialog";
 import { WorkIcon, BookmarkIcon, NotificationsIcon, PersonIcon } from "../../lib/icons";
 
 export default function MobileProfileNav() {
+  const { notifications, handleMessageRead, handleMessageDelete } = useNotifications();
   const [openContact, setOpenContact] = useState(false);
+
+  const handleMessageClick = item => {
+    setSelectedMessage(item);
+    setOpenMessage(true);
+  };
 
   return (
     <>
@@ -37,7 +44,12 @@ export default function MobileProfileNav() {
         </NavLink>
       </Box>
 
-      <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
+      <ContactDialog
+        open={openContact}
+        onClose={() => setOpenContact(false)}
+        contacts={notifications}
+        onMessageClick={handleMessageClick}
+      />
     </>
   );
 }
