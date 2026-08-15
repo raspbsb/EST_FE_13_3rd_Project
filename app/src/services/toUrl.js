@@ -5,10 +5,7 @@
  * @param {string} relativePath 테이블의 _path 칼럼에 저장된 상대 경로
  */
 export async function toUrl(bucketName, relativePath) {
-  if (typeof bucketName !== "string" || typeof relativePath !== "string") {
-    console.warn('"toURL"에 유효하지 않은 인수가 전달됨: ', bucketName, relativePath);
-    return ".";
-  }
+  if (typeof bucketName !== "string" || typeof relativePath !== "string") return ".";
 
   const result = await supabase.storage.from(bucketName).getPublicUrl(relativePath);
   return result.data.publicUrl;
