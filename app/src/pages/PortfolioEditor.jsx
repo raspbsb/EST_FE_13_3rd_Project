@@ -17,7 +17,8 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-import { createPortfolio, getAuthenticatedUser } from "../services/portfolioService";
+import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
+import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
 // CSS
 import styles from "./PortfolioEditor.module.css";
@@ -190,6 +191,98 @@ const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) =>
   );
 };
 
+// DB : 카테고리/기술스택 label만 저장 -> 에디터 칩에서 사용하는 { value, label } 형태로 다시 변환
+const createOptionFromLabel = ({ label, options }) => {
+  const matchedOption = options.find(option => option.label === label);
+
+  if (matchedOption) return matchedOption;
+
+  return {
+    value: String(label ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-"),
+    label: label ?? "",
+  };
+};
+
+// Storage에 저장된 image_path를 화면 미리보기용 public URL로 변환
+// DB에는 상대 경로만 저장되어 있고, img 태그에는 접근 가능한 URL이 필요함
+const getPortfolioImagePublicUrl = imagePath => {
+  if (!imagePath) return "";
+
+  const { data } = supabase.storage.from("portfolio_images").getPublicUrl(imagePath);
+
+  return data.publicUrl;
+};
+
+// DB에서 가져온 portfolios row를 에디터의 formData 구조로 변환
+const createEditorFormData = data => ({
+  title: data.title ?? "",
+  summary: data.summary ?? "",
+  description: data.description ?? "",
+  started_at: data.started_at ?? "",
+  ended_at: data.ended_at ?? "",
+  deploy_url: data.deploy_url ?? "",
+  repository_url: data.repository_url ?? "",
+  project_type: data.project_type ?? "",
+  team_size: data.team_size ?? "",
+  author_role: data.author_role ?? "",
+  environment: data.environment ?? "",
+  is_public: Boolean(data.is_public),
+
+  categories: (data.portfolio_categories ?? []).map(category =>
+    createOptionFromLabel({
+      label: category.category,
+      options: categoryOptions,
+    }),
+  ),
+
+  tech_stacks: (data.portfolio_tech_stacks ?? []).map(techStack =>
+    createOptionFromLabel({
+      label: techStack.tech_stack,
+      options: techStackOptions,
+    }),
+  ),
+
+  // 기존 이미지는 File 객체가 없으므로 imagePath를 보존하고 previewUrl은 public URL로 만든다.
+  images: (data.portfolio_images ?? [])
+    .map(image => ({
+      id: image.image_id ?? image.image_path,
+      imagePath: image.image_path,
+      previewUrl: getPortfolioImagePublicUrl(image.image_path),
+      name: image.alt_text ?? "portfolio-image",
+      size: 0,
+      type: "",
+      order: image.display_order,
+      isThumbnail: Boolean(image.is_thumbnail),
+    }))
+    .sort((a, b) => a.order - b.order),
+});
+
+// DB에서 가져온 portfolio_ai_created row를 에디터의 AI 분석 결과 상태 구조로 변환
+const createEditorAiAnalysisResult = aiCreated => ({
+  projectSummary: aiCreated.project_summary ?? "",
+  mainFeatures: aiCreated.main_features ?? "",
+  technicalFeatures: aiCreated.technical_features ?? "",
+  projectStructure: aiCreated.project_structure ?? "",
+  analyzedRole: aiCreated.analyzed_role ?? "",
+  participationDetails: aiCreated.participation_details ?? "",
+  analysisLimitation: aiCreated.analysis_limitation ?? "",
+  analysisEvidence: aiCreated.analysis_evidence ?? null,
+  analyzedAt: aiCreated.github_analyzed_at ?? "",
+});
+
+// DB에서 가져온 portfolio_ai_created row를 초안 가이드 상태 구조로 변환
+const createEditorDraftGuide = aiCreated => ({
+  originalDescription: aiCreated.draft_source_content ?? "",
+  aiDraftDescription: aiCreated.generated_content ?? "",
+  aiShortSummary: aiCreated.ai_short_summary ?? "",
+  generatedAt: aiCreated.draft_generated_at ?? "",
+  appliedDescriptionSource: "",
+  isSummaryApplied: Boolean(aiCreated.ai_short_summary),
+});
+
 // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
 const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 // 임시저장 목록에서 유지할 최대 저장본 개수
@@ -315,10 +408,45 @@ export default function PortfolioEditor({ data }) {
     if (!isEdit) return;
 
     const checkPortfolioExists = async () => {
-      // 포트폴리오 테이블에서 pid, aid 컬럼을 선택해, 파라미터 id 동일한 pid를 하나만 가져옴
+      // 포트폴리오 테이블에서 파라미터 id 동일한 pid를 하나만 가져옴
       const { data, error } = await supabase
         .from("portfolios")
-        .select("project_id, author_id")
+        .select(
+          `
+          project_id,
+          author_id,
+          title,
+          summary,
+          description,
+          started_at,
+          ended_at,
+          deploy_url,
+          repository_url,
+          project_type,
+          team_size,
+          author_role,
+          environment,
+          is_public,
+          portfolio_categories(category),
+          portfolio_tech_stacks(tech_stack),
+          portfolio_images(image_id, image_path, display_order, is_thumbnail, alt_text),
+          portfolio_ai_created(
+            project_summary,
+            main_features,
+            technical_features,
+            project_structure,
+            analyzed_role,
+            participation_details,
+            analysis_limitation,
+            analysis_evidence,
+            github_analyzed_at,
+            draft_source_content,
+            generated_content,
+            ai_short_summary,
+            draft_generated_at
+          )
+          `,
+        )
         .eq("project_id", id)
         .maybeSingle();
 
@@ -352,7 +480,20 @@ export default function PortfolioEditor({ data }) {
         redirectAfterEditorAlert({
           message: "수정 권한이 없는 포트폴리오입니다.",
         });
+        return;
       }
+
+      const aiCreated = data.portfolio_ai_created ?? {};
+
+      console.log(aiCreated);
+
+      setFormData(createEditorFormData(data));
+      setAiAnalysisResult(createEditorAiAnalysisResult(aiCreated));
+
+      setDraftGuide(prev => ({
+        ...prev,
+        ...createEditorDraftGuide(aiCreated),
+      }));
     };
 
     checkPortfolioExists();
@@ -412,7 +553,9 @@ export default function PortfolioEditor({ data }) {
 
       try {
         // 등록 서비스는 인증 확인, portfolios 저장, 정규화 테이블 저장, 이미지 업로드를 순서대로 처리한다.
-        const { projectId, needsLogin } = await createPortfolio({ payload });
+        const { projectId, needsLogin } = isEdit
+          ? await updatePortfolio({ projectId: id, payload })
+          : await createPortfolio({ payload });
 
         // 서비스에서 로그인 세션이 없다고 알려주면 로그인 페이지로 돌려보낸다.
         if (needsLogin) {
@@ -423,14 +566,14 @@ export default function PortfolioEditor({ data }) {
         console.log(payload);
 
         // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다.
-        alert("포트폴리오가 등록되었습니다.");
+        alert(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.");
         navigate(`/portfolios/${projectId}`);
       } catch (error) {
         // Supabase/RLS/Storage 오류는 현재 alert로 확인하고, 마지막 UX 정리 때 스낵바로 교체 예정
         alert(error.message);
       }
     },
-    [formData, aiAnalysisResult, draftGuide, navigate, redirectToLogin],
+    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin],
   );
 
   // 미리보기 모달을 여는 함수
