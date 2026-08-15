@@ -9,7 +9,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 
 export default function HeroAiSummary({}) {
   const theme = useTheme();
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
   const aiCreated = data?.portfolio_ai_created;
 
   return (

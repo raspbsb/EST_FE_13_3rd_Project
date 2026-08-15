@@ -38,7 +38,7 @@ export default function ContactSection() {
     return date.toLocaleDateString("ko-KR");
   };
 
-  // 현재 로그인한 유저가 받은 메시지 조회
+  // 현재 로그인한 유저가 받은 알람 데이터 조회
   useEffect(() => {
     const fetchMessages = async () => {
       setLoading(true);
@@ -67,7 +67,6 @@ export default function ContactSection() {
           id,
           sender_id,
           receiver_id,
-          project_id,
           content,
           is_read,
           created_at,
@@ -93,13 +92,55 @@ export default function ContactSection() {
           sender: message.profiles?.user_name ?? "알 수 없는 사용자",
           job: message.profiles?.user_category ?? "",
           senderId: message.sender_id,
-          projectId: message.project_id,
           content: message.content,
           isRead: message.is_read,
           createdAt: formatTime(message.created_at),
+          createdAtRaw: message.created_at,
         }));
 
-        setNotifications(formattedMessages);
+        // 내가 받은 좋아요 조회
+        const { data: likes, error: likeError } = await supabase
+          .from("portfolio_likes")
+          .select(
+            `
+            project_id,
+            user_id,
+            created_at,
+            portfolios!inner (
+              project_id,
+              title,
+              author_id
+            ),
+            profiles!likes_user_id_fkey (
+              user_name
+            )
+          `,
+          )
+          .eq("portfolios.author_id", user.id)
+          .order("created_at", { ascending: false });
+
+        if (likeError) {
+          throw likeError;
+        }
+
+        console.log("받은 좋아요:", likes);
+
+        const formattedLikes = (likes ?? []).map(like => ({
+          id: `like-${like.project_id}-${like.user_id}`,
+          type: "like",
+          sender: like.profiles?.user_name ?? "알 수 없는 사용자",
+          projectId: like.project_id,
+          projectTitle: like.portfolios?.title ?? "프로젝트",
+          isRead: true,
+          createdAt: formatTime(like.created_at),
+          createdAtRaw: like.created_at,
+        }));
+
+        const allNotifications = [...formattedMessages, ...formattedLikes].sort(
+          (a, b) => new Date(b.createdAtRaw) - new Date(a.createdAtRaw),
+        );
+
+        setNotifications(allNotifications);
       } catch (error) {
         console.error("받은 메시지 조회 실패:", error);
         setNotifications([]);
@@ -116,6 +157,14 @@ export default function ContactSection() {
     setSelectedMessage(item);
     setOpenMessage(true);
   };
+  // 메세지 읽음 처리
+  const handleMessageRead = messageId => {
+    setNotifications(prev => prev.map(item => (item.id === messageId ? { ...item, isRead: true } : item)));
+  };
+  // 메세지 삭제
+  const handleMessageDelete = messageId => {
+    setNotifications(prev => prev.filter(item => item.id !== messageId));
+  };
 
   return (
     <Box component="section" sx={{ width: "100%" }}>
@@ -125,14 +174,25 @@ export default function ContactSection() {
           View all
         </Link>
         {/* Dialog 컴포넌트*/}
-        <ContactDialog open={openContact} onClose={() => setOpenContact(false)} />
+        <ContactDialog
+          open={openContact}
+          onClose={() => setOpenContact(false)}
+          contacts={notifications}
+          onMessageClick={handleMessageClick}
+        />
       </Box>
       <List>
         {notifications.map(item => (
           <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
         ))}
       </List>
-      <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />
+      <MessageDialog
+        open={openMessage}
+        onClose={() => setOpenMessage(false)}
+        message={selectedMessage}
+        onMessageRead={handleMessageRead}
+        onMessageDelete={handleMessageDelete}
+      />
     </Box>
   );
 }

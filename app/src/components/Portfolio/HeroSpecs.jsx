@@ -11,7 +11,7 @@ import HeroSpecsItem from "./HeroSpecsItem";
 import TagChip from "../TagChip";
 
 export default function HeroSpecs({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
   const categories = data?.portfolio_categories;
   const techStacks = data?.portfolio_tech_stacks;
 

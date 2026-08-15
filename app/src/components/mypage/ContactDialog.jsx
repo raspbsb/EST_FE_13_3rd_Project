@@ -1,74 +1,56 @@
-import { useState } from 'react';
-import ContactCard from './ContactCard';
-import MessageDialog from './MessageDialog';
+import { useState } from "react";
 
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import IconButton from '@mui/material/IconButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import ToggleButton from '@mui/material/ToggleButton';
-import List from '@mui/material/List';
-import Box from '@mui/material/Box';
+import ContactCard from "./ContactCard";
 
-import { CloseIcon } from '../../lib/icons';
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
+import List from "@mui/material/List";
+import Box from "@mui/material/Box";
+import Text from "@mui/material/Typography";
 
-export default function ContactDialog({ open, onClose }) {
+import { CloseIcon } from "../../lib/icons";
+
+export default function ContactDialog({ open, onClose, contacts = [], onMessageClick }) {
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [filter, setFilter] = useState('new');
+  const [filter, setFilter] = useState("new");
 
-  // 메세지 dialog 상태 관리
-  const [openMessage, setOpenMessage] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState(null);
-
-  const handleMessageClick = item => {
-    setSelectedMessage(item);
-    setOpenMessage(true);
-  };
-
-  //
+  // new 와 all 필터
   const handleChange = (e, value) => {
     if (value !== null) {
       setFilter(value);
     }
   };
 
-  // 임시 데이터
-  const contacts = [
-    {
-      id: 1,
-      type: 'like',
-      sender: 'employer',
-      job: 'Job position',
-      projectTitle: 'Nexus Dashboard',
-      createdAt: '2h ago',
-      isRead: false,
-    },
-    {
-      id: 2,
-      type: 'message',
-      sender: 'employer',
-      job: '프론트엔드 개발자',
-      createdAt: '1d ago',
-      content: '안녕하세요.',
-      isRead: false,
-    },
-    {
-      id: 3,
-      type: 'like',
-      sender: 'employer',
-      job: 'Job position',
-      projectTitle: 'Nexus Dashboard',
-      createdAt: '2h ago',
-      isRead: true,
-    },
-  ];
+  const filteredContacts =
+    filter === "new"
+      ? contacts.filter(contact => {
+          // 메시지 -> 읽지 않은 메시지만 New
+          if (contact.type === "message") {
+            return !contact.isRead;
+          }
 
-  const filteredContacts = filter === 'new' ? contacts.filter(contact => !contact.isRead) : contacts;
+          // 좋아요 -> 알람 생성 후 7일 이내만 New
+          if (contact.type === "like") {
+            const createdAt = new Date(contact.createdAtRaw);
+            const now = new Date();
+
+            const diff = now - createdAt;
+            const sevenDays = 7 * 24 * 60 * 60 * 1000;
+
+            return diff < sevenDays;
+          }
+
+          return false;
+        })
+      : contacts;
 
   return (
     <>
@@ -82,9 +64,9 @@ export default function ContactDialog({ open, onClose }) {
       >
         <DialogTitle
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
           관심 & 연락
@@ -96,8 +78,8 @@ export default function ContactDialog({ open, onClose }) {
         <DialogContent dividers>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'center',
+              display: "flex",
+              justifyContent: "center",
               mb: 4,
             }}
           >
@@ -106,30 +88,28 @@ export default function ContactDialog({ open, onClose }) {
               exclusive
               onChange={handleChange}
               sx={{
-                border: '1px solid',
-                borderColor: '#fafafa',
-                borderRadius: '999px',
-                overflow: 'hidden',
+                border: "1px solid",
+                borderColor: "#fafafa",
+                borderRadius: "999px",
+                overflow: "hidden",
 
-                '& .MuiToggleButton-root': {
+                "& .MuiToggleButton-root": {
                   width: 120,
                   height: 45,
-
                   border: 0,
                   borderRadius: 6,
+                  textTransform: "none",
+                  typography: "h5",
+                  color: "text.primary",
 
-                  textTransform: 'none',
-                  typography: 'h5',
-                  color: 'text.primary',
-
-                  '&:hover': {
-                    bgcolor: 'transparent',
+                  "&:hover": {
+                    bgcolor: "transparent",
                   },
                 },
 
-                '& .Mui-selected': {
-                  bgcolor: '#212121 !important',
-                  color: '#fff !important',
+                "& .Mui-selected": {
+                  bgcolor: "#212121 !important",
+                  color: "#fff !important",
                 },
               }}
             >
@@ -139,14 +119,28 @@ export default function ContactDialog({ open, onClose }) {
             </ToggleButtonGroup>
           </Box>
 
-          <List disablePadding>
-            {filteredContacts.map(contact => (
-              <ContactCard key={contact.id} item={contact} onMessageClick={handleMessageClick} />
-            ))}
+          <List disablePadding="true">
+            {filteredContacts.length > 0 ? (
+              filteredContacts.map(contact => (
+                <ContactCard key={contact.id} item={contact} onMessageClick={onMessageClick} />
+              ))
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  minHeight: 200,
+                }}
+              >
+                <Text component="p" variant="body2" color="text.secondary">
+                  {filter === "new" ? "새로운 알람이 없습니다." : "관심 및 연락 내역이 없습니다."}
+                </Text>
+              </Box>
+            )}
           </List>
         </DialogContent>
       </Dialog>
-      <MessageDialog open={openMessage} onClose={() => setOpenMessage(false)} message={selectedMessage} />
     </>
   );
 }

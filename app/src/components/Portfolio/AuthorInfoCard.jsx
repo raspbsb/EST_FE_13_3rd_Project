@@ -8,11 +8,12 @@ import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 
 import { EmailIcon, CodeIcon } from "../../lib/icons";
+import { toUrl } from "../../services/toUrl";
 
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
 export default function AuthorInfoCard({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
   return (
@@ -33,7 +34,7 @@ export default function AuthorInfoCard({}) {
     >
       <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
         <Avatar
-          src={author?.avatar_path ?? "."}
+          src={toUrl("profile_avatars", author?.avatar_path)}
           alt={author?.user_name ?? "-"}
           sx={{ width: "128px", height: "128px" }}
         />
