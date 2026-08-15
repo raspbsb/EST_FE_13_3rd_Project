@@ -130,7 +130,21 @@ export default function ContactSection() {
           createdAtRaw: like.created_at,
         }));
 
-        const allNotifications = [...formattedMessages, ...formattedLikes].sort(
+        // 중복 있을 경우 가장 최근 생성된 좋아요를 남기기
+        const uniqueLikesMap = new Map();
+
+        for (const like of formattedLikes) {
+          const existing = uniqueLikesMap.get(like.id);
+
+          if (!existing || new Date(like.createdAtRaw) > new Date(existing.createdAtRaw)) {
+            uniqueLikesMap.set(like.id, like);
+          }
+        }
+
+        // 좋아요 중복 방지
+        const uniqueLikes = Array.from(uniqueLikesMap.values());
+
+        const allNotifications = [...formattedMessages, ...uniqueLikes].sort(
           (a, b) => new Date(b.createdAtRaw) - new Date(a.createdAtRaw),
         );
 
@@ -175,11 +189,15 @@ export default function ContactSection() {
           onMessageClick={handleMessageClick}
         />
       </Box>
-      <List>
-        {notifications.map(item => (
-          <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
-        ))}
-      </List>
+      {loading ? (
+        <Text>관심 & 연락을 불러오는 중...</Text>
+      ) : (
+        <List>
+          {notifications.map(item => (
+            <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
+          ))}
+        </List>
+      )}
       <MessageDialog
         open={openMessage}
         onClose={() => setOpenMessage(false)}
