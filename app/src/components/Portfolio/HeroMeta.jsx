@@ -26,7 +26,7 @@ export default function HeroMeta({}) {
   useEffect(() => {
     setIsLiked(data?.portfolio_likes?.some(l => l.user_id === user?.id) ?? false);
     setIsBookmarked(data?.bookmarks?.some(b => b.user_id === user?.id) ?? false);
-  }, [user]);
+  }, [user, data?.project_id]);
 
   const handleLikeBtn = async () => {
     if (statusU !== "succeeded") return;
