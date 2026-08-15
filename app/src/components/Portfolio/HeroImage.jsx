@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
@@ -9,11 +9,16 @@ import ImageListItem from "@mui/material/ImageListItem";
 import { toUrl } from "../../services/toUrl";
 
 export default function HeroImage({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const [selectedImg, setSelectedImg] = useState(0);
+  const { data } = useSelector(state => state.portfolio);
   const images = data?.portfolio_images;
-  const [selectedImg, setSelectedImg] = useState(
-    data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order ?? 0,
-  );
+
+  function setThumbnail() {
+    return data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order ?? 0;
+  }
+  useEffect(() => {
+    setSelectedImg(setThumbnail());
+  }, [data?.project_id]);
 
   if (!images || images.length <= 0) {
     return (

@@ -9,7 +9,7 @@ import { EditIcon } from "../../lib/icons";
 
 export default function HeroHeading({}) {
   const { user } = useSelector(state => state.user);
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
 
   return (
     <>

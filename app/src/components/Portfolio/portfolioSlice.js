@@ -13,7 +13,11 @@ export const fetchPortfolio = createAsyncThunk("portfolio", async portfolioId =>
   return result;
 });
 export const fetchLikes = createAsyncThunk("portfolio/likes", async portfolioId => {
-  const result = await supabase.schema("public").from("portfolio_likes").select("*").eq("project_id", portfolioId);
+  const result = await supabase
+    .schema("public")
+    .from("portfolio_likes")
+    .select("*", { count: "exact", head: true })
+    .eq("project_id", portfolioId);
   return result;
 });
 export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", async ({ id, authorId }) => {
@@ -39,6 +43,7 @@ const portfolioSlice = createSlice({
     data: null,
     status: "idle", // idle | loading | succeeded | failed | notFound
     error: null,
+    likes: 0,
     otherPortfolios: {
       data: null,
       status: "idle", // idle | loading | succeeded | failed | notFound
@@ -51,6 +56,7 @@ const portfolioSlice = createSlice({
       state.data = null;
       state.status = "idle";
       state.error = null;
+      state.likes = 0;
       state.otherPortfolios = {
         data: null,
         status: "idle",
@@ -68,6 +74,7 @@ const portfolioSlice = createSlice({
       state.error = error;
       state.status = error ? "failed" : data ? "succeeded" : "notFound";
       state.data = data;
+      state.likes = data?.portfolio_likes?.length;
       if (error) console.warn(error);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
@@ -77,8 +84,8 @@ const portfolioSlice = createSlice({
     });
 
     builder.addCase(fetchLikes.fulfilled, (state, action) => {
-      const { data, error } = action.payload;
-      error ? console.warn(error) : (state.data.portfolio_likes = data);
+      const { count, error } = action.payload;
+      error ? console.warn(error) : (state.likes = count);
     });
 
     builder.addCase(fetchOtherPortfolios.pending, (state, action) => {
