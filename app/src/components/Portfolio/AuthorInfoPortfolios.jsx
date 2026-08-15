@@ -8,7 +8,7 @@ import MuiLink from "@mui/material/Link";
 import ProjectCard from "../ProjectCard";
 
 export default function AuthorInfoPortfolios({}) {
-  const { data, status, otherPortfolios } = useSelector(state => state.portfolio);
+  const { data, otherPortfolios } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
   return (

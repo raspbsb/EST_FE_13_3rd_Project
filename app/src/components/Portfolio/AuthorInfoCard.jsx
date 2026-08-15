@@ -13,7 +13,7 @@ import { toUrl } from "../../services/toUrl";
 import AuthorInfoCardContact from "./AuthorInfoCardContact";
 
 export default function AuthorInfoCard({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
   const author = data?.profiles;
 
   return (

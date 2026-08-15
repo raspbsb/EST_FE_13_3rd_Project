@@ -4,7 +4,7 @@ import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
 export default function DescriptionSection({}) {
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
 
   return (
     <Box component={"section"}>

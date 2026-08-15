@@ -10,7 +10,7 @@ import { toUrl } from "../../services/toUrl";
 
 export default function HeroImage({}) {
   const [selectedImg, setSelectedImg] = useState(0);
-  const { data, status } = useSelector(state => state.portfolio);
+  const { data } = useSelector(state => state.portfolio);
   const images = data?.portfolio_images;
 
   function setThumbnail() {
