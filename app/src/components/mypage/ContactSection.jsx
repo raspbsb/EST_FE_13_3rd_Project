@@ -1,5 +1,6 @@
 import { supabase } from "../../utils/supabase";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 import ContactCard from "./ContactCard";
 import ContactDialog from "./ContactDialog";
@@ -11,6 +12,9 @@ import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
 export default function ContactSection() {
+  // user 가져오기
+  const { user } = useSelector(state => state.user);
+
   //알람 상태 관리
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,17 +48,7 @@ export default function ContactSection() {
       setLoading(true);
 
       try {
-        // 현재 로그인한 사용자
-        const {
-          data: { user },
-          error: authError,
-        } = await supabase.auth.getUser();
-
-        if (authError) {
-          throw authError;
-        }
-
-        if (!user) {
+        if (!user?.id) {
           setNotifications([]);
           return;
         }
@@ -150,7 +144,7 @@ export default function ContactSection() {
     };
 
     fetchMessages();
-  }, []);
+  }, [user?.id]);
 
   // 메세지 클릭 (item 저장 -> dialog 오픈)
   const handleMessageClick = item => {

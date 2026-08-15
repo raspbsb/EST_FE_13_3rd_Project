@@ -1,4 +1,5 @@
 import { supabase } from "../utils/supabase";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -12,33 +13,28 @@ import CollectionManageDialog from "../components/mypage/CollectionManageDialog"
 import styles from "./Collections.module.css";
 
 export default function Collections() {
+  // user 가져오기
+  const { user } = useSelector(state => state.user);
+
+  const { userId } = useParams();
   const navigate = useNavigate();
 
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const currentUserId = user?.id;
+
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   //컬렉션 관리 dialog
   const [openManage, setOpenManage] = useState(false);
 
-  // auth user 가져오기
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setCurrentUserId(user?.id ?? null);
-    };
-
-    getCurrentUser();
-  }, []);
-
   // collections DB 불러오기
   const fetchCollections = async () => {
     if (!currentUserId) {
+      setCollections([]);
       setLoading(false);
       return;
     }
+
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("collections")
