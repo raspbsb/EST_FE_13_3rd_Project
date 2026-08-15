@@ -36,7 +36,7 @@ export default function Portfolio() {
         <Text component={"p"} variant="h4">
           포트폴리오 상세
         </Text>
-        <Box sx={{ display: "flex", justifyContent: "center", pt: window.innerHeight / 32 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
           <CircularProgress size={40} />
         </Box>
       </Container>
