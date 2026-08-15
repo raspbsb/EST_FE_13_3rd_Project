@@ -33,6 +33,7 @@ import {
   validateDraftGuideFieldErrors,
   validateSubmitFieldErrors,
 } from "../utils/portfolioValidation";
+import { supabase } from "../utils/supabase";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -272,6 +273,15 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
+  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용)
+  const redirectAfterEditorAlert = useCallback(
+    ({ message, path = "/gallery" }) => {
+      alert(message);
+      navigate(path, { replace: true });
+    },
+    [navigate],
+  );
+
   // 로그인 페이지로 이동
   const redirectToLogin = useCallback(() => {
     navigate("/login", {
@@ -297,6 +307,56 @@ export default function PortfolioEditor({ data }) {
 
     checkAuth();
   }, [redirectToLogin]);
+
+  // 수정 모드로 진입 시 : URL의 project_id가 실제 portfolios 테이블에 존재하는지 확인
+  // 존재하지 않는 id를 직접 주소로 입력하면 안내 후 갤러리 페이지로 이동
+  useEffect(() => {
+    // 등록 페이지는 project_id가 없으므로 검사X
+    if (!isEdit) return;
+
+    const checkPortfolioExists = async () => {
+      // 포트폴리오 테이블에서 pid, aid 컬럼을 선택해, 파라미터 id 동일한 pid를 하나만 가져옴
+      const { data, error } = await supabase
+        .from("portfolios")
+        .select("project_id, author_id")
+        .eq("project_id", id)
+        .maybeSingle();
+
+      // Supabase 조회 자체가 실패하면 우선 에러 메시지를 보여주고 갤러리로 이동한다.
+      if (error) {
+        redirectAfterEditorAlert({
+          message: error.message,
+        });
+        return;
+      }
+
+      // 조회 결과가 없으면 존재하지 않는 포트폴리오 id로 판단한다.
+      if (!data) {
+        redirectAfterEditorAlert({
+          message: "존재하지 않는 포트폴리오입니다.",
+        });
+        return;
+      }
+
+      // 현재 로그인한 사용자를 다시 확인한다.
+      // 인증 useEffect가 이미 있더라도, 권한 비교에는 실제 user.id가 필요하다.
+      const user = await getAuthenticatedUser();
+
+      if (!user) {
+        redirectToLogin();
+        return;
+      }
+
+      // 포트폴리오 작성자와 현재 로그인 사용자가 다르면 수정 권한이 없는 것으로 처리한다.
+      if (data.author_id !== user.id) {
+        redirectAfterEditorAlert({
+          message: "수정 권한이 없는 포트폴리오입니다.",
+        });
+      }
+    };
+
+    checkPortfolioExists();
+  }, [isEdit, id, redirectAfterEditorAlert, redirectToLogin]);
 
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
