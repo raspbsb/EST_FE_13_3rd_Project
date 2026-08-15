@@ -19,7 +19,7 @@ export const fetchUser = createAsyncThunk("user", async () => {
   // profiles 조회
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("*")
+    .select("*, collections(*)")
     .eq("user_id", user.id)
     .maybeSingle();
 

@@ -19,6 +19,7 @@ export default function CollectionSelectDialog({
   collections = [],
   onSelect,
   selectedCollectionId = null,
+  onSave,
 }) {
   const [selectedId, setSelectedId] = useState(selectedCollectionId);
 
@@ -30,6 +31,7 @@ export default function CollectionSelectDialog({
   }, [open, selectedCollectionId]);
 
   const handleSelect = collectionId => {
+    onSelect(collectionId);
     setSelectedId(collectionId);
   };
 
@@ -37,9 +39,9 @@ export default function CollectionSelectDialog({
   const handleSave = () => {
     if (!selectedId) return;
 
-    const selectedCollection = collections.find(collection => collection.id === selectedId);
+    const selectedCollection = collections.find(collection => collection.collection_id === selectedId);
 
-    onSelect?.(selectedCollection);
+    onSave?.(selectedCollection);
     onClose();
   };
 
@@ -60,9 +62,12 @@ export default function CollectionSelectDialog({
         ) : (
           <List disablePadding>
             {collections.map(collection => (
-              <ListItem key={collection.id} disablePadding>
-                <ListItemButton selected={selectedId === collection.id} onClick={() => handleSelect(collection.id)}>
-                  <Radio edge="start" checked={selectedId === collection.id} tabIndex={-1} disableRipple />
+              <ListItem key={collection.collection_id} disablePadding>
+                <ListItemButton
+                  selected={selectedId === collection.collection_id}
+                  onClick={() => handleSelect(collection.collection_id)}
+                >
+                  <Radio edge="start" checked={selectedId === collection.collection_id} tabIndex={-1} disableRipple />
 
                   <ListItemText primary={collection.title} secondary={`총 ${collection.total ?? 0}개`} />
                 </ListItemButton>
