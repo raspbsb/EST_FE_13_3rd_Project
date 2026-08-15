@@ -6,19 +6,14 @@ import Text from "@mui/material/Typography";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
+import { toUrl } from "../../utils/toUrl";
+
 export default function HeroImage({}) {
   const { data, status } = useSelector(state => state.portfolio);
   const images = data?.portfolio_images;
   const [selectedImg, setSelectedImg] = useState(
     data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order ?? 0,
   );
-
-  function toUrl(relativePath) {
-    if (!relativePath) return ".";
-
-    const result = supabase.storage.from("portfolio+").getPublicUrl(relativePath);
-    return result.data.publicUrl;
-  }
 
   if (!images || images.length <= 0) {
     return (
@@ -36,7 +31,7 @@ export default function HeroImage({}) {
           <ImageListItem>
             <img
               key={img.display_order}
-              src={toUrl(img.image_path)}
+              src={toUrl("portfolio_images", img.image_path)}
               alt={img.alt_text}
               onClick={() => setSelectedImg(img.display_order)}
             />
