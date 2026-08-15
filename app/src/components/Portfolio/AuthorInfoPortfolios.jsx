@@ -23,11 +23,13 @@ export default function AuthorInfoPortfolios({}) {
         <Text component={"h3"} variant="h5">
           {author?.user_name ?? "-"}의 다른 프로젝트
         </Text>
-        <Text component={"p"} variant="body1" align="right">
-          <MuiLink component={Link} to={`/profiles/${author?.user_id ?? ""}`}>
-            View all {otherPortfolios?.count + 1}
-          </MuiLink>
-        </Text>
+        {otherPortfolios?.count >= 3 && (
+          <Text component={"p"} variant="body1" align="right">
+            <MuiLink component={Link} to={`/profiles/${author?.user_id ?? ""}`}>
+              View all {otherPortfolios?.count + 1}
+            </MuiLink>
+          </Text>
+        )}
       </Box>
       <Grid component={"ul"} container columns={{ mobile: 1, tablet: 2, desktop: 2 }}>
         {otherPortfolios.status === "succeeded" ? (
