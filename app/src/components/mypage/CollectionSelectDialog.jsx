@@ -33,6 +33,7 @@ export default function CollectionSelectDialog({
     setSelectedId(collectionId);
   };
 
+  // 컬렉션 저장 함수
   const handleSave = () => {
     if (!selectedId) return;
 

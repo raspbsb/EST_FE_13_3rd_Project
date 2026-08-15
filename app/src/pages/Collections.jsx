@@ -2,6 +2,7 @@ import { supabase } from "../utils/supabase";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toUrl } from "../services/toUrl";
 
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
@@ -74,8 +75,10 @@ export default function Collections() {
       const latestBookmark = sortedBookmarks[0];
 
       // 가장 최근 북마크 한 프로젝트의 썸네일
-      const thumbnail =
+      const thumbnailPath =
         latestBookmark?.portfolios?.portfolio_images?.find(image => image.is_thumbnail)?.image_path ?? null;
+
+      const thumbnail = thumbnailPath ? toUrl("portfolio_images", thumbnailPath) : null;
 
       return {
         id: collection.collection_id,

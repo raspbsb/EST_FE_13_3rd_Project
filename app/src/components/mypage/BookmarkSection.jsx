@@ -2,6 +2,7 @@ import { supabase } from "../../utils/supabase";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toUrl } from "../../services/toUrl";
 
 import BookmarkCard from "./BookmarkCard";
 
@@ -62,8 +63,10 @@ export default function BookmarkSection() {
 
         const latestBookmark = sortedBookmarks[0];
 
-        const thumbnail =
+        const thumbnailPath =
           latestBookmark?.portfolios?.portfolio_images?.find(image => image.is_thumbnail)?.image_path ?? null;
+
+        const thumbnail = thumbnailPath ? toUrl("portfolio_images", thumbnailPath) : null;
 
         return {
           id: collection.collection_id,
