@@ -30,15 +30,14 @@ export default function HeroImage({}) {
 
   return (
     <>
-      <img src={toUrl(images[selectedImg]?.image_path)} alt={images[selectedImg]?.alt_text} />
+      <img src={toUrl("portfolio_images", images[selectedImg]?.image_path)} alt={images[selectedImg]?.alt_text} />
       <ImageList cols={5} gap={1} sx={{ maxWidth: "100%" }}>
         {images?.map(img => (
-          <ImageListItem>
+          <ImageListItem key={img.display_order}>
             <img
-              key={img.display_order}
               src={toUrl("portfolio_images", img.image_path)}
               alt={img.alt_text}
-              onClick={() => setSelectedImg(img.display_order)}
+              onClick={() => setSelectedImg(img.display_order - 1)}
             />
           </ImageListItem>
         ))}
