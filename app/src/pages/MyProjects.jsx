@@ -10,6 +10,7 @@ import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [collectionExists, setCollectionExists] = useState(true);
 
   const { userId: profileUserId, collectionId } = useParams();
   const { profile } = useOutletContext();
@@ -44,6 +45,31 @@ export default function MyProjects({ mode }) {
           return;
         }
         // 컬렉션 조회
+        const { data: collection, error: collectionError } = await supabase
+          .from("collections")
+          .select("collection_id")
+          .eq("collection_id", collectionId)
+          .eq("owner_id", currentUserId)
+          .maybeSingle();
+
+        if (collectionError) {
+          console.error("컬렉션 조회 실패:", collectionError);
+          setCollectionExists(false);
+          setProjects([]);
+          setLoading(false);
+          return;
+        }
+
+        if (!collection) {
+          setCollectionExists(false);
+          setProjects([]);
+          setLoading(false);
+          return;
+        }
+
+        setCollectionExists(true);
+
+        // 북마크 조회
         const { data, error } = await supabase
           .from("bookmarks")
           .select(
@@ -86,7 +112,7 @@ export default function MyProjects({ mode }) {
         return;
       }
 
-      // 2. MyPage / Public Profile 데이터 조회
+      // MyPage / Public Profile 데이터 조회
       if (!targetUserId) {
         setProjects([]);
         setLoading(false);
@@ -151,9 +177,13 @@ export default function MyProjects({ mode }) {
             : `${profile?.user_name}의 프로젝트`}
       </Text>
 
-      {projects.length === 0 ? (
+      {!collectionExists ? (
         <Box className={styles.empty}>
-          <Text variant="body1">등록된 프로젝트가 없습니다.</Text>
+          <Text variant="body1">존재하지 않는 컬렉션입니다.</Text>
+        </Box>
+      ) : projects.length === 0 ? (
+        <Box className={styles.empty}>
+          <Text variant="body1">북마크 한 프로젝트가 없습니다.</Text>
         </Box>
       ) : (
         <div className={styles.grid}>
