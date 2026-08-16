@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import useNotifications from "../hooks/useNotifications";
 
 import Container from "@mui/material/Container";
+import { Stack } from "@mui/material";
 
 import ProfileHeader from "../components/mypage/ProfileHeader";
 import ActivityStats from "../components/mypage/ActivityStats";
@@ -45,7 +46,6 @@ export default function MyPageLayout() {
       <Container
         component="main"
         maxWidth={false}
-        disableGutters
         sx={{
           maxWidth: "1272px",
           mx: "auto",
@@ -56,11 +56,13 @@ export default function MyPageLayout() {
           },
         }}
       >
-        <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
+        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 }, columnGap: 0 }}>
+          <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
 
-        <ActivityStats profile={profile} />
+          <ActivityStats profile={profile} />
 
-        <Outlet context={{ profile, notificationState }} />
+          <Outlet context={{ profile, notificationState }} />
+        </Stack>
       </Container>
 
       <MobileProfileNav notificationState={notificationState} />

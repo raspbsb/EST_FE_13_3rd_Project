@@ -119,27 +119,73 @@ export default function ActivityStats({ mode, profile }) {
   ];
 
   return (
-    <Box sx={{ pt: 6 }}>
+    <Box
+      sx={{
+        pt: "0",
+      }}
+    >
       <Grid
         container
         spacing={3}
-        sx={{ justifyContent: "space-around", bgcolor: "text.primary", borderRadius: 3, py: 3 }}
+        sx={{
+          justifyContent: "space-around",
+          bgcolor: "text.primary",
+          borderRadius: 3,
+          alignContent: "center",
+          py: 3,
+          height: {
+            mobile: "64px",
+            tablet: "118px",
+            desktop: "118px",
+          },
+        }}
       >
         {statItems.map(item => (
           <Grid
             key={item.id}
             sx={{
               color: "background.default",
+              justifyItems: "center",
             }}
           >
-            <Text component="h3" variant="h6">
+            <Text
+              component="h3"
+              variant="h6"
+              sx={{
+                fontSize: {
+                  mobile: "10px",
+                  tablet: "20px",
+                  desktop: "20px",
+                },
+              }}
+            >
               {item.title}
             </Text>
             <Box sx={{ display: "flex", alignItems: "baseline" }}>
-              <Text component="span" variant="h4">
+              <Text
+                component="span"
+                variant="h4"
+                sx={{
+                  fontSize: {
+                    mobile: "16px",
+                    tablet: "34px",
+                    desktop: "34px",
+                  },
+                }}
+              >
                 {loading ? "-" : item.count}
               </Text>
-              <Text component="span" variant="h5">
+              <Text
+                component="span"
+                variant="h5"
+                sx={{
+                  fontSize: {
+                    mobile: "14px",
+                    tablet: "24px",
+                    desktop: "24px",
+                  },
+                }}
+              >
                 개
               </Text>
             </Box>
