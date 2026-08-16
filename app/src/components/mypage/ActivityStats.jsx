@@ -58,17 +58,7 @@ export default function ActivityStats({ mode, profile }) {
         }
 
         // 프로필 조회수
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("profile_view")
-          .eq("user_id", userId)
-          .single();
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        const views = profileData?.profile_view ?? 0;
+        const views = profile?.profile_view ?? 0;
 
         // 받은 메세지 수 가져오기
         const { data: messages, error: messageError } = await supabase
