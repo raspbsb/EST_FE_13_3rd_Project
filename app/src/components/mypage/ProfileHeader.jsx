@@ -1,5 +1,7 @@
 import { supabase } from "../../utils/supabase";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { updateProfile } from "../../store/userSlice";
 import ProfileAvatar from "./ProfileAvatar";
 import EditDialog from "./EditDialog";
 import TagChip from "../TagChip";
@@ -15,6 +17,8 @@ import ListItem from "@mui/material/ListItem";
 import { EditIcon, EmailIcon, LinkIcon } from "../../lib/icons";
 
 export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
+  const dispatch = useDispatch();
+
   //Edit Dialog 상태 관리
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -54,8 +58,10 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
           throw profileError;
         }
 
-        // 부모 profile state 업데이트
+        // local profile 업데이트
         onProfileUpdate(data);
+        // Redux user.profile 업데이트
+        dispatch(updateProfile(data));
 
         console.log("프로필 이미지 삭제 성공");
         return;
@@ -106,6 +112,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
 
       // 화면에 업데이트
       onProfileUpdate(data);
+      dispatch(updateProfile(data));
 
       console.log("프로필 이미지 업로드 성공:", filePath);
     } catch (error) {
