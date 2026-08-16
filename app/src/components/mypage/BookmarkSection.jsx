@@ -98,6 +98,7 @@ export default function BookmarkSection() {
             key={c.id}
             title={c.title}
             total={c.total}
+            thumbnail={c.thumbnail}
             handleClick={() => navigate(`/mypage/collections/${c.id}`)}
           />
         ))}

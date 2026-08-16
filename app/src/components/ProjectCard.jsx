@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
+import { toUrl } from "../services/toUrl";
+
 import TagChip from "./TagChip";
 
-// import Chip from '@mui/material/Chip';
 import Text from "@mui/material/Typography";
 
 import { AccountCircleIcon, FavoriteBorderIcon, VisibilityOutlinedIcon } from "../lib/icons";
@@ -9,13 +10,14 @@ import { AccountCircleIcon, FavoriteBorderIcon, VisibilityOutlinedIcon } from ".
 import "./ProjectCard.scss";
 
 export default function ProjectCard({ project }) {
+  const navigate = useNavigate();
+
   if (!project) {
     return <></>;
   }
 
-  const navigate = useNavigate();
-
   const thumbnail = project.portfolio_images?.find(image => image.is_thumbnail);
+  const thumbnailUrl = thumbnail?.image_path ? toUrl("portfolio_images", thumbnail.image_path) : null;
 
   // 프로젝트 카드 클릭-> 포트폴리오 상세 페이지로 이동
   const handleClick = () => {
@@ -38,8 +40,8 @@ export default function ProjectCard({ project }) {
     <article className="project-card" onClick={handleClick}>
       {/* 썸네일 */}
       <div className="project-card-thumbnail">
-        {thumbnail?.image_path ? (
-          <img src={thumbnail.image_path} alt={thumbnail.alt_text || project.title} />
+        {thumbnailUrl ? (
+          <img src={thumbnailUrl} alt={thumbnail?.alt_text || project.title} />
         ) : (
           <div className="project-card-thumbnail-placeholder">이미지 없음</div>
         )}
