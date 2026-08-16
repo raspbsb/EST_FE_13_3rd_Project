@@ -17,13 +17,8 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-import {
-  createPortfolio,
-  getAuthenticatedUser,
-  getIsGithubLinked,
-  linkGithubIdentity,
-  updatePortfolio,
-} from "../services/portfolioService";
+import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
+import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
 // CSS
