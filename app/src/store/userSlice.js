@@ -41,7 +41,13 @@ const userSlice = createSlice({
     error: null,
   },
 
-  reducers: {},
+  reducers: {
+    updateProfile: (state, action) => {
+      if (state.user) {
+        state.user.profile = action.payload;
+      }
+    },
+  },
 
   extraReducers: builder => {
     builder.addCase(fetchUser.pending, state => {
@@ -75,5 +81,6 @@ const userSlice = createSlice({
     });
   },
 });
+export const { updateProfile } = userSlice.actions;
 
 export default userSlice.reducer;

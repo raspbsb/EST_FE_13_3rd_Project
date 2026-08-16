@@ -1,5 +1,8 @@
 import { supabase } from "../../utils/supabase";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { updateProfile } from "../../store/userSlice";
+
 import TagChip from "../TagChip";
 
 import { CloseIcon, LockIcon } from "../../lib/icons";
@@ -24,6 +27,7 @@ import FormLabel from "@mui/material/FormLabel";
 export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const dispatch = useDispatch();
 
   //Edit dialog form 관리
   const [form, setForm] = useState({
@@ -151,8 +155,11 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
       }
       console.log("프로필 수정 완료:", data);
 
-      // DB 수정 성공 후 화면도 변경
+      // local profile state 업데이트
       onProfileUpdate(data);
+
+      // Redux profile 업데이트
+      dispatch(updateProfile(data));
 
       onClose();
     } catch (error) {
