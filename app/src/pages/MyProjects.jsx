@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import { supabase } from "../utils/supabase";
+import { useSelector } from "react-redux";
 
 import ProjectCard from "../components/ProjectCard";
 import styles from "./MyProjects.module.css";
@@ -9,7 +10,9 @@ import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
-  const [currentUserId, setCurrentUserId] = useState(null);
+  // const [currentUserId, setCurrentUserId] = useState(null);
+  const { user } = useSelector(state => state.user);
+  const currentUserId = user?.id ?? null;
   const [collectionExists, setCollectionExists] = useState(true);
 
   const { userId: profileUserId, collectionId } = useParams();
@@ -21,17 +24,17 @@ export default function MyProjects({ mode }) {
   const targetUserId = mode === "public" ? profileUserId : profile?.user_id;
 
   //auth user 가져오기
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  // useEffect(() => {
+  //   const getCurrentUser = async () => {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
 
-      setCurrentUserId(user?.id ?? null);
-    };
+  //     setCurrentUserId(user?.id ?? null);
+  //   };
 
-    getCurrentUser();
-  }, []);
+  //   getCurrentUser();
+  // }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -144,7 +147,7 @@ export default function MyProjects({ mode }) {
         .order("created_at", { ascending: false });
 
       // Public Profile에서는 공개 프로젝트만 조회
-      if (mode === "public") {
+      if (mode === "public" && currentUserId !== profileUserId) {
         query = query.eq("is_public", true);
       }
 
@@ -167,6 +170,9 @@ export default function MyProjects({ mode }) {
     return null;
   }
 
+  // 데이터가 없을 때 메세지
+  const emptyMessage = mode === "collection" ? "북마크 한 프로젝트가 없습니다." : "등록된 프로젝트가 없습니다.";
+
   return (
     <Box component="section" className={styles.section}>
       <Text component="h2" variant="h6" className={styles.title}>
@@ -179,11 +185,15 @@ export default function MyProjects({ mode }) {
 
       {!collectionExists ? (
         <Box className={styles.empty}>
-          <Text variant="body1">존재하지 않는 컬렉션입니다.</Text>
+          <Text component="p" variant="body1">
+            존재하지 않는 컬렉션입니다.
+          </Text>
         </Box>
       ) : projects.length === 0 ? (
         <Box className={styles.empty}>
-          <Text variant="body1">북마크 한 프로젝트가 없습니다.</Text>
+          <Text component="p" variant="body1">
+            {emptyMessage}
+          </Text>
         </Box>
       ) : (
         <div className={styles.grid}>
