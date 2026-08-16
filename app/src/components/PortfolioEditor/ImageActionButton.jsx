@@ -6,6 +6,7 @@
 import IconButton from "@mui/material/IconButton";
 
 export default function ImageActionButton({ "aria-label": ariaLabel, children, danger = false, sx, ...props }) {
+  // 삭제 버튼만 danger modifier 클래스를 추가해 빨간색 상태 스타일을 적용한다.
   const className = danger
     ? "portfolio-editor-image-action-button portfolio-editor-image-action-button--danger"
     : "portfolio-editor-image-action-button";

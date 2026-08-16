@@ -30,6 +30,7 @@ function ProjectBasicInfoSection({
   formErrors = {},
   handleFormChange,
 }) {
+  // DatePicker는 dayjs 객체를 쓰지만, 부모 formData에는 YYYY-MM-DD 문자열만 저장한다.
   const [localStartedAt, setLocalStartedAt] = useState(startedAt);
   const [localEndedAt, setLocalEndedAt] = useState(endedAt);
 
@@ -38,6 +39,7 @@ function ProjectBasicInfoSection({
     setLocalEndedAt(endedAt);
   }, [startedAt, endedAt]);
 
+  // 텍스트 필드가 blur될 때 받은 값을 공통 formData 변경 함수 형태로 변환해 부모로 전달한다.
   const handleTextFieldValueCommit = useCallback(
     (name, value) => {
       handleFormChange({
@@ -50,7 +52,7 @@ function ProjectBasicInfoSection({
     [handleFormChange],
   );
 
-  // 해당 폼의 키값(started_at, ended_at)과 해당 폼에 찍힌 날짜를 변환해서 PortfolioEditor.jsx로 올려보내 변수에 저장함
+  // 선택한 날짜를 YYYY-MM-DD 문자열로 변환하고 로컬 DatePicker 상태와 부모 formData에 함께 반영한다.
   const handleDateChange = useCallback(
     (name, nextDate) => {
       const value = nextDate ? nextDate.format("YYYY-MM-DD") : "";

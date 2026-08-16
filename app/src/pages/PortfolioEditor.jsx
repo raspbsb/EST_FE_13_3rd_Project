@@ -17,7 +17,8 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-import { createPortfolio, getAuthenticatedUser } from "../services/portfolioService";
+import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
+import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
 // CSS
 import styles from "./PortfolioEditor.module.css";
@@ -33,6 +34,7 @@ import {
   validateDraftGuideFieldErrors,
   validateSubmitFieldErrors,
 } from "../utils/portfolioValidation";
+import { supabase } from "../utils/supabase";
 
 // 카테고리/기술스택 최대 개수 제한용 상수
 const MAX_CATEGORY_COUNT = 5;
@@ -189,7 +191,99 @@ const hasPortfolioDraftContent = ({ formData, aiAnalysisResult, draftGuide }) =>
   );
 };
 
-// // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
+// DB : 카테고리/기술스택 label만 저장 -> 에디터 칩에서 사용하는 { value, label } 형태로 다시 변환
+const createOptionFromLabel = ({ label, options }) => {
+  const matchedOption = options.find(option => option.label === label);
+
+  if (matchedOption) return matchedOption;
+
+  return {
+    value: String(label ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-"),
+    label: label ?? "",
+  };
+};
+
+// Storage에 저장된 image_path를 화면 미리보기용 public URL로 변환
+// DB에는 상대 경로만 저장되어 있고, img 태그에는 접근 가능한 URL이 필요함
+const getPortfolioImagePublicUrl = imagePath => {
+  if (!imagePath) return "";
+
+  const { data } = supabase.storage.from("portfolio_images").getPublicUrl(imagePath);
+
+  return data.publicUrl;
+};
+
+// DB에서 가져온 portfolios row를 에디터의 formData 구조로 변환
+const createEditorFormData = data => ({
+  title: data.title ?? "",
+  summary: data.summary ?? "",
+  description: data.description ?? "",
+  started_at: data.started_at ?? "",
+  ended_at: data.ended_at ?? "",
+  deploy_url: data.deploy_url ?? "",
+  repository_url: data.repository_url ?? "",
+  project_type: data.project_type ?? "",
+  team_size: data.team_size ?? "",
+  author_role: data.author_role ?? "",
+  environment: data.environment ?? "",
+  is_public: Boolean(data.is_public),
+
+  categories: (data.portfolio_categories ?? []).map(category =>
+    createOptionFromLabel({
+      label: category.category,
+      options: categoryOptions,
+    }),
+  ),
+
+  tech_stacks: (data.portfolio_tech_stacks ?? []).map(techStack =>
+    createOptionFromLabel({
+      label: techStack.tech_stack,
+      options: techStackOptions,
+    }),
+  ),
+
+  // 기존 이미지는 File 객체가 없으므로 imagePath를 보존하고 previewUrl은 public URL로 만든다.
+  images: (data.portfolio_images ?? [])
+    .map(image => ({
+      id: image.image_id ?? image.image_path,
+      imagePath: image.image_path,
+      previewUrl: getPortfolioImagePublicUrl(image.image_path),
+      name: image.alt_text ?? "portfolio-image",
+      size: 0,
+      type: "",
+      order: image.display_order,
+      isThumbnail: Boolean(image.is_thumbnail),
+    }))
+    .sort((a, b) => a.order - b.order),
+});
+
+// DB에서 가져온 portfolio_ai_created row를 에디터의 AI 분석 결과 상태 구조로 변환
+const createEditorAiAnalysisResult = aiCreated => ({
+  projectSummary: aiCreated.project_summary ?? "",
+  mainFeatures: aiCreated.main_features ?? "",
+  technicalFeatures: aiCreated.technical_features ?? "",
+  projectStructure: aiCreated.project_structure ?? "",
+  analyzedRole: aiCreated.analyzed_role ?? "",
+  participationDetails: aiCreated.participation_details ?? "",
+  analysisLimitation: aiCreated.analysis_limitation ?? "",
+  analysisEvidence: aiCreated.analysis_evidence ?? null,
+  analyzedAt: aiCreated.github_analyzed_at ?? "",
+});
+
+// DB에서 가져온 portfolio_ai_created row를 초안 가이드 상태 구조로 변환
+const createEditorDraftGuide = aiCreated => ({
+  originalDescription: aiCreated.draft_source_content ?? "",
+  aiDraftDescription: aiCreated.generated_content ?? "",
+  aiShortSummary: aiCreated.ai_short_summary ?? "",
+  generatedAt: aiCreated.draft_generated_at ?? "",
+  appliedDescriptionSource: "",
+  isSummaryApplied: Boolean(aiCreated.ai_short_summary),
+});
+
+// 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
 const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 // 임시저장 목록에서 유지할 최대 저장본 개수
 const MAX_PORTFOLIO_DRAFT_COUNT = 5;
@@ -198,22 +292,22 @@ const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
 
 // 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
-  // 경로에서 파라미터 받기
+  // 수정 모드일 때 URL의 project_id를 가져오기 위한 라우트 파라미터
   const { id } = useParams();
-  // 경로에서 현재 위치 받기
+  // 현재 경로가 정확히 /portfolios/:id/edit인지 확인해 등록/수정 모드를 구분
   const editRouteMatch = useMatch({ path: "/portfolios/:id/edit", end: true });
-  // 페이지 이동 초기화
+  // 로그인 리다이렉트, 저장 성공 후 상세 페이지 이동에 사용하는 라우터 함수
   const navigate = useNavigate();
-  // 현재 경로가 id/edit이면 true
+  // project_id가 있고 edit 경로와 일치하면 수정 모드로 취급
   const isEdit = Boolean(id) && Boolean(editRouteMatch);
 
-  // 현재 인증됐는지 확인하는 상태 변수
+  // 인증 확인이 끝나기 전에는 에디터를 렌더링하지 않기 위한 로딩 플래그
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
-  // 로컬 스토리지 임시저장 데이터. 객체 데이터 확정되면 키값은 기본값으로 넣어주기
+  // localStorage에서 읽어온 임시저장 목록. 최신 저장본이 배열 앞쪽에 위치한다.
   const [temporaryDrafts, setTemporaryDrafts] = useState([]);
 
-  // 현재 적용된 임시저장본 Id를 저장해두고 제출 시 자동 삭제
+  // 현재 적용된 임시저장본 id. 제출 성공 후 해당 저장본만 자동 삭제할 때 사용한다.
   const [appliedDraftId, setAppliedDraftId] = useState(null);
 
   // 사용자 입력 데이터 상태 객체. 기본값 모두 빈값. 키 : title, summary, description, started_at, ended_at,
@@ -272,6 +366,15 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
+  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용)
+  const redirectAfterEditorAlert = useCallback(
+    ({ message, path = "/gallery" }) => {
+      alert(message);
+      navigate(path, { replace: true });
+    },
+    [navigate],
+  );
+
   // 로그인 페이지로 이동
   const redirectToLogin = useCallback(() => {
     navigate("/login", {
@@ -297,6 +400,104 @@ export default function PortfolioEditor({ data }) {
 
     checkAuth();
   }, [redirectToLogin]);
+
+  // 수정 모드로 진입 시 : URL의 project_id가 실제 portfolios 테이블에 존재하는지 확인
+  // 존재하지 않는 id를 직접 주소로 입력하면 안내 후 갤러리 페이지로 이동
+  useEffect(() => {
+    // 등록 페이지는 project_id가 없으므로 검사X
+    if (!isEdit) return;
+
+    const checkPortfolioExists = async () => {
+      // 포트폴리오 테이블에서 파라미터 id 동일한 pid를 하나만 가져옴
+      const { data, error } = await supabase
+        .from("portfolios")
+        .select(
+          `
+          project_id,
+          author_id,
+          title,
+          summary,
+          description,
+          started_at,
+          ended_at,
+          deploy_url,
+          repository_url,
+          project_type,
+          team_size,
+          author_role,
+          environment,
+          is_public,
+          portfolio_categories(category),
+          portfolio_tech_stacks(tech_stack),
+          portfolio_images(image_id, image_path, display_order, is_thumbnail, alt_text),
+          portfolio_ai_created(
+            project_summary,
+            main_features,
+            technical_features,
+            project_structure,
+            analyzed_role,
+            participation_details,
+            analysis_limitation,
+            analysis_evidence,
+            github_analyzed_at,
+            draft_source_content,
+            generated_content,
+            ai_short_summary,
+            draft_generated_at
+          )
+          `,
+        )
+        .eq("project_id", id)
+        .maybeSingle();
+
+      // Supabase 조회 자체가 실패하면 우선 에러 메시지를 보여주고 갤러리로 이동한다.
+      if (error) {
+        redirectAfterEditorAlert({
+          message: error.message,
+        });
+        return;
+      }
+
+      // 조회 결과가 없으면 존재하지 않는 포트폴리오 id로 판단한다.
+      if (!data) {
+        redirectAfterEditorAlert({
+          message: "존재하지 않는 포트폴리오입니다.",
+        });
+        return;
+      }
+
+      // 현재 로그인한 사용자를 다시 확인한다.
+      // 인증 useEffect가 이미 있더라도, 권한 비교에는 실제 user.id가 필요하다.
+      const user = await getAuthenticatedUser();
+
+      if (!user) {
+        redirectToLogin();
+        return;
+      }
+
+      // 포트폴리오 작성자와 현재 로그인 사용자가 다르면 수정 권한이 없는 것으로 처리한다.
+      if (data.author_id !== user.id) {
+        redirectAfterEditorAlert({
+          message: "수정 권한이 없는 포트폴리오입니다.",
+        });
+        return;
+      }
+
+      const aiCreated = data.portfolio_ai_created ?? {};
+
+      console.log(aiCreated);
+
+      setFormData(createEditorFormData(data));
+      setAiAnalysisResult(createEditorAiAnalysisResult(aiCreated));
+
+      setDraftGuide(prev => ({
+        ...prev,
+        ...createEditorDraftGuide(aiCreated),
+      }));
+    };
+
+    checkPortfolioExists();
+  }, [isEdit, id, redirectAfterEditorAlert, redirectToLogin]);
 
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
@@ -325,20 +526,23 @@ export default function PortfolioEditor({ data }) {
     setFormErrors(validatorByMode[formValidationMode](formData));
   }, [formData, formValidationMode]);
 
-  // 작성 완료/수정 완료 제출 시 현재 폼 데이터와 AI 보조 데이터를 확인하는 임시 제출 함수
+  // 작성 완료/수정 완료 클릭 시 폼 검증, payload 생성, Supabase 등록 요청, 성공 후 이동을 처리
   const handleSubmit = useCallback(
     async e => {
       e.preventDefault();
 
+      // 제출 시에는 브라우저 required 팝업 대신 현재 formData 상태를 기준으로 직접 검증한다.
       const nextErrors = validateSubmitFieldErrors(formData);
       setFormValidationMode("submit");
       setFormErrors(nextErrors);
 
+      // 첫 번째 오류 메시지만 alert로 보여주고 Supabase 요청은 보내지 않는다.
       if (hasFormErrors(nextErrors)) {
         alert(getFirstFormErrorMessage(nextErrors));
         return;
       }
 
+      // formData는 화면 관리용 구조라서, 백엔드 저장 전에 테이블 구조에 맞는 payload로 변환한다.
       const payload = createPortfolioPayload({
         formData,
         aiAnalysisResult,
@@ -348,8 +552,12 @@ export default function PortfolioEditor({ data }) {
       console.log(payload);
 
       try {
-        const { projectId, needsLogin } = await createPortfolio({ payload });
+        // 등록 서비스는 인증 확인, portfolios 저장, 정규화 테이블 저장, 이미지 업로드를 순서대로 처리한다.
+        const { projectId, needsLogin } = isEdit
+          ? await updatePortfolio({ projectId: id, payload })
+          : await createPortfolio({ payload });
 
+        // 서비스에서 로그인 세션이 없다고 알려주면 로그인 페이지로 돌려보낸다.
         if (needsLogin) {
           redirectToLogin();
           return;
@@ -357,13 +565,27 @@ export default function PortfolioEditor({ data }) {
 
         console.log(payload);
 
-        alert("포트폴리오가 등록되었습니다.");
+        // 현재 작성 중이던 내용이 임시저장본에서 불러온 상태였다면, 저장이 끝난 그 임시저장본만 정리한다.
+        if (appliedDraftId) {
+          setTemporaryDrafts(prev => {
+            const nextDrafts = prev.filter(draft => draft.id !== appliedDraftId);
+
+            saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+            return nextDrafts;
+          });
+          setAppliedDraftId(null);
+        }
+
+        // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다.
+        alert(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.");
         navigate(`/portfolios/${projectId}`);
       } catch (error) {
+        // Supabase/RLS/Storage 오류는 현재 alert로 확인하고, 마지막 UX 정리 때 스낵바로 교체 예정
         alert(error.message);
       }
     },
-    [formData, aiAnalysisResult, draftGuide, navigate, redirectToLogin],
+    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId],
   );
 
   // 미리보기 모달을 여는 함수
@@ -402,6 +624,7 @@ export default function PortfolioEditor({ data }) {
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
   const handleGenerateDraftGuide = useCallback(() => {
+    // 초안 생성은 프로젝트 설명이 핵심 입력값이므로 draft 전용 검증 기준을 먼저 적용한다.
     const nextErrors = validateDraftGuideFieldErrors(formData);
     setFormValidationMode("draft");
     setFormErrors(nextErrors);
@@ -411,6 +634,7 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
+    // 실제 AI 연결 전까지는 개발용 초안을 사용하고, 생성 당시의 사용자 설명을 별도로 보관한다.
     setDraftGuide(prev => ({
       ...prev,
       originalDescription: formData.description,
@@ -448,7 +672,6 @@ export default function PortfolioEditor({ data }) {
     }));
   }, [draftGuide.aiDraftDescription]);
 
-  // AI 추천 한 줄 요약 미리보기 입력값을 draftGuide 상태에만 반영하고 적용 상태를 해제하는 함수
   // AI 추천 한 줄 요약 미리보기 값을 실제 formData.summary에 적용하는 함수
   const handleApplyDraftSummary = useCallback(nextSummary => {
     setFormData(prev => ({
@@ -463,7 +686,7 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
-  // 카테고리 텍스트를 매개변수로 받아서 칩으로 사용할 텍스트 배열을 반환하는 함수
+  // 현재 에디터 상태를 최대 5개 임시저장 목록에 추가하고 localStorage에 반영
   const handleSaveDraft = useCallback(() => {
     if (!hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
       alert("임시저장할 내용이 없습니다.");
@@ -493,30 +716,36 @@ export default function PortfolioEditor({ data }) {
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
   const handleApplyDraft = useCallback(
     draftId => {
+      // 임시저장 목록에서 사용자가 선택한 저장본을 찾는다.
       const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
       if (!selectedDraft) return false;
 
+      // 저장본을 불러오면 현재 작성 중인 텍스트가 바뀌므로, 적용 전에 한 번 더 확인한다.
       const shouldApply = confirm(
         "현재 작성 중인 내용이 선택한 임시저장 내용으로 바뀝니다.\n기존에 작성 중이던 내용은 사라질 수 있습니다.\n이 저장본을 불러올까요?",
       );
 
       if (!shouldApply) return false;
 
+      // localStorage에는 File/blob 미리보기 URL을 안정적으로 저장하지 않으므로 이미지는 현재 첨부 상태를 유지한다.
       setFormData(prev => ({
         ...prev,
         ...selectedDraft.formData,
         images: prev.images,
       }));
 
+      // 저장본에 AI 분석 결과가 있으면 분석 결과 섹션도 같이 복원한다.
       if (selectedDraft.aiAnalysisResult) {
         setAiAnalysisResult(selectedDraft.aiAnalysisResult);
       }
 
+      // 저장본에 초안 가이드 상태가 있으면 현재 내용/AI 초안/요약 적용 상태도 같이 복원한다.
       if (selectedDraft.draftGuide) {
         setDraftGuide(selectedDraft.draftGuide);
       }
 
+      // 제출 성공 시 이 저장본만 자동 삭제할 수 있도록 현재 적용된 저장본 id를 기록한다.
       setAppliedDraftId(draftId);
 
       return true;
@@ -524,7 +753,7 @@ export default function PortfolioEditor({ data }) {
     [temporaryDrafts],
   );
 
-  // 선택한 카테고리가 비어 있거나 최대 개수를 넘거나 이미 추가된 값이면 무시하고, 새 카테고리만 formData.categories에 추가하는 함수
+  // 선택한 카테고리가 비어 있거나 최대 개수/중복 조건에 걸리면 무시하고, 새 카테고리만 추가
   const handleAddCategory = useCallback(category => {
     if (!category) return;
 
@@ -579,6 +808,7 @@ export default function PortfolioEditor({ data }) {
   const handleAddTechStack = useCallback(techStack => {
     if (!techStack) return;
 
+    // Autocomplete freeSolo는 문자열, 직접 입력 옵션 객체, 기존 옵션 객체가 모두 들어올 수 있다.
     // 기술스택이 문자열이면 : 매개변수로 받은 기술스택의 좌우 공백 제거, 검색 가능하도록 소문자로 변경, 문자열 내의 각 공백은 -으로 변경해 value로, 좌우 공백만 제거한 텍스트는 label로 저장
     // 텍스트가 문자열이 아니면 : 받은 값 그대로 저장
     const nextTechStack =
@@ -599,6 +829,7 @@ export default function PortfolioEditor({ data }) {
 
     // 이전 기술스택의 value나 label 중 위에서 저장한 value나 label이 같다면(이미 존재한다면) true, 아니면 false 반환
     setFormData(prev => {
+      // 기술 스택은 최대 8개까지만 저장한다.
       if (prev.tech_stacks.length >= MAX_TECH_STACK_COUNT) return prev;
 
       const exists = prev.tech_stacks.some(
@@ -616,16 +847,16 @@ export default function PortfolioEditor({ data }) {
     });
   }, []);
 
-  // 카테고리 칩의 삭제 버튼을 클릭하면 카테고리 배열에서 해당 카테고리를 삭제하는 함수
+  // 기술 스택 칩의 삭제 버튼을 클릭하면 기술 스택 배열에서 해당 항목을 삭제하는 함수
   const handleDeleteTechStack = useCallback(techStackValue => {
     setFormData(prev => ({
       ...prev,
-      // 선택한 카테고리 값이랑 다른 카테고리 값들만 남겨서 필터링
+      // 선택한 기술 스택 값과 다른 항목만 남겨서 필터링
       tech_stacks: prev.tech_stacks.filter(techStack => techStack.value !== techStackValue),
     }));
   }, []);
 
-  // 사용자 입력 반영 함수 : select와 input의 현재 상태를 반영해 변수에 저장
+  // name 속성을 기준으로 일반 input/select 변경값을 formData의 같은 key에 반영
   const handleFormChange = useCallback(e => {
     // 이벤트 타겟의 name, value, type, checked 상태를 구조분해할당
     const { name, value, type, checked } = e.target;
@@ -643,7 +874,7 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
-  // 공개/비공개 토글 스위치 핸들링 함수
+  // 공개/비공개 토글 스위치 변경값을 공통 formData 변경 함수로 전달
   const handlePortfolioVisibilityChange = useCallback(
     e => {
       handleFormChange(e);
@@ -654,6 +885,7 @@ export default function PortfolioEditor({ data }) {
   // 이미지 추가 : 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
   const handleAddImages = useCallback(files => {
     setFormData(prev => {
+      // FileList는 배열 메서드를 바로 쓰기 어려우므로 Array.from으로 실제 배열로 바꾼다.
       // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
       const selectedFiles = Array.from(files);
       // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
@@ -691,6 +923,7 @@ export default function PortfolioEditor({ data }) {
         return prev;
       }
 
+      // 사용자가 선택한 파일이 모두 검증을 통과한 경우에만 이미지 객체로 변환한다.
       // 조건에 맞는 이미지들을 객체로 생성하는 함수
       const nextImages = selectedFiles.map((file, index) =>
         createPortfolioImageItem({
@@ -712,12 +945,14 @@ export default function PortfolioEditor({ data }) {
   const handleDeleteImage = useCallback(imageId => {
     // formData를 변경 :
     setFormData(prev => {
+      // 삭제 전에 대상 객체를 찾아 previewUrl을 정리해야 한다.
       // 기존에서 삭제 요청받은 id와 동일한 대상을 삭제대상으로 지정
       const deleteTarget = prev.images.find(image => image.id === imageId);
 
       // 삭제대상이 아니면 기존거 리턴
       if (!deleteTarget) return prev;
 
+      // 이미지 객체가 상태에서 사라져도 브라우저가 만든 blob URL은 자동 해제되지 않으므로 직접 정리한다.
       // 브라우저가 임시로 잡아둔 이미지 미리보기 URL을 해제 (브라우저 메모리 정리용)
       URL.revokeObjectURL(deleteTarget.previewUrl);
 
@@ -732,9 +967,10 @@ export default function PortfolioEditor({ data }) {
     });
   }, []);
 
-  // 대표 이미지를 바꾸는 함수
+  // 선택한 이미지를 대표 이미지로 올리고, 나머지 이미지 순서를 뒤로 재정렬
   const handleSetThumbnailImage = useCallback(imageId => {
     setFormData(prev => {
+      // 대표로 지정할 이미지를 먼저 찾고, 없으면 상태를 바꾸지 않는다.
       // 기존거에서 매개변수로 받은 id와 일치하는 이미지를 찾아 썸네일 이미지로 저장
       const thumbnailImage = prev.images.find(image => image.id === imageId);
 
@@ -744,6 +980,7 @@ export default function PortfolioEditor({ data }) {
       // 썸네일 이미지가 아닌 것들을 필터링해 저장
       const otherImages = prev.images.filter(image => image.id !== imageId);
 
+      // 대표 이미지를 배열 맨 앞으로 이동시키면 normalizeImageOrder가 첫 번째 이미지를 대표 이미지로 확정한다.
       // 썸네일 이미지를 가장 처음에 놓고, 다른 이미지를 풀어헤쳐 하나의 배열로 만든 뒤 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
       return {
         ...prev,
@@ -752,25 +989,31 @@ export default function PortfolioEditor({ data }) {
     });
   }, []);
 
-  // 이미지 순서를 바꾸는 함수
-  // 라이브러리 dndkit 사용 : https://docs.dndkit.com/presets/sortable
+  // dnd-kit 드래그 결과를 받아 대표 이미지를 제외한 보조 이미지들의 순서를 변경
+  // 라이브러리 dnd-kit 사용 : https://docs.dndkit.com/presets/sortable
   const handleMoveImage = useCallback((activeImageId, overImageId) => {
     setFormData(prev => {
+      // 드롭 대상이 없거나 같은 이미지 위에 놓은 경우에는 정렬할 필요가 없다.
       if (!overImageId || activeImageId === overImageId) return prev;
 
+      // 대표 이미지가 드래그 대상에 섞이면 대표 이미지 고정 규칙이 깨지므로 보조 이미지만 분리한다.
+      // 대표 이미지는 항상 첫 번째 위치에 고정하고, 나머지 이미지만 드래그 정렬 대상으로 사용
       const sortedImages = [...prev.images].sort((a, b) => a.order - b.order);
       const primaryImage = sortedImages.find(image => image.isThumbnail) ?? sortedImages[0];
       const secondaryImages = sortedImages.filter(image => image.id !== primaryImage?.id);
 
+      // dnd-kit이 넘겨준 active/over id를 보조 이미지 배열의 index로 변환
       const activeIndex = secondaryImages.findIndex(image => image.id === activeImageId);
       const overIndex = secondaryImages.findIndex(image => image.id === overImageId);
 
       if (activeIndex === -1 || overIndex === -1) return prev;
 
+      // 실제 배열 이동은 active 항목을 빼서 over 위치에 다시 끼워 넣는 방식이다.
       const nextSecondaryImages = [...secondaryImages];
       const [movedImage] = nextSecondaryImages.splice(activeIndex, 1);
       nextSecondaryImages.splice(overIndex, 0, movedImage);
 
+      // 대표 이미지와 정렬된 보조 이미지를 합친 뒤 order/isThumbnail 값을 다시 정규화
       return {
         ...prev,
         images: normalizeImageOrder([primaryImage, ...nextSecondaryImages]),

@@ -22,9 +22,12 @@ function DraftGuideSection({
   onApplyDraftDescription,
   onApplyDraftSummary,
 }) {
+  // 초안 생성 시점이 있으면 생성 완료 상태로 보고 관련 버튼을 비활성화한다.
   const isDraftGenerated = Boolean(draftGuide.generatedAt);
+  // 현재 내용/AI 초안 중 어떤 설명이 프로젝트 설명에 적용됐는지 확인한다.
   const isCurrentDescriptionApplied = draftGuide.appliedDescriptionSource === "current";
   const isAiDescriptionApplied = draftGuide.appliedDescriptionSource === "ai";
+  // AI 추천 한 줄 요약이 실제 summary에 적용됐는지 확인한다.
   const isSummaryApplied = draftGuide.isSummaryApplied;
 
   return (
