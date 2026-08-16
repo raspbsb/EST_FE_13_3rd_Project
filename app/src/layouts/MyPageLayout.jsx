@@ -56,7 +56,7 @@ export default function MyPageLayout() {
           },
         }}
       >
-        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 }, columnGap: 0 }}>
+        <Stack>
           <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
 
           <ActivityStats profile={profile} />
