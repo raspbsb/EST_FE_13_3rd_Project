@@ -8,10 +8,27 @@ import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError }
 
 // GitHub 저장소 URL을 받아 분석에 필요한 GitHub 데이터를 수집해 반환한다.
 // AI 프롬프트 조립/Alan AI 요청은 이후 단계에서 이 응답을 입력으로 사용해 추가한다.
+// CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
   fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
-    const { repositoryUrl } = await req.json();
+    let repositoryUrl: string | undefined;
+
+    // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
+    try {
+      ({ repositoryUrl } = await req.json());
+    } catch {
+      return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
+    }
+
+    // repositoryUrl이 없으면 GitHub API까지 가지 않고 여기서 바로 끝낸다.
+    if (!repositoryUrl || typeof repositoryUrl !== "string") {
+      return Response.json({ error: "repositoryUrl이 필요합니다." }, { status: 400 });
+    }
+
     const githubToken = Deno.env.get("GITHUB_TOKEN");
+
+    // 개발 확인용 콘솔 : 어떤 저장소 URL로 요청이 들어왔는지 확인
+    console.log("[analyze] repositoryUrl:", repositoryUrl);
 
     if (!githubToken) {
       return Response.json({ error: "GITHUB_TOKEN이 설정되지 않았습니다." }, { status: 500 });
@@ -19,6 +36,9 @@ export default {
 
     try {
       const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken);
+
+      // 개발 확인용 콘솔 : GitHub에서 실제로 수집된 데이터 형태 확인
+      console.log("[analyze] githubData:", JSON.stringify(githubData, null, 2));
 
       return Response.json({ githubData });
     } catch (error) {
