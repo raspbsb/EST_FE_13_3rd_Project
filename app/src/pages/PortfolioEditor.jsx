@@ -17,14 +17,20 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
+import {
+  createPortfolio,
+  getAuthenticatedUser,
+  getIsGithubLinked,
+  linkGithubIdentity,
+  updatePortfolio,
+} from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
 // CSS
 import styles from "./PortfolioEditor.module.css";
 
 // Utils
-import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
+import { deleteLocalStorageItem, loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 import { createPortfolioPayload } from "../utils/portfolioPayload";
 import {
   createEmptyFormErrors,
@@ -289,6 +295,9 @@ const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 const MAX_PORTFOLIO_DRAFT_COUNT = 5;
 // 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
+// GitHub 연동 페이지로 이동하기 전 저장한 임시저장 id를 잠깐 보관하는 key
+// 연동 완료/취소 후 이 페이지로 돌아왔을 때, 이 key에 남아있는 draft를 확인창 없이 자동으로 복원한다.
+const PORTFOLIO_EDITOR_PENDING_RESTORE_KEY = "portfolio-editor-pending-restore-draft-id";
 
 // 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
@@ -502,15 +511,41 @@ export default function PortfolioEditor({ data }) {
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
     const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
+    const draftList = Array.isArray(savedDrafts)
+      ? savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT)
+      : savedDrafts?.id
+        ? [savedDrafts]
+        : [];
 
-    if (Array.isArray(savedDrafts)) {
-      setTemporaryDrafts(savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT));
-      return;
+    setTemporaryDrafts(draftList);
+
+    // GitHub 연동 페이지로 갔다가 돌아온 경우, 연동 성공/취소와 상관없이
+    // 떠나기 전 저장해둔 임시저장을 확인창 없이 바로 복원한다.
+    const pendingDraftId = loadLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY);
+
+    if (!pendingDraftId) return;
+
+    deleteLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY);
+
+    const pendingDraft = draftList.find(draft => draft.id === pendingDraftId);
+
+    if (!pendingDraft) return;
+
+    setFormData(prev => ({
+      ...prev,
+      ...pendingDraft.formData,
+      images: prev.images,
+    }));
+
+    if (pendingDraft.aiAnalysisResult) {
+      setAiAnalysisResult(pendingDraft.aiAnalysisResult);
     }
 
-    if (savedDrafts?.id) {
-      setTemporaryDrafts([savedDrafts]);
+    if (pendingDraft.draftGuide) {
+      setDraftGuide(pendingDraft.draftGuide);
     }
+
+    setAppliedDraftId(pendingDraft.id);
   }, []);
 
   // 사용자가 한 번 검증을 실행한 뒤에는 같은 검증 기준으로 입력 변경마다 라벨 피드백을 갱신
@@ -604,8 +639,10 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
-  // 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록하는 함수
-  const handleCompleteAiAnalysis = useCallback(() => {
+  // GitHub 연동 없이 저장소 분석을 진행할 수 없으므로, 연동 여부를 먼저 확인하고 분기하는 함수
+  // 연동 안 됐으면 현재 작성 내용을 임시저장해두고 연동 페이지로 보낸 뒤, 돌아오면 자동 복원되도록 표시한다.
+  // 연동 상태에서만 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록한다.
+  const handleCompleteAiAnalysis = useCallback(async () => {
     const nextErrors = validateAiFormFieldErrors(formData);
     setFormValidationMode("analysis");
     setFormErrors(nextErrors);
@@ -615,12 +652,59 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
+    let isGithubLinked = false;
+
+    try {
+      isGithubLinked = await getIsGithubLinked();
+    } catch (error) {
+      alert(error.message);
+      return;
+    }
+
+    if (!isGithubLinked) {
+      const shouldLink = confirm(
+        "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
+      );
+
+      if (!shouldLink) return;
+
+      // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
+      if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+        const pendingDraft = {
+          id: crypto.randomUUID(),
+          title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
+          savedAt: new Date().toISOString(),
+          formData: createDraftFormData(formData),
+          aiAnalysisResult,
+          draftGuide,
+        };
+
+        setTemporaryDrafts(prev => {
+          const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+
+          saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+          return nextDrafts;
+        });
+
+        saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
+      }
+
+      try {
+        await linkGithubIdentity({ redirectTo: window.location.href });
+      } catch (error) {
+        alert(error.message);
+      }
+
+      return;
+    }
+
     setAiAnalysisResult(prev => ({
       ...prev,
       ...developmentAiAnalysisResult,
       analyzedAt: formatEditorTimestamp(new Date()),
     }));
-  }, [formData]);
+  }, [formData, aiAnalysisResult, draftGuide]);
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
   const handleGenerateDraftGuide = useCallback(() => {
