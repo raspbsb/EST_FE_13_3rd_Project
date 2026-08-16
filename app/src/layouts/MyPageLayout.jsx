@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
+import useNotifications from "../hooks/useNotifications";
 
 import Container from "@mui/material/Container";
 
@@ -15,6 +16,8 @@ export default function MyPageLayout() {
   //프로필 상태 관리
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const notificationState = useNotifications();
 
   //Redux에서 profile이 들어오면 local state에 넣기
   useEffect(() => {
@@ -37,7 +40,7 @@ export default function MyPageLayout() {
 
   return (
     <>
-      <ProfileNav />
+      <ProfileNav notificationState={notificationState} />
 
       <Container
         component="main"
@@ -57,10 +60,10 @@ export default function MyPageLayout() {
 
         <ActivityStats profile={profile} />
 
-        <Outlet context={{ profile }} />
+        <Outlet context={{ profile, notificationState }} />
       </Container>
 
-      <MobileProfileNav />
+      <MobileProfileNav notificationState={notificationState} />
     </>
   );
 }

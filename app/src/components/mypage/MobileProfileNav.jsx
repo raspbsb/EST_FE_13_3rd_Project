@@ -7,12 +7,16 @@ import Text from "@mui/material/Typography";
 
 import styles from "./MobileProfileNav.module.css";
 import ContactDialog from "./ContactDialog";
+import MessageDialog from "./MessageDialog";
 
 import { WorkIcon, BookmarkIcon, NotificationsIcon, PersonIcon } from "../../lib/icons";
 
-export default function MobileProfileNav() {
-  const { notifications, handleMessageRead, handleMessageDelete } = useNotifications();
+export default function MobileProfileNav({ notificationState }) {
+  const { notifications, handleMessageRead, handleMessageDelete } = notificationState;
+
   const [openContact, setOpenContact] = useState(false);
+  const [openMessage, setOpenMessage] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
   const handleMessageClick = item => {
     setSelectedMessage(item);
@@ -49,6 +53,13 @@ export default function MobileProfileNav() {
         onClose={() => setOpenContact(false)}
         contacts={notifications}
         onMessageClick={handleMessageClick}
+      />
+      <MessageDialog
+        open={openMessage}
+        onClose={() => setOpenMessage(false)}
+        message={selectedMessage}
+        onMessageRead={handleMessageRead}
+        onMessageDelete={handleMessageDelete}
       />
     </>
   );

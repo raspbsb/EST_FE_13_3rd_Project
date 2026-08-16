@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useNotifications from "../../hooks/useNotifications";
+import { useOutletContext } from "react-router-dom";
 
 import ContactCard from "./ContactCard";
 import ContactDialog from "./ContactDialog";
@@ -11,13 +11,15 @@ import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
 export default function ContactSection() {
-  // hook 호출
-  const { notifications, loading, handleMessageRead, handleMessageDelete } = useNotifications();
+  const { profile, notificationState } = useOutletContext();
 
   // dialog 상태 관리
   const [openContact, setOpenContact] = useState(false); //view all 클릭 시 띄우는 dialog
   const [openMessage, setOpenMessage] = useState(false); // 메세지 dialog
   const [selectedMessage, setSelectedMessage] = useState(null);
+
+  // hook 호출
+  const { notifications, loading, handleMessageRead, handleMessageDelete } = notificationState;
 
   // 메세지 클릭 (item 저장 -> dialog 오픈)
   const handleMessageClick = item => {
