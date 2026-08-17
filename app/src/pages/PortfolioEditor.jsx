@@ -3,8 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // Material UI Components
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
+import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 
 // Components & Modules
@@ -357,13 +359,28 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
-  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용)
+  // alert() 대신 쓰는 스낵바 알림 상태
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+
+  // 스낵바를 띄우는 함수. severity: "success" | "error" | "warning" | "info"
+  const notify = useCallback((message, severity = "info") => {
+    setSnackbar({ open: true, message, severity });
+  }, []);
+
+  // 스낵바 자동 닫힘/닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
+  const handleCloseSnackbar = useCallback((_, reason) => {
+    if (reason === "clickaway") return;
+
+    setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용). 알림을 잠깐 보여준 뒤 이동한다.
   const redirectAfterEditorAlert = useCallback(
     ({ message, path = "/gallery" }) => {
-      alert(message);
-      navigate(path, { replace: true });
+      notify(message, "error");
+      setTimeout(() => navigate(path, { replace: true }), 1200);
     },
-    [navigate],
+    [navigate, notify],
   );
 
   // 로그인 페이지로 이동
@@ -553,9 +570,9 @@ export default function PortfolioEditor({ data }) {
       setFormValidationMode("submit");
       setFormErrors(nextErrors);
 
-      // 첫 번째 오류 메시지만 alert로 보여주고 Supabase 요청은 보내지 않는다.
+      // 첫 번째 오류 메시지만 스낵바로 보여주고 Supabase 요청은 보내지 않는다.
       if (hasFormErrors(nextErrors)) {
-        alert(getFirstFormErrorMessage(nextErrors));
+        notify(getFirstFormErrorMessage(nextErrors), "warning");
         return;
       }
 
@@ -598,15 +615,15 @@ export default function PortfolioEditor({ data }) {
           setAppliedDraftId(null);
         }
 
-        // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다.
-        alert(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.");
-        navigate(`/portfolios/${projectId}`);
+        // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다. 알림을 잠깐 보여준 뒤 이동한다.
+        notify(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.", "success");
+        setTimeout(() => navigate(`/portfolios/${projectId}`), 800);
       } catch (error) {
-        // Supabase/RLS/Storage 오류는 현재 alert로 확인하고, 마지막 UX 정리 때 스낵바로 교체 예정
-        alert(error.message);
+        // Supabase/RLS/Storage 오류
+        notify(error.message, "error");
       }
     },
-    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId],
+    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId, notify],
   );
 
   // 미리보기 모달을 여는 함수
@@ -634,7 +651,7 @@ export default function PortfolioEditor({ data }) {
     setFormErrors(nextErrors);
 
     if (hasFormErrors(nextErrors)) {
-      alert(getFirstFormErrorMessage(nextErrors));
+      notify(getFirstFormErrorMessage(nextErrors), "warning");
       return;
     }
 
@@ -722,12 +739,12 @@ export default function PortfolioEditor({ data }) {
         analyzedAt: data.analyzedAt,
       }));
     } catch (error) {
-      alert(await getEdgeFunctionErrorMessage(error));
+      notify(await getEdgeFunctionErrorMessage(error), "error");
     } finally {
       setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
     }
     // GitHub 연동 분기 주석을 풀면 aiAnalysisResult, draftGuide도 다시 deps에 넣을 것.
-  }, [formData]);
+  }, [formData, notify]);
 
   // 초안 생성 버튼 클릭 시 draft Edge Function을 호출해 AI 추천 설명 초안/한 줄 요약을 받아오는 함수
   const handleGenerateDraftGuide = useCallback(async () => {
@@ -737,7 +754,7 @@ export default function PortfolioEditor({ data }) {
     setFormErrors(nextErrors);
 
     if (hasFormErrors(nextErrors)) {
-      alert(getFirstFormErrorMessage(nextErrors));
+      notify(getFirstFormErrorMessage(nextErrors), "warning");
       return;
     }
 
@@ -773,11 +790,11 @@ export default function PortfolioEditor({ data }) {
         isSummaryApplied: false,
       }));
     } catch (error) {
-      alert(await getEdgeFunctionErrorMessage(error));
+      notify(await getEdgeFunctionErrorMessage(error), "error");
     } finally {
       setEditorUi(prev => ({ ...prev, isGeneratingDraft: false }));
     }
-  }, [formData]);
+  }, [formData, notify]);
 
   // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
   const handleApplyCurrentDescription = useCallback(() => {
@@ -822,7 +839,7 @@ export default function PortfolioEditor({ data }) {
   // 현재 에디터 상태를 최대 5개 임시저장 목록에 추가하고 localStorage에 반영
   const handleSaveDraft = useCallback(() => {
     if (!hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
-      alert("임시저장할 내용이 없습니다.");
+      notify("임시저장할 내용이 없습니다.", "warning");
       return;
     }
 
@@ -844,31 +861,34 @@ export default function PortfolioEditor({ data }) {
 
       return nextDrafts;
     });
-    alert("임시저장되었습니다.");
+    notify("임시저장되었습니다.", "success");
     setAppliedDraftId(nextDraft.id);
-  }, [formData, aiAnalysisResult, draftGuide]);
+  }, [formData, aiAnalysisResult, draftGuide, notify]);
 
   // 임시저장본 잠금/해제를 토글한다. 잠금은 최대 개수까지만 허용한다.
-  const handleToggleDraftLock = useCallback(draftId => {
-    setTemporaryDrafts(prev => {
-      const target = prev.find(draft => draft.id === draftId);
+  const handleToggleDraftLock = useCallback(
+    draftId => {
+      setTemporaryDrafts(prev => {
+        const target = prev.find(draft => draft.id === draftId);
 
-      if (!target) return prev;
+        if (!target) return prev;
 
-      const lockedCount = prev.filter(draft => draft.locked).length;
+        const lockedCount = prev.filter(draft => draft.locked).length;
 
-      if (!target.locked && lockedCount >= MAX_LOCKED_DRAFT_COUNT) {
-        alert(`임시저장 잠금은 최대 ${MAX_LOCKED_DRAFT_COUNT}개까지만 가능합니다.`);
-        return prev;
-      }
+        if (!target.locked && lockedCount >= MAX_LOCKED_DRAFT_COUNT) {
+          notify(`임시저장 잠금은 최대 ${MAX_LOCKED_DRAFT_COUNT}개까지만 가능합니다.`, "warning");
+          return prev;
+        }
 
-      const nextDrafts = prev.map(draft => (draft.id === draftId ? { ...draft, locked: !draft.locked } : draft));
+        const nextDrafts = prev.map(draft => (draft.id === draftId ? { ...draft, locked: !draft.locked } : draft));
 
-      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+        saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
 
-      return nextDrafts;
-    });
-  }, []);
+        return nextDrafts;
+      });
+    },
+    [notify],
+  );
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
   const handleApplyDraft = useCallback(
@@ -1050,14 +1070,15 @@ export default function PortfolioEditor({ data }) {
 
       // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
       if (remainingImageCount <= 0) {
-        alert(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`);
+        notify(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`, "warning");
         return prev;
       }
 
       // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
       if (selectedFiles.length > remainingImageCount) {
-        alert(
+        notify(
           `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
+          "warning",
         );
         return prev;
       }
@@ -1067,7 +1088,7 @@ export default function PortfolioEditor({ data }) {
 
       // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
       if (invalidTypeFiles.length > 0) {
-        alert("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.");
+        notify("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.", "warning");
         return prev;
       }
 
@@ -1076,7 +1097,7 @@ export default function PortfolioEditor({ data }) {
 
       // 최대 크기 이상인 파일이 있다면 리턴하고 경고
       if (oversizedFiles.length > 0) {
-        alert("10MB 이하 이미지만 업로드할 수 있습니다.");
+        notify("10MB 이하 이미지만 업로드할 수 있습니다.", "warning");
         return prev;
       }
 
@@ -1096,7 +1117,7 @@ export default function PortfolioEditor({ data }) {
         images: normalizeImageOrder([...prev.images, ...nextImages]),
       };
     });
-  }, []);
+  }, [notify]);
 
   // 선택한 이미지를 삭제하는 함수
   const handleDeleteImage = useCallback(imageId => {
@@ -1314,6 +1335,17 @@ export default function PortfolioEditor({ data }) {
         aiAnalysisResult={aiAnalysisResult}
         draftGuide={draftGuide}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
