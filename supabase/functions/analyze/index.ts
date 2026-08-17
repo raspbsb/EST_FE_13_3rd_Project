@@ -4,17 +4,19 @@
 
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
+import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
 import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
 import {
   createCommitBatchPrompts,
+  createFinalMergePrompt,
   createFormContextPrompt,
   createStructurePrompt,
   type PortfolioFormContext,
 } from "../_shared/prompts.ts";
 
 // GitHub 저장소 URL과 사용자 입력 폼 데이터를 받아 GitHub 데이터를 수집하고,
-// Alan AI에 보낼 프롬프트(폼/커밋/구조)를 조립해 반환한다.
-// 실제 Alan AI 호출/응답 취합은 이후 단계에서 이 프롬프트들을 입력으로 사용해 추가한다.
+// 폼/커밋/구조 프롬프트를 Alan AI에 순서대로 보낸 뒤, 그 결과를 다시 최종 취합 프롬프트로 보내
+// 화면에 반영할 수 있는 최종 분석 결과(JSON)를 만들어 반환한다.
 // CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
   fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
@@ -61,7 +63,37 @@ export default {
       console.log("[analyze] commitBatchPrompts:", commitBatchPrompts);
       console.log("[analyze] structurePrompt:", structurePrompt);
 
-      return Response.json({ githubData, prompts: { formContextPrompt, commitBatchPrompts, structurePrompt } });
+      // 폼/커밋(최대 4배치)/구조 분석 요청은 서로 결과가 필요 없는 독립적인 요청이라 동시에 보낸다.
+      // Alan AI 호출 1건이 ~30초 걸려서, 순서대로 기다리면 7번 × 30초로 너무 오래 걸린다.
+      const [formSummary, commitSummaries, structureSummary] = await Promise.all([
+        callAlanAi(formContextPrompt),
+        Promise.all(commitBatchPrompts.map(prompt => callAlanAi(prompt))),
+        callAlanAi(structurePrompt),
+      ]);
+
+      console.log("[analyze] formSummary:", formSummary);
+      console.log("[analyze] commitSummaries:", commitSummaries);
+      console.log("[analyze] structureSummary:", structureSummary);
+
+      const commitSummaryText = commitSummaries
+        .map((summary, index) => `[커밋 분석 ${index + 1}]\n${summary}`)
+        .join("\n\n");
+
+      // 위 세 결과를 취합해 최종 JSON 생성 요청
+      const finalMergePrompt = createFinalMergePrompt({
+        formSummary,
+        commitSummary: commitSummaryText,
+        structureSummary,
+      });
+
+      console.log("[analyze] finalMergePrompt:", finalMergePrompt);
+
+      const finalRaw = await callAlanAi(finalMergePrompt);
+      const aiAnalysisResult = parseAlanJson(finalRaw);
+
+      console.log("[analyze] aiAnalysisResult:", aiAnalysisResult);
+
+      return Response.json({ githubData, aiAnalysisResult });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });
@@ -71,9 +103,13 @@ export default {
         return Response.json({ error: error.message }, { status: error.status });
       }
 
+      if (error instanceof AlanApiError) {
+        return Response.json({ error: error.message }, { status: 502 });
+      }
+
       console.error(error);
 
-      return Response.json({ error: "GitHub 데이터 수집 중 오류가 발생했습니다." }, { status: 500 });
+      return Response.json({ error: "GitHub 데이터 수집 또는 AI 분석 중 오류가 발생했습니다." }, { status: 500 });
     }
   }),
 };

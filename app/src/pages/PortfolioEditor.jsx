@@ -703,10 +703,15 @@ export default function PortfolioEditor({ data }) {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 조립된 프롬프트 확인
-      // 화면(aiAnalysisResult)에 반영하는 건 Alan AI 호출/응답 연결 단계에서 처리한다.
+      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 Alan AI 최종 분석 결과 확인
       console.log("[PortfolioEditor] analyze githubData:", data.githubData);
-      console.log("[PortfolioEditor] analyze prompts:", data.prompts);
+      console.log("[PortfolioEditor] analyze aiAnalysisResult:", data.aiAnalysisResult);
+
+      setAiAnalysisResult(prev => ({
+        ...prev,
+        ...data.aiAnalysisResult,
+        analyzedAt: formatEditorTimestamp(new Date()),
+      }));
     } catch (error) {
       alert(error.message);
     } finally {

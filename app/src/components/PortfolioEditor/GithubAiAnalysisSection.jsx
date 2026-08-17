@@ -17,8 +17,12 @@ import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon, DropDownIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
-import { evidenceTabs } from "../../constants/portfolioOptions";
 import { memo, useState } from "react";
+
+// 분석이 끝났는데 AI 응답에 분석 근거가 하나도 없을 때 보여줄 안내 문구
+const EMPTY_EVIDENCE_TEXT = "AI가 분석 근거를 찾지 못했습니다.";
+// 아직 분석을 실행하기 전 기본 상태에서 보여줄 안내 문구
+const NOT_ANALYZED_EVIDENCE_TEXT = "저장소 분석을 실행하면 근거가 표시됩니다.";
 
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing = false, onCompleteAiAnalysis }) {
   // 분석 근거 아코디언이 열려 있는지 관리한다.
@@ -27,11 +31,10 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
   const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
   // 분석 완료 시점이 있으면 버튼을 완료 상태로 고정한다.
   const isAnalysisCompleted = Boolean(aiAnalysisResult.analyzedAt);
-  // 실제 AI 응답에 근거 탭이 없을 때는 개발용 기본 탭을 보여준다.
-  const analysisEvidenceTabs =
-    Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
-      ? aiAnalysisResult.analysisEvidence
-      : evidenceTabs;
+  // AI 응답에 실제 근거가 있을 때만 탭을 만든다. 없으면 더미로 채우지 않고 빈 상태 문구를 보여준다.
+  const hasAnalysisEvidence =
+    Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0;
+  const analysisEvidenceTabs = hasAnalysisEvidence ? aiAnalysisResult.analysisEvidence : [];
   const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
 
   // 아코디언을 접으면 선택된 탭도 초기화해 다음에 펼쳤을 때 안내 문구부터 보이게 한다.
@@ -131,7 +134,12 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
         }}
       >
         {analysisResultItems.map(item => (
-          <AnalysisResultCard key={item.title} title={item.title} description={item.description} />
+          <AnalysisResultCard
+            key={item.title}
+            title={item.title}
+            description={item.description}
+            isAnalysisCompleted={isAnalysisCompleted}
+          />
         ))}
       </Box>
 
@@ -166,18 +174,20 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
         </AccordionSummary>
 
         <AccordionDetails sx={{ px: 2, pt: 0, pb: 2 }}>
-          <Tabs
-            className="portfolio-editor-analysis-evidence__tabs"
-            value={selectedEvidenceTab}
-            onChange={handleEvidenceTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="분석 근거 카테고리"
-          >
-            {analysisEvidenceTabs.map(evidence => (
-              <Tab key={evidence.value} value={evidence.value} label={evidence.label} />
-            ))}
-          </Tabs>
+          {hasAnalysisEvidence ? (
+            <Tabs
+              className="portfolio-editor-analysis-evidence__tabs"
+              value={selectedEvidenceTab}
+              onChange={handleEvidenceTabChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="분석 근거 카테고리"
+            >
+              {analysisEvidenceTabs.map(evidence => (
+                <Tab key={evidence.value} value={evidence.value} label={evidence.label} />
+              ))}
+            </Tabs>
+          ) : null}
 
           <Paper
             className={
@@ -191,7 +201,11 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
               mb: 2,
             }}
           >
-            {selectedEvidence ? (
+            {!hasAnalysisEvidence ? (
+              <Text className="portfolio-editor-analysis-evidence__prompt-text" color="text.disabled">
+                {isAnalysisCompleted ? EMPTY_EVIDENCE_TEXT : NOT_ANALYZED_EVIDENCE_TEXT}
+              </Text>
+            ) : selectedEvidence ? (
               <Stack spacing={1}>
                 <Text className="portfolio-editor-analysis-evidence__content-title" component="h4">
                   {selectedEvidence.label}
@@ -201,9 +215,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
                 </Text>
               </Stack>
             ) : (
-              <Text className="portfolio-editor-analysis-evidence__prompt-text">
-                영역을 펼쳐 분석 근거를 확인하세요.
-              </Text>
+              <Text className="portfolio-editor-analysis-evidence__prompt-text">탭을 눌러 분석 근거를 확인하세요.</Text>
             )}
           </Paper>
 

@@ -17,8 +17,11 @@ const truncateForPrompt = (value: unknown, maxLength: number) => {
 
 // ── 1. 사용자 입력 폼 분석 프롬프트 ──────────────────────────────
 
-const FORM_CONTEXT_INSTRUCTION = `너는 GitHub 프로젝트 분석 도우미다.
-아래 내용은 사용자가 직접 입력하거나 선택한 정보다. 실제 구현 여부는 판단하지 말고, 사용자가 입력한 의도와 역할만 정리하라.
+// "너는 ~ 도우미다" 같은 자기소개 문구를 넣으면 AI가 declaredRole에 그 문구를 그대로 가져다 쓰는
+// 문제가 있어서, 자기소개 없이 "정리하는 프로그램"으로만 지칭하고 declaredRole 출처를 명시한다.
+const FORM_CONTEXT_INSTRUCTION = `아래는 사용자가 직접 입력하거나 선택한 프로젝트 정보다. 이 정보를 정리해 JSON으로 출력하라.
+실제 구현 여부는 판단하지 말고, 사용자가 입력한 의도만 정리하라.
+declaredRole에는 아래 "담당역할:" 줄의 값을 그대로 옮겨 적어라. 다른 문구로 대체하지 마라.
 설명은 글자 수 제한으로 일부만 제공될 수 있다. 제공되지 않은 내용을 추측하지 마라.
 정보가 부족한 항목은 빈 문자열 또는 빈 배열로 출력하라.
 설명 없이 유효한 JSON만 출력하라.
@@ -240,15 +243,18 @@ export const createStructurePrompt = ({ fileTree, languages, readme }: Portfolio
 
 // ── 4. 최종 취합 프롬프트 ────────────────────────────────────────
 
-const FINAL_MERGE_INSTRUCTION = `너는 GitHub 저장소와 사용자 입력을 종합해 포트폴리오 분석 결과를 작성하는 도우미다.
-아래 세 가지 분석 결과만 근거로 삼아라. 원본 데이터로 되돌아가 다시 분석하지 마라.
+const FINAL_MERGE_INSTRUCTION = `아래 세 가지 분석 결과만 근거로 삼아 포트폴리오 분석 결과를 JSON으로 작성하라. 원본 데이터로 되돌아가 다시 분석하지 마라.
 확인되지 않은 내용은 추측하지 마라.
 커밋 수와 코드 변경량만으로 기여도, 실력, 코드 품질을 평가하지 마라.
+projectStructure는 반드시 [구조 분석 결과]의 내용을 반영해서 채워라. 비워두지 마라.
+technicalFeatures는 기술 스택 이름을 나열하지 말고, [구조 분석 결과]에서 확인되는 실제 구현 방식(라우팅, 상태관리, API 연동, 폴더 구조 등)을 설명하라.
+analyzedRole과 participationDetails는 입력값을 그대로 나열하지 말고 자연스러운 문장으로 풀어써라.
+analysisEvidence의 각 항목은 {"value":"짧은 식별자","label":"표시용 제목","description":"구체적인 근거 설명"} 형태의 객체로, 실제 파일 경로나 커밋 제목을 근거로 작성하라.
 근거가 부족한 항목은 빈 문자열 또는 빈 배열로 출력하라.
 마크다운이나 부가 설명 없이 유효한 JSON만 출력하라.
 
 출력 형식:
-{"projectSummary":"","mainFeatures":"","technicalFeatures":"","projectStructure":"","analyzedRole":"","participationDetails":"","analysisLimitation":"","analysisEvidence":[]}`;
+{"projectSummary":"","mainFeatures":"","technicalFeatures":"","projectStructure":"","analyzedRole":"","participationDetails":"","analysisLimitation":"","analysisEvidence":[{"value":"","label":"","description":""}]}`;
 
 interface FinalMergeInput {
   formSummary: string;
@@ -257,14 +263,37 @@ interface FinalMergeInput {
 }
 
 // 폼/커밋/구조 3개 분석 결과(Alan AI 응답)를 받아 최종 JSON 생성용 프롬프트로 조립한다.
+// 셋을 이어붙인 뒤 통째로 자르면(예전 방식) 맨 뒤에 오는 구조 분석 결과가 통째로 잘려나갈 수 있어서,
+// 세 요약을 각각 개별적으로 절단해 셋 다 최소한의 공간을 보장받게 한다.
 export const createFinalMergePrompt = ({ formSummary, commitSummary, structureSummary }: FinalMergeInput) => {
+  const sectionLabels = {
+    form: "[사용자 입력 분석 결과]\n",
+    commit: "[커밋 분석 결과]\n",
+    structure: "[구조 분석 결과]\n",
+  };
+
+  const fixedLength =
+    FINAL_MERGE_INSTRUCTION.length +
+    sectionLabels.form.length +
+    sectionLabels.commit.length +
+    sectionLabels.structure.length +
+    8; // 섹션 구분 줄바꿈 여유
+
+  const availableForSections = Math.max(0, AI_PROMPT_BUDGET - fixedLength);
+  const perSectionBudget = Math.floor(availableForSections / 3);
+
+  const formText = truncateForPrompt(formSummary, perSectionBudget);
+  const commitText = truncateForPrompt(commitSummary, perSectionBudget);
+  const structureText = truncateForPrompt(structureSummary, perSectionBudget);
+
   const prompt = [
     FINAL_MERGE_INSTRUCTION,
     "",
-    `[사용자 입력 분석 결과]\n${formSummary}`,
-    `[커밋 분석 결과]\n${commitSummary}`,
-    `[구조 분석 결과]\n${structureSummary}`,
+    `${sectionLabels.form}${formText}`,
+    `${sectionLabels.commit}${commitText}`,
+    `${sectionLabels.structure}${structureText}`,
   ].join("\n\n");
 
+  // 위에서 섹션별로 이미 절단했지만, 라벨/줄바꿈 여유 계산이 어긋나는 극단적인 경우를 대비한 최종 안전장치.
   return truncateForPrompt(prompt, AI_PROMPT_BUDGET);
 };
