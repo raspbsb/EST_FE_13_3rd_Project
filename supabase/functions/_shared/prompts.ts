@@ -88,31 +88,104 @@ interface PromptCommit {
   date: string;
 }
 
-// 커밋 목록을 900자 예산 안에 들어가는 만큼씩 나눠서 여러 개의 프롬프트로 만든다.
-// 커밋이 많으면 배치 개수가 늘어나고, 적으면 1개로 끝난다.
-export const createCommitBatchPrompts = (commits: PromptCommit[]) => {
-  const batches: string[] = [];
-  let currentLines: string[] = [];
-  let currentLength = COMMIT_BATCH_INSTRUCTION.length;
+// 배치 개수 상한. 최근/최초/중간/최근이어서, 최대 4개까지만 만든다.
+const COMMIT_BATCH_MAX_COUNT = 4;
 
-  for (const commit of commits) {
-    const line = `- ${commit.title} (${commit.author}, ${commit.date.slice(0, 10)})`;
-    const nextLength = currentLength + line.length + 1;
+const commitLine = (commit: PromptCommit) => `- ${commit.title} (${commit.author}, ${commit.date.slice(0, 10)})`;
+const commitLineLength = (commit: PromptCommit) => commitLine(commit).length + 1;
 
-    // 현재 배치에 더 담으면 예산을 넘기고, 이미 담긴 커밋이 있으면 배치를 마감하고 새로 시작한다.
-    if (nextLength > AI_PROMPT_BUDGET && currentLines.length > 0) {
-      batches.push(`${COMMIT_BATCH_INSTRUCTION}\n${currentLines.join("\n")}`);
-      currentLines = [line];
-      currentLength = COMMIT_BATCH_INSTRUCTION.length + line.length + 1;
-      continue;
-    }
+// index를 증가시키며(최근→오래된 방향) boundExclusive 직전까지, charBudget을 넘기지 않는 선에서 그리디하게 채운다.
+const fillForward = (commits: PromptCommit[], fromIndex: number, boundExclusive: number, charBudget: number) => {
+  const lines: string[] = [];
+  let used = COMMIT_BATCH_INSTRUCTION.length;
+  let index = fromIndex;
 
-    currentLines.push(line);
-    currentLength = nextLength;
+  while (index < boundExclusive && index < commits.length) {
+    const length = commitLineLength(commits[index]);
+
+    if (used + length > charBudget) break;
+
+    lines.push(commitLine(commits[index]));
+    used += length;
+    index += 1;
   }
 
-  if (currentLines.length > 0) {
-    batches.push(`${COMMIT_BATCH_INSTRUCTION}\n${currentLines.join("\n")}`);
+  return { lines, nextIndex: index };
+};
+
+// index를 감소시키며(오래된→최근 방향) boundExclusive 직전까지, charBudget을 넘기지 않는 선에서 그리디하게 채운다.
+const fillBackward = (commits: PromptCommit[], fromIndex: number, boundExclusive: number, charBudget: number) => {
+  const lines: string[] = [];
+  let used = COMMIT_BATCH_INSTRUCTION.length;
+  let index = fromIndex;
+
+  while (index > boundExclusive && index >= 0) {
+    const length = commitLineLength(commits[index]);
+
+    if (used + length > charBudget) break;
+
+    lines.unshift(commitLine(commits[index]));
+    used += length;
+    index -= 1;
+  }
+
+  return { lines, nextIndex: index };
+};
+
+const toCommitBatchPrompt = (lines: string[]) => `${COMMIT_BATCH_INSTRUCTION}\n${lines.join("\n")}`;
+
+// 커밋 목록(최신순 정렬)을 최근/최초/중간/최근이어서 순서로 최대 4개 배치로 나눠 프롬프트를 만든다.
+// 이미 다른 배치가 담은 커밋과는 겹치지 않는다. 커밋이 적으면 앞쪽 배치에서 이미 다 담겨 자동으로 배치 수가 줄어든다.
+export const createCommitBatchPrompts = (commits: PromptCommit[]) => {
+  if (commits.length === 0) return [];
+
+  const batches: string[] = [];
+
+  // 배치 A: 최근 커밋(index 0)부터 채운다.
+  const recentFill = fillForward(commits, 0, commits.length, AI_PROMPT_BUDGET);
+
+  batches.push(toCommitBatchPrompt(recentFill.lines));
+
+  const frontCursor = recentFill.nextIndex;
+
+  // 전부 다 담겼으면 여기서 끝난다.
+  if (frontCursor >= commits.length) return batches;
+
+  // 배치 B: 가장 오래된 커밋부터 역순으로 채운다. frontCursor보다 앞(더 최근 쪽)으로는 넘어오지 않는다.
+  const oldestFill = fillBackward(commits, commits.length - 1, frontCursor - 1, AI_PROMPT_BUDGET);
+  let backCursor = commits.length;
+
+  if (oldestFill.lines.length > 0 && batches.length < COMMIT_BATCH_MAX_COUNT) {
+    batches.push(toCommitBatchPrompt(oldestFill.lines));
+    backCursor = oldestFill.nextIndex + 1;
+  }
+
+  // 배치 C: frontCursor~backCursor 사이가 남아있으면, 그 구간의 중앙을 기준으로 앞뒤 절반씩 채운다.
+  let middleStartIndex = backCursor;
+
+  if (frontCursor < backCursor - 1 && batches.length < COMMIT_BATCH_MAX_COUNT) {
+    const middleIndex = frontCursor + Math.floor((backCursor - frontCursor) / 2);
+    const halfBudget =
+      COMMIT_BATCH_INSTRUCTION.length + Math.floor((AI_PROMPT_BUDGET - COMMIT_BATCH_INSTRUCTION.length) / 2);
+
+    // 중앙 커밋 기준 뒤(최근 방향) 절반, 앞(오래된 방향) 절반을 각각 채워 하나로 합친다.
+    const forwardHalf = fillForward(commits, middleIndex, backCursor, halfBudget);
+    const backwardHalf = fillBackward(commits, middleIndex - 1, frontCursor - 1, halfBudget);
+    const middleLines = [...backwardHalf.lines, ...forwardHalf.lines];
+
+    if (middleLines.length > 0) {
+      batches.push(toCommitBatchPrompt(middleLines));
+      middleStartIndex = backwardHalf.nextIndex + 1;
+    }
+  }
+
+  // 배치 D: frontCursor부터 이어서 채우되, 중간 배치(C)가 이미 담은 구간 전까지만 채운다.
+  if (frontCursor < middleStartIndex && batches.length < COMMIT_BATCH_MAX_COUNT) {
+    const secondRecentFill = fillForward(commits, frontCursor, middleStartIndex, AI_PROMPT_BUDGET);
+
+    if (secondRecentFill.lines.length > 0) {
+      batches.push(toCommitBatchPrompt(secondRecentFill.lines));
+    }
   }
 
   return batches;
