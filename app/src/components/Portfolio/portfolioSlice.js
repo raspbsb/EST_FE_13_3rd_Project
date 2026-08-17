@@ -15,9 +15,10 @@ export const fetchPortfolio = createAsyncThunk("portfolio", async portfolioId =>
 export const fetchLikes = createAsyncThunk("portfolio/likes", async portfolioId => {
   const result = await supabase
     .schema("public")
-    .from("portfolio_likes")
-    .select("*", { count: "exact", head: true })
-    .eq("project_id", portfolioId);
+    .from("portfolios")
+    .select("likes_count")
+    .eq("project_id", portfolioId)
+    .single();
   return result;
 });
 export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", async ({ id, authorId }) => {
@@ -84,8 +85,8 @@ const portfolioSlice = createSlice({
     });
 
     builder.addCase(fetchLikes.fulfilled, (state, action) => {
-      const { count, error } = action.payload;
-      error ? console.warn(error) : (state.likes = count);
+      const { data, error } = action.payload;
+      error ? console.warn(error) : (state.likes = data.likes_count);
     });
 
     builder.addCase(fetchOtherPortfolios.pending, (state, action) => {
