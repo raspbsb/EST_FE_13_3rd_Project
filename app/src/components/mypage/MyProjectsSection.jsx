@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
 import ProjectCard from "../ProjectCard";
@@ -10,6 +11,9 @@ import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
 export default function MyProjectsSection({ mode }) {
+  const { user } = useSelector(state => state.user);
+  const currentUserId = user?.id ?? null;
+
   const { userId: profileUserId } = useParams();
 
   const { profile } = useOutletContext();
@@ -48,7 +52,10 @@ export default function MyProjectsSection({ mode }) {
             profiles!portfolios_author_id_fkey (
               user_name,
               avatar_path
-            )
+            ),
+            portfolio_likes (
+            project_id
+           ) 
           `,
         )
         .eq("author_id", targetUserId)
@@ -56,7 +63,7 @@ export default function MyProjectsSection({ mode }) {
         .limit(3);
 
       // Public Profile에서는 공개 프로젝트만 조회
-      if (mode === "public") {
+      if (mode === "public" && currentUserId !== profileUserId) {
         query = query.eq("is_public", true);
       }
 
@@ -66,7 +73,12 @@ export default function MyProjectsSection({ mode }) {
         console.error("프로젝트 조회 실패", error);
         setProjects([]);
       } else {
-        setProjects(data ?? []);
+        const formattedProjects = (data ?? []).map(project => ({
+          ...project,
+          like_count: project.portfolio_likes?.length ?? 0,
+        }));
+
+        setProjects(formattedProjects);
       }
 
       setLoading(false);

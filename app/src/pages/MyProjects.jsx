@@ -10,9 +10,9 @@ import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
-  // const [currentUserId, setCurrentUserId] = useState(null);
   const { user } = useSelector(state => state.user);
   const currentUserId = user?.id ?? null;
+
   const [collectionExists, setCollectionExists] = useState(true);
 
   const { userId: profileUserId, collectionId } = useParams();
@@ -22,19 +22,6 @@ export default function MyProjects({ mode }) {
   const [loading, setLoading] = useState(true);
 
   const targetUserId = mode === "public" ? profileUserId : profile?.user_id;
-
-  //auth user 가져오기
-  // useEffect(() => {
-  //   const getCurrentUser = async () => {
-  //     const {
-  //       data: { user },
-  //     } = await supabase.auth.getUser();
-
-  //     setCurrentUserId(user?.id ?? null);
-  //   };
-
-  //   getCurrentUser();
-  // }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -72,7 +59,7 @@ export default function MyProjects({ mode }) {
 
         setCollectionExists(true);
 
-        // 북마크 조회
+        // 컬렉션에 포함된 북마크 프로젝트 조회
         const { data, error } = await supabase
           .from("bookmarks")
           .select(
@@ -94,7 +81,8 @@ export default function MyProjects({ mode }) {
             profiles!portfolios_author_id_fkey (
               user_name,
               avatar_path
-            )
+            ),
+            portfolio_likes (count)
           )
         `,
           )
@@ -106,7 +94,13 @@ export default function MyProjects({ mode }) {
           console.error("북마크 프로젝트 조회 실패:", error);
           setProjects([]);
         } else {
-          const bookmarkProjects = data.map(bookmark => bookmark.portfolios).filter(Boolean);
+          const bookmarkProjects = data
+            .map(bookmark => bookmark.portfolios)
+            .filter(Boolean)
+            .map(project => ({
+              ...project,
+              like_count: project.portfolio_likes?.[0]?.count ?? 0,
+            }));
 
           setProjects(bookmarkProjects);
         }
@@ -140,13 +134,14 @@ export default function MyProjects({ mode }) {
         profiles!portfolios_author_id_fkey (
           user_name,
           avatar_path
-        )
+        ),
+        portfolio_likes (count)
       `,
         )
         .eq("author_id", targetUserId)
         .order("created_at", { ascending: false });
 
-      // Public Profile에서는 공개 프로젝트만 조회
+      // 다른 사람의 Public Profile에서는 공개 프로젝트만 조회
       if (mode === "public" && currentUserId !== profileUserId) {
         query = query.eq("is_public", true);
       }
@@ -157,7 +152,12 @@ export default function MyProjects({ mode }) {
         console.error("프로젝트 조회 실패:", error);
         setProjects([]);
       } else {
-        setProjects(data ?? []);
+        const formattedProjects = (data ?? []).map(project => ({
+          ...project,
+          like_count: project.portfolio_likes?.[0]?.count ?? 0,
+        }));
+
+        setProjects(formattedProjects);
       }
 
       setLoading(false);

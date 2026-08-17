@@ -59,7 +59,7 @@ export default function ProjectCard({ project }) {
             ))}
           </div>
 
-          <span className="project-card-project-level">{/* 프로젝트 난이도 */}중</span>
+          <span className="project-card-project-level">{project.difficulty || "중"}</span>
         </div>
 
         {/* 제목 + 날짜 */}
@@ -89,7 +89,8 @@ export default function ProjectCard({ project }) {
 
           <div className="project-card-stats">
             <span className="project-card-like">
-              <FavoriteBorderIcon />0
+              <FavoriteBorderIcon />
+              {project.like_count ?? 0}
             </span>
 
             <span className="project-card-view">
