@@ -14,6 +14,7 @@ import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
+import { formatAiTimestamp, formatCooldownRemaining, getAiCooldownRemainingMs } from "../../utils/aiCooldown";
 import { memo, useEffect, useState } from "react";
 
 // 분석이 끝났는데 AI 응답에 분석 근거가 하나도 없을 때 보여줄 안내 문구
@@ -28,8 +29,21 @@ const MAX_EVIDENCE_LABEL_LENGTH = 12;
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing = false, onCompleteAiAnalysis }) {
   // 분석 근거 내부 탭 선택값. false면 아직 아무 탭도 선택하지 않은 상태다.
   const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
-  // 분석 완료 시점이 있으면 버튼을 완료 상태로 고정한다.
+  // 분석 완료 시점이 있으면 결과/근거 영역을 완료 상태로 표시한다 (쿨타임과는 별개로 계속 유지).
   const isAnalysisCompleted = Boolean(aiAnalysisResult.analyzedAt);
+
+  // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
+  const [, forceTick] = useState(0);
+  const cooldownRemainingMs = getAiCooldownRemainingMs(aiAnalysisResult.analyzedAt);
+  const isCoolingDown = cooldownRemainingMs > 0;
+
+  useEffect(() => {
+    if (!isCoolingDown) return undefined;
+
+    const intervalId = setInterval(() => forceTick(prev => prev + 1), 1000);
+
+    return () => clearInterval(intervalId);
+  }, [isCoolingDown, aiAnalysisResult.analyzedAt]);
 
   // 새로 분석하면 근거 목록 자체가 바뀌므로, 이전 분석에서 선택했던 탭 값을 초기화한다.
   // 초기화 안 하면 이전 값이 새 근거 목록에 없어서 MUI Tabs가 "일치하는 탭이 없다"는 경고를 낸다.
@@ -102,24 +116,30 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
 
         <Stack className="portfolio-editor-section-header__actions" direction={{ xs: "column", tablet: "row" }}>
           {aiAnalysisResult.analyzedAt ? (
-            <Text className="portfolio-editor-ai-section__analyzed-at">최종 분석: {aiAnalysisResult.analyzedAt}</Text>
+            <Text className="portfolio-editor-ai-section__analyzed-at">
+              최종 분석: {formatAiTimestamp(aiAnalysisResult.analyzedAt)}
+            </Text>
           ) : null}
           <Button
             className="portfolio-editor-ai-action-button"
             type="button"
             variant="contained"
             size="medium"
-            disabled={isAnalysisCompleted || isAnalyzing}
+            disabled={isCoolingDown || isAnalyzing}
             startIcon={
               isAnalyzing ? (
                 <CircularProgress size={16} color="inherit" aria-hidden="true" />
-              ) : isAnalysisCompleted ? null : (
+              ) : isCoolingDown ? null : (
                 <AwesomeIcon aria-hidden="true" />
               )
             }
             onClick={onCompleteAiAnalysis}
           >
-            {isAnalyzing ? "분석 중..." : isAnalysisCompleted ? "분석 완료" : "저장소 분석"}
+            {isAnalyzing
+              ? "분석 중..."
+              : isCoolingDown
+                ? `쿨타임 ${formatCooldownRemaining(cooldownRemainingMs)}`
+                : "저장소 분석"}
           </Button>
         </Stack>
       </Stack>

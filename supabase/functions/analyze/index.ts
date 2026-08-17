@@ -107,7 +107,11 @@ export default {
       console.log("[analyze] aiAnalysisResult:", aiAnalysisResult);
       console.log("[analyze] alanUsage:", alanUsage);
 
-      return Response.json({ githubData, aiAnalysisResult, alanUsage });
+      // 분석 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
+      // 프론트에서 이 값을 기준으로 재분석 쿨타임을 계산한다.
+      const analyzedAt = new Date().toISOString();
+
+      return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });

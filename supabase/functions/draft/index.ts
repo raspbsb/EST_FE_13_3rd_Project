@@ -37,9 +37,14 @@ export default {
       console.log("[draft] draftGuideResult:", draftGuideResult);
       console.log("[draft] alanUsage:", result.keyName);
 
+      // 초안 생성 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
+      // 프론트에서 이 값을 기준으로 재생성 쿨타임을 계산한다.
+      const generatedAt = new Date().toISOString();
+
       return Response.json({
         draftGuideResult,
         alanUsage: [{ keyName: result.keyName, callCount: 1 }],
+        generatedAt,
       });
     } catch (error) {
       if (error instanceof AlanApiError) {

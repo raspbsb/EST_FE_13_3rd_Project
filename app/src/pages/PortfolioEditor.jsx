@@ -141,15 +141,6 @@ const createDraftFormData = formData => ({
   images: [],
 });
 
-// 분석/초안 생성 시점을 화면에 표시하기 위한 YYYY-MM-DD HH:mm 형식 문자열 생성 함수
-const formatEditorTimestamp = date => {
-  const pad = value => String(value).padStart(2, "0");
-
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(
-    date.getMinutes(),
-  )}`;
-};
-
 // 임시저장 가능 여부 판단을 위해 값이 비어 있지 않은지 확인하는 함수
 const hasNonEmptyDraftValue = value => {
   if (typeof value === "boolean") return false;
@@ -727,7 +718,7 @@ export default function PortfolioEditor({ data }) {
       setAiAnalysisResult(prev => ({
         ...prev,
         ...data.aiAnalysisResult,
-        analyzedAt: formatEditorTimestamp(new Date()),
+        analyzedAt: data.analyzedAt,
       }));
     } catch (error) {
       alert(error.message);
@@ -776,7 +767,7 @@ export default function PortfolioEditor({ data }) {
         originalDescription: formData.description,
         aiDraftDescription: data.draftGuideResult.draftDescription,
         aiShortSummary: data.draftGuideResult.shortSummary,
-        generatedAt: formatEditorTimestamp(new Date()),
+        generatedAt: data.generatedAt,
         appliedDescriptionSource: "current",
         isSummaryApplied: false,
       }));
