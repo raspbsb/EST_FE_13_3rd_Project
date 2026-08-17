@@ -14,7 +14,7 @@ export default function HeroImage({}) {
   const images = data?.portfolio_images;
 
   function setThumbnail() {
-    return data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order ?? 0;
+    return data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order - 1 ?? 0;
   }
   useEffect(() => {
     setSelectedImg(setThumbnail());
