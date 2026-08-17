@@ -179,9 +179,16 @@ const gallerySlice = createSlice({
     });
     builder.addCase(fetchFeaturedPortfolios.fulfilled, (state, action) => {
       const { data, error } = action.payload;
+
+      const formattedData = (data ?? []).map(project => ({
+        ...project,
+        like_count: project.portfolio_likes?.length ?? 0,
+      }));
+
       state.featured.error = error;
       state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
       state.featured.data = data ?? [];
+
       if (error) console.warn(error);
     });
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
@@ -195,6 +202,12 @@ const gallerySlice = createSlice({
     });
     builder.addCase(fetchPortfolios.fulfilled, (state, action) => {
       const { data, error, count } = action.payload;
+
+      const formattedData = (data ?? []).map(project => ({
+        ...project,
+        like_count: project.portfolio_likes?.length ?? 0,
+      }));
+
       state.error = error;
       state.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
       state.data = data ?? [];
@@ -209,7 +222,15 @@ const gallerySlice = createSlice({
 
     builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
       const { data, error, count } = action.payload;
-      if (!error && count > 0) state.data.push(action.payload.data);
+
+      if (!error && count > 0) {
+        const formattedData = (data ?? []).map(project => ({
+          ...project,
+          like_count: project.portfolio_likes?.length ?? 0,
+        }));
+
+        state.data.push(...formattedData);
+      }
       if (error) console.warn(error);
     });
     builder.addCase(fetchMorePortfolios.rejected, (state, action) => {

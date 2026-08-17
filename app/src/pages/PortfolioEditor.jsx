@@ -1,10 +1,18 @@
 // React Hooks
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // Material UI Components
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 
 // Components & Modules
@@ -17,6 +25,8 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
+// GitHub Provider가 Supabase에서 활성화되면 handleCompleteAiAnalysis의 연동 확인 주석과 함께 다시 사용할 것.
+// import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
 import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
@@ -24,8 +34,9 @@ import { categoryOptions, techStackOptions } from "../constants/portfolioOptions
 import styles from "./PortfolioEditor.module.css";
 
 // Utils
-import { loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
+import { deleteLocalStorageItem, loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 import { createPortfolioPayload } from "../utils/portfolioPayload";
+import { getEdgeFunctionErrorMessage } from "../utils/supabaseError";
 import {
   createEmptyFormErrors,
   getFirstFormErrorMessage,
@@ -138,40 +149,6 @@ const createDraftFormData = formData => ({
   ...formData,
   images: [],
 });
-
-// 개발 단계에서 GitHub 저장소 분석 버튼 클릭 시 보여줄 AI 분석 결과 더미 데이터
-const developmentAiAnalysisResult = {
-  projectSummary:
-    "Portfolio+는 창작자와 개발자가 자신의 프로젝트를 등록하고, 방문자와 채용 담당자가 분야와 기술 스택을 기준으로 작품을 탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다.",
-  mainFeatures:
-    "포트폴리오 등록·수정·삭제, 이미지 업로드, 카테고리·기술 스택 기반 탐색, 좋아요·북마크, 제작자 프로필, GitHub 저장소 분석 기능을 제공합니다.",
-  technicalFeatures:
-    "React와 MUI 기반의 컴포넌트 구조로 입력 UI를 구성하고, Supabase 연동을 전제로 사용자 인증, 프로젝트 데이터, 이미지 저장 흐름을 분리해 관리합니다.",
-  projectStructure:
-    "기본 정보, 이미지 첨부, 메타 정보, AI 분석 결과, 초안 가이드, 하단 액션바가 섹션 단위로 분리된 등록·수정 중심의 포트폴리오 편집 화면입니다.",
-  analyzedRole:
-    "등록·수정 페이지의 입력 흐름, 이미지 관리, 메타 정보 선택, AI 분석 결과 표시, 초안 가이드 UI와 상태 연결을 담당했습니다.",
-  participationDetails:
-    "기획 문서와 화면 설계 자료를 기준으로 정보 구조를 정리하고, 사용자가 입력한 데이터를 저장과 미리보기 흐름에 연결할 수 있도록 구현했습니다.",
-  analysisLimitation:
-    "분석 한계 : GitHub 저장소 정보와 사용자가 입력한 설명만으로는 실제 기여도와 협업 맥락을 완전히 판단하기 어렵습니다.",
-};
-
-// 개발 단계에서 초안 생성 버튼 클릭 시 보여줄 AI 추천 설명/한 줄 요약 더미 데이터
-const developmentDraftGuide = {
-  aiDraftDescription:
-    "Portfolio+는 프로젝트 등록부터 이미지 관리, 카테고리와 기술 스택 기반 탐색, GitHub 저장소 분석 결과 표시까지 하나의 흐름으로 연결하는 포트폴리오 갤러리 서비스입니다. 제작자는 프로젝트 정보를 체계적으로 정리하고, 방문자는 작품의 핵심 기능과 기술적 특징을 빠르게 확인할 수 있습니다.",
-  aiShortSummary: "GitHub 분석으로 프로젝트 정보를 보완하고 작품 탐색부터 협업 문의까지 연결하는 포트폴리오 갤러리",
-};
-
-// 분석/초안 생성 시점을 화면에 표시하기 위한 YYYY-MM-DD HH:mm 형식 문자열 생성 함수
-const formatEditorTimestamp = date => {
-  const pad = value => String(value).padStart(2, "0");
-
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(
-    date.getMinutes(),
-  )}`;
-};
 
 // 임시저장 가능 여부 판단을 위해 값이 비어 있지 않은지 확인하는 함수
 const hasNonEmptyDraftValue = value => {
@@ -287,8 +264,28 @@ const createEditorDraftGuide = aiCreated => ({
 const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 // 임시저장 목록에서 유지할 최대 저장본 개수
 const MAX_PORTFOLIO_DRAFT_COUNT = 5;
+// 잠글 수 있는 임시저장본 최대 개수. 전부 잠기면 새 임시저장이 밀려날 자리가 없어지므로 5개보다 작게 제한한다.
+const MAX_LOCKED_DRAFT_COUNT = 3;
 // 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
+// GitHub 연동 페이지로 이동하기 전 저장한 임시저장 id를 잠깐 보관하는 key
+// 연동 완료/취소 후 이 페이지로 돌아왔을 때, 이 key에 남아있는 draft를 확인창 없이 자동으로 복원한다.
+const PORTFOLIO_EDITOR_PENDING_RESTORE_KEY = "portfolio-editor-pending-restore-draft-id";
+
+// 잠긴 임시저장본은 밀어내지 않고, 잠기지 않은 것부터(뒤쪽=오래된 것부터) 최대 개수에 맞춰 제거한다.
+const capPortfolioDrafts = drafts => {
+  if (drafts.length <= MAX_PORTFOLIO_DRAFT_COUNT) return drafts;
+
+  const result = [...drafts];
+
+  for (let i = result.length - 1; i >= 0 && result.length > MAX_PORTFOLIO_DRAFT_COUNT; i -= 1) {
+    if (!result[i].locked) {
+      result.splice(i, 1);
+    }
+  }
+
+  return result;
+};
 
 // 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
@@ -357,6 +354,8 @@ export default function PortfolioEditor({ data }) {
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
+    isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
+    isGeneratingDraft: false, // 초안 생성 요청 처리 중인지 (draft Edge Function 응답 대기)
     isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
@@ -366,13 +365,48 @@ export default function PortfolioEditor({ data }) {
   // 사용자가 마지막으로 실행한 검증 흐름. 값이 있으면 입력 변경마다 같은 기준으로 다시 검사한다.
   const [formValidationMode, setFormValidationMode] = useState("");
 
-  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용)
+  // alert() 대신 쓰는 스낵바 알림 상태
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+
+  // 스낵바를 띄우는 함수. severity: "success" | "error" | "warning" | "info"
+  const notify = useCallback((message, severity = "info") => {
+    setSnackbar({ open: true, message, severity });
+  }, []);
+
+  // 스낵바 자동 닫힘/닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
+  const handleCloseSnackbar = useCallback((_, reason) => {
+    if (reason === "clickaway") return;
+
+    setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // confirm() 대신 쓰는 확인 다이얼로그 상태. 열려있는 동안 사용자의 선택을 Promise로 기다린다.
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, message: "" });
+  const confirmResolverRef = useRef(null);
+
+  // 확인/취소 버튼을 눌러 답할 때까지 기다리는 확인창을 띄운다. window.confirm과 같은 방식으로 Promise<boolean>을 반환한다.
+  const requestConfirm = useCallback(message => {
+    setConfirmDialog({ open: true, message });
+
+    return new Promise(resolve => {
+      confirmResolverRef.current = resolve;
+    });
+  }, []);
+
+  // 확인/취소 결과를 requestConfirm을 호출한 쪽에 전달하고 다이얼로그를 닫는다.
+  const handleConfirmDialogResult = useCallback(result => {
+    setConfirmDialog(prev => ({ ...prev, open: false }));
+    confirmResolverRef.current?.(result);
+    confirmResolverRef.current = null;
+  }, []);
+
+  // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용). 알림을 잠깐 보여준 뒤 이동한다.
   const redirectAfterEditorAlert = useCallback(
     ({ message, path = "/gallery" }) => {
-      alert(message);
-      navigate(path, { replace: true });
+      notify(message, "error");
+      setTimeout(() => navigate(path, { replace: true }), 1200);
     },
-    [navigate],
+    [navigate, notify],
   );
 
   // 로그인 페이지로 이동
@@ -502,15 +536,41 @@ export default function PortfolioEditor({ data }) {
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
     const savedDrafts = loadLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY);
+    const draftList = Array.isArray(savedDrafts)
+      ? savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT)
+      : savedDrafts?.id
+        ? [savedDrafts]
+        : [];
 
-    if (Array.isArray(savedDrafts)) {
-      setTemporaryDrafts(savedDrafts.slice(0, MAX_PORTFOLIO_DRAFT_COUNT));
-      return;
+    setTemporaryDrafts(draftList);
+
+    // GitHub 연동 페이지로 갔다가 돌아온 경우, 연동 성공/취소와 상관없이
+    // 떠나기 전 저장해둔 임시저장을 확인창 없이 바로 복원한다.
+    const pendingDraftId = loadLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY);
+
+    if (!pendingDraftId) return;
+
+    deleteLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY);
+
+    const pendingDraft = draftList.find(draft => draft.id === pendingDraftId);
+
+    if (!pendingDraft) return;
+
+    setFormData(prev => ({
+      ...prev,
+      ...pendingDraft.formData,
+      images: prev.images,
+    }));
+
+    if (pendingDraft.aiAnalysisResult) {
+      setAiAnalysisResult(pendingDraft.aiAnalysisResult);
     }
 
-    if (savedDrafts?.id) {
-      setTemporaryDrafts([savedDrafts]);
+    if (pendingDraft.draftGuide) {
+      setDraftGuide(pendingDraft.draftGuide);
     }
+
+    setAppliedDraftId(pendingDraft.id);
   }, []);
 
   // 사용자가 한 번 검증을 실행한 뒤에는 같은 검증 기준으로 입력 변경마다 라벨 피드백을 갱신
@@ -536,15 +596,19 @@ export default function PortfolioEditor({ data }) {
       setFormValidationMode("submit");
       setFormErrors(nextErrors);
 
-      // 첫 번째 오류 메시지만 alert로 보여주고 Supabase 요청은 보내지 않는다.
+      // 첫 번째 오류 메시지만 스낵바로 보여주고 Supabase 요청은 보내지 않는다.
       if (hasFormErrors(nextErrors)) {
-        alert(getFirstFormErrorMessage(nextErrors));
+        notify(getFirstFormErrorMessage(nextErrors), "warning");
         return;
       }
 
+      // 이미지를 건드리지 않고 다른 필드만 수정해서 제출하면 normalizeImageOrder가 한 번도 안 돌 수 있다.
+      // 대표 이미지가 2개 이상(또는 0개)인 상태로 그대로 저장되면 DB 유니크 제약에 걸리므로 제출 직전에 한 번 더 강제한다.
+      const normalizedFormData = { ...formData, images: normalizeImageOrder(formData.images) };
+
       // formData는 화면 관리용 구조라서, 백엔드 저장 전에 테이블 구조에 맞는 payload로 변환한다.
       const payload = createPortfolioPayload({
-        formData,
+        formData: normalizedFormData,
         aiAnalysisResult,
         draftGuide,
       });
@@ -577,15 +641,15 @@ export default function PortfolioEditor({ data }) {
           setAppliedDraftId(null);
         }
 
-        // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다.
-        alert(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.");
-        navigate(`/portfolios/${projectId}`);
+        // 등록이 끝나면 생성된 project_id 기준 상세 페이지로 이동한다. 알림을 잠깐 보여준 뒤 이동한다.
+        notify(isEdit ? "포트폴리오가 수정되었습니다." : "포트폴리오가 등록되었습니다.", "success");
+        setTimeout(() => navigate(`/portfolios/${projectId}`), 800);
       } catch (error) {
-        // Supabase/RLS/Storage 오류는 현재 alert로 확인하고, 마지막 UX 정리 때 스낵바로 교체 예정
-        alert(error.message);
+        // Supabase/RLS/Storage 오류
+        notify(error.message, "error");
       }
     },
-    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId],
+    [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId, notify],
   );
 
   // 미리보기 모달을 여는 함수
@@ -604,47 +668,159 @@ export default function PortfolioEditor({ data }) {
     }));
   }, []);
 
-  // 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록하는 함수
-  const handleCompleteAiAnalysis = useCallback(() => {
+  // GitHub 연동 없이 저장소 분석을 진행할 수 없으므로, 연동 여부를 먼저 확인하고 분기하는 함수
+  // 연동 안 됐으면 현재 작성 내용을 임시저장해두고 연동 페이지로 보낸 뒤, 돌아오면 자동 복원되도록 표시한다.
+  // 연동 상태에서만 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록한다.
+  const handleCompleteAiAnalysis = useCallback(async () => {
     const nextErrors = validateAiFormFieldErrors(formData);
     setFormValidationMode("analysis");
     setFormErrors(nextErrors);
 
     if (hasFormErrors(nextErrors)) {
-      alert(getFirstFormErrorMessage(nextErrors));
+      notify(getFirstFormErrorMessage(nextErrors), "warning");
       return;
     }
 
-    setAiAnalysisResult(prev => ({
-      ...prev,
-      ...developmentAiAnalysisResult,
-      analyzedAt: formatEditorTimestamp(new Date()),
-    }));
-  }, [formData]);
+    // TODO: GitHub 연동(Supabase Auth Provider) 활성화되면 아래 주석 풀어서 다시 연결할 것.
+    // 지금은 Supabase 프로젝트에 GitHub Provider 자체가 비활성화돼 있어서 linkIdentity가 항상 실패한다.
+    // let isGithubLinked = false;
+    //
+    // try {
+    //   isGithubLinked = await getIsGithubLinked();
+    // } catch (error) {
+    //   alert(error.message);
+    //   return;
+    // }
+    //
+    // if (!isGithubLinked) {
+    //   const shouldLink = confirm(
+    //     "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
+    //   );
+    //
+    //   if (!shouldLink) return;
+    //
+    //   // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
+    //   if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+    //     const pendingDraft = {
+    //       id: crypto.randomUUID(),
+    //       title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
+    //       savedAt: new Date().toISOString(),
+    //       formData: createDraftFormData(formData),
+    //       aiAnalysisResult,
+    //       draftGuide,
+    //     };
+    //
+    //     setTemporaryDrafts(prev => {
+    //       const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+    //
+    //       saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+    //
+    //       return nextDrafts;
+    //     });
+    //
+    //     saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
+    //   }
+    //
+    //   try {
+    //     await linkGithubIdentity({ redirectTo: window.location.href });
+    //   } catch (error) {
+    //     alert(error.message);
+    //   }
+    //
+    //   return;
+    // }
 
-  // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
-  const handleGenerateDraftGuide = useCallback(() => {
+    // 버튼/분석 카드 영역만 로딩 상태로 표시하고, 나머지 폼은 계속 조작할 수 있게 둔다.
+    setEditorUi(prev => ({ ...prev, isAnalyzing: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze", {
+        body: {
+          repositoryUrl: formData.repository_url,
+          formData: {
+            title: formData.title,
+            description: formData.description,
+            author_role: formData.author_role,
+            project_type: formData.project_type,
+            team_size: formData.team_size,
+            environment: formData.environment,
+            categories: formData.categories,
+            tech_stacks: formData.tech_stacks,
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 Alan AI 최종 분석 결과 확인
+      console.log("[PortfolioEditor] analyze githubData:", data.githubData);
+      console.log("[PortfolioEditor] analyze aiAnalysisResult:", data.aiAnalysisResult);
+      // 이번 분석 1회에 Alan API 키(이름)가 몇 번씩 쓰였는지 확인 (하루 100회/키 한도 소진 여부 가늠용)
+      console.log("[PortfolioEditor] analyze alanUsage:", data.alanUsage);
+
+      setAiAnalysisResult(prev => ({
+        ...prev,
+        ...data.aiAnalysisResult,
+        analyzedAt: data.analyzedAt,
+      }));
+    } catch (error) {
+      notify(await getEdgeFunctionErrorMessage(error), "error");
+    } finally {
+      setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
+    }
+    // GitHub 연동 분기 주석을 풀면 aiAnalysisResult, draftGuide도 다시 deps에 넣을 것.
+  }, [formData, notify]);
+
+  // 초안 생성 버튼 클릭 시 draft Edge Function을 호출해 AI 추천 설명 초안/한 줄 요약을 받아오는 함수
+  const handleGenerateDraftGuide = useCallback(async () => {
     // 초안 생성은 프로젝트 설명이 핵심 입력값이므로 draft 전용 검증 기준을 먼저 적용한다.
     const nextErrors = validateDraftGuideFieldErrors(formData);
     setFormValidationMode("draft");
     setFormErrors(nextErrors);
 
     if (hasFormErrors(nextErrors)) {
-      alert(getFirstFormErrorMessage(nextErrors));
+      notify(getFirstFormErrorMessage(nextErrors), "warning");
       return;
     }
 
-    // 실제 AI 연결 전까지는 개발용 초안을 사용하고, 생성 당시의 사용자 설명을 별도로 보관한다.
-    setDraftGuide(prev => ({
-      ...prev,
-      originalDescription: formData.description,
-      aiDraftDescription: developmentDraftGuide.aiDraftDescription,
-      aiShortSummary: developmentDraftGuide.aiShortSummary,
-      generatedAt: formatEditorTimestamp(new Date()),
-      appliedDescriptionSource: "current",
-      isSummaryApplied: false,
-    }));
-  }, [formData]);
+    setEditorUi(prev => ({ ...prev, isGeneratingDraft: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("draft", {
+        body: {
+          formData: {
+            title: formData.title,
+            description: formData.description,
+            author_role: formData.author_role,
+            project_type: formData.project_type,
+            categories: formData.categories,
+            tech_stacks: formData.tech_stacks,
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      console.log("[PortfolioEditor] draft draftGuideResult:", data.draftGuideResult);
+      console.log("[PortfolioEditor] draft alanUsage:", data.alanUsage);
+
+      setDraftGuide(prev => ({
+        ...prev,
+        originalDescription: formData.description,
+        aiDraftDescription: data.draftGuideResult.draftDescription,
+        aiShortSummary: data.draftGuideResult.shortSummary,
+        generatedAt: data.generatedAt,
+        appliedDescriptionSource: "current",
+        isSummaryApplied: false,
+      }));
+    } catch (error) {
+      notify(await getEdgeFunctionErrorMessage(error), "error");
+    } finally {
+      setEditorUi(prev => ({ ...prev, isGeneratingDraft: false }));
+    }
+  }, [formData, notify]);
 
   // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
   const handleApplyCurrentDescription = useCallback(() => {
@@ -689,7 +865,7 @@ export default function PortfolioEditor({ data }) {
   // 현재 에디터 상태를 최대 5개 임시저장 목록에 추가하고 localStorage에 반영
   const handleSaveDraft = useCallback(() => {
     if (!hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
-      alert("임시저장할 내용이 없습니다.");
+      notify("임시저장할 내용이 없습니다.", "warning");
       return;
     }
 
@@ -700,29 +876,56 @@ export default function PortfolioEditor({ data }) {
       formData: createDraftFormData(formData),
       aiAnalysisResult,
       draftGuide,
+      locked: false,
     };
 
     setTemporaryDrafts(prev => {
-      const nextDrafts = [nextDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+      // 최대 개수를 넘기면 잠기지 않은 저장본부터(오래된 순서로) 밀어내고, 잠긴 저장본은 그대로 둔다.
+      const nextDrafts = capPortfolioDrafts([nextDraft, ...prev]);
 
       saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
 
       return nextDrafts;
     });
-    alert("임시저장되었습니다.");
+    notify("임시저장되었습니다.", "success");
     setAppliedDraftId(nextDraft.id);
-  }, [formData, aiAnalysisResult, draftGuide]);
+  }, [formData, aiAnalysisResult, draftGuide, notify]);
+
+  // 임시저장본 잠금/해제를 토글한다. 잠금은 최대 개수까지만 허용한다.
+  const handleToggleDraftLock = useCallback(
+    draftId => {
+      setTemporaryDrafts(prev => {
+        const target = prev.find(draft => draft.id === draftId);
+
+        if (!target) return prev;
+
+        const lockedCount = prev.filter(draft => draft.locked).length;
+
+        if (!target.locked && lockedCount >= MAX_LOCKED_DRAFT_COUNT) {
+          notify(`임시저장 잠금은 최대 ${MAX_LOCKED_DRAFT_COUNT}개까지만 가능합니다.`, "warning");
+          return prev;
+        }
+
+        const nextDrafts = prev.map(draft => (draft.id === draftId ? { ...draft, locked: !draft.locked } : draft));
+
+        saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+        return nextDrafts;
+      });
+    },
+    [notify],
+  );
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
   const handleApplyDraft = useCallback(
-    draftId => {
+    async draftId => {
       // 임시저장 목록에서 사용자가 선택한 저장본을 찾는다.
       const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
       if (!selectedDraft) return false;
 
       // 저장본을 불러오면 현재 작성 중인 텍스트가 바뀌므로, 적용 전에 한 번 더 확인한다.
-      const shouldApply = confirm(
+      const shouldApply = await requestConfirm(
         "현재 작성 중인 내용이 선택한 임시저장 내용으로 바뀝니다.\n기존에 작성 중이던 내용은 사라질 수 있습니다.\n이 저장본을 불러올까요?",
       );
 
@@ -750,7 +953,7 @@ export default function PortfolioEditor({ data }) {
 
       return true;
     },
-    [temporaryDrafts],
+    [temporaryDrafts, requestConfirm],
   );
 
   // 선택한 카테고리가 비어 있거나 최대 개수/중복 조건에 걸리면 무시하고, 새 카테고리만 추가
@@ -883,63 +1086,67 @@ export default function PortfolioEditor({ data }) {
   );
 
   // 이미지 추가 : 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
-  const handleAddImages = useCallback(files => {
-    setFormData(prev => {
-      // FileList는 배열 메서드를 바로 쓰기 어려우므로 Array.from으로 실제 배열로 바꾼다.
-      // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
-      const selectedFiles = Array.from(files);
-      // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
-      const remainingImageCount = MAX_IMAGE_COUNT - prev.images.length;
+  const handleAddImages = useCallback(
+    files => {
+      setFormData(prev => {
+        // FileList는 배열 메서드를 바로 쓰기 어려우므로 Array.from으로 실제 배열로 바꾼다.
+        // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
+        const selectedFiles = Array.from(files);
+        // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
+        const remainingImageCount = MAX_IMAGE_COUNT - prev.images.length;
 
-      // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
-      if (remainingImageCount <= 0) {
-        alert(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`);
-        return prev;
-      }
+        // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
+        if (remainingImageCount <= 0) {
+          notify(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`, "warning");
+          return prev;
+        }
 
-      // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
-      if (selectedFiles.length > remainingImageCount) {
-        alert(
-          `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
+        // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
+        if (selectedFiles.length > remainingImageCount) {
+          notify(
+            `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
+            "warning",
+          );
+          return prev;
+        }
+
+        // png/jpeg/webp 타입이 아닌 파일들을 분류
+        const invalidTypeFiles = selectedFiles.filter(file => !ALLOWED_IMAGE_TYPES.includes(file.type));
+
+        // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
+        if (invalidTypeFiles.length > 0) {
+          notify("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.", "warning");
+          return prev;
+        }
+
+        // 최대 크기 이상의 파일들을 분류
+        const oversizedFiles = selectedFiles.filter(file => file.size > MAX_IMAGE_SIZE);
+
+        // 최대 크기 이상인 파일이 있다면 리턴하고 경고
+        if (oversizedFiles.length > 0) {
+          notify("10MB 이하 이미지만 업로드할 수 있습니다.", "warning");
+          return prev;
+        }
+
+        // 사용자가 선택한 파일이 모두 검증을 통과한 경우에만 이미지 객체로 변환한다.
+        // 조건에 맞는 이미지들을 객체로 생성하는 함수
+        const nextImages = selectedFiles.map((file, index) =>
+          createPortfolioImageItem({
+            file,
+            order: prev.images.length + index + 1,
+            isThumbnail: prev.images.length === 0 && index === 0,
+          }),
         );
-        return prev;
-      }
 
-      // png/jpeg/webp 타입이 아닌 파일들을 분류
-      const invalidTypeFiles = selectedFiles.filter(file => !ALLOWED_IMAGE_TYPES.includes(file.type));
-
-      // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
-      if (invalidTypeFiles.length > 0) {
-        alert("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.");
-        return prev;
-      }
-
-      // 최대 크기 이상의 파일들을 분류
-      const oversizedFiles = selectedFiles.filter(file => file.size > MAX_IMAGE_SIZE);
-
-      // 최대 크기 이상인 파일이 있다면 리턴하고 경고
-      if (oversizedFiles.length > 0) {
-        alert("10MB 이하 이미지만 업로드할 수 있습니다.");
-        return prev;
-      }
-
-      // 사용자가 선택한 파일이 모두 검증을 통과한 경우에만 이미지 객체로 변환한다.
-      // 조건에 맞는 이미지들을 객체로 생성하는 함수
-      const nextImages = selectedFiles.map((file, index) =>
-        createPortfolioImageItem({
-          file,
-          order: prev.images.length + index + 1,
-          isThumbnail: prev.images.length === 0 && index === 0,
-        }),
-      );
-
-      // 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
-      return {
-        ...prev,
-        images: normalizeImageOrder([...prev.images, ...nextImages]),
-      };
-    });
-  }, []);
+        // 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
+        return {
+          ...prev,
+          images: normalizeImageOrder([...prev.images, ...nextImages]),
+        };
+      });
+    },
+    [notify],
+  );
 
   // 선택한 이미지를 삭제하는 함수
   const handleDeleteImage = useCallback(imageId => {
@@ -1060,6 +1267,9 @@ export default function PortfolioEditor({ data }) {
           temporaryDrafts={temporaryDrafts}
           onApplyDraft={handleApplyDraft}
           onDeleteDraft={handleDeleteDraft}
+          onToggleDraftLock={handleToggleDraftLock}
+          maxLockedDraftCount={MAX_LOCKED_DRAFT_COUNT}
+          onRequestConfirm={requestConfirm}
         />
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
@@ -1090,6 +1300,7 @@ export default function PortfolioEditor({ data }) {
                 <GithubAiAnalysisSection
                   sectionCardSx={sectionCardSx}
                   aiAnalysisResult={aiAnalysisResult}
+                  isAnalyzing={editorUi.isAnalyzing}
                   onCompleteAiAnalysis={handleCompleteAiAnalysis}
                 />
               </Stack>
@@ -1130,6 +1341,7 @@ export default function PortfolioEditor({ data }) {
               formInputSx={formInputSx}
               draftGuide={draftGuide}
               summary={draftGuide.aiShortSummary}
+              isGenerating={editorUi.isGeneratingDraft}
               onGenerateDraftGuide={handleGenerateDraftGuide}
               onApplyCurrentDescription={handleApplyCurrentDescription}
               onApplyDraftDescription={handleApplyDraftDescription}
@@ -1153,6 +1365,36 @@ export default function PortfolioEditor({ data }) {
         aiAnalysisResult={aiAnalysisResult}
         draftGuide={draftGuide}
       />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      <Dialog
+        open={confirmDialog.open}
+        onClose={() => handleConfirmDialogResult(false)}
+        aria-labelledby="portfolio-editor-confirm-dialog-title"
+      >
+        <DialogTitle id="portfolio-editor-confirm-dialog-title">확인</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: "pre-line" }}>{confirmDialog.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button type="button" onClick={() => handleConfirmDialogResult(false)}>
+            취소
+          </Button>
+          <Button type="button" variant="contained" autoFocus onClick={() => handleConfirmDialogResult(true)}>
+            확인
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

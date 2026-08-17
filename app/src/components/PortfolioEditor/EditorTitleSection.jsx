@@ -5,12 +5,16 @@
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import Tooltip from "@mui/material/Tooltip";
 import Text from "@mui/material/Typography";
+import { DeleteIcon, LockIcon, LockOpenIcon } from "../../lib/icons";
 import { memo, useState } from "react";
 
 const formatDraftSavedAt = savedAt => {
@@ -27,12 +31,22 @@ const formatDraftSavedAt = savedAt => {
   )}`;
 };
 
-function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDraft }) {
+function EditorTitleSection({
+  isEdit,
+  temporaryDrafts,
+  onApplyDraft,
+  onDeleteDraft,
+  onToggleDraftLock,
+  maxLockedDraftCount,
+  onRequestConfirm,
+}) {
   // 전체 임시저장 목록 모달의 열림 상태
   const [isDraftListOpen, setIsDraftListOpen] = useState(false);
   // 임시저장 목록은 최신순으로 저장되므로 첫 번째 항목을 최신 저장본으로 사용
   const latestDraft = temporaryDrafts[0];
   const latestSavedAt = formatDraftSavedAt(latestDraft?.savedAt);
+  // 잠금 개수가 최대치에 도달하면, 이미 잠긴 저장본을 제외하고는 잠금 버튼을 비활성화한다.
+  const lockedDraftCount = temporaryDrafts.filter(draft => draft.locked).length;
 
   // 전체 저장 목록 확인 버튼을 누르면 임시저장 목록 모달을 연다.
   const handleOpenDraftList = () => {
@@ -45,8 +59,8 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
   };
 
   // 저장본 적용이 성공하면 모달을 닫고, 취소되면 그대로 둔다.
-  const handleApplySelectedDraft = draftId => {
-    const didApply = onApplyDraft(draftId);
+  const handleApplySelectedDraft = async draftId => {
+    const didApply = await onApplyDraft(draftId);
 
     if (didApply) {
       handleCloseDraftList();
@@ -54,8 +68,10 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
   };
 
   // 삭제 전 확인창을 띄운 뒤 선택한 임시저장본만 삭제한다.
-  const handleDeleteSelectedDraft = draftId => {
-    if (!confirm("이 임시저장 데이터를 삭제할까요?")) return;
+  const handleDeleteSelectedDraft = async draftId => {
+    const shouldDelete = await onRequestConfirm("이 임시저장 데이터를 삭제할까요?");
+
+    if (!shouldDelete) return;
 
     onDeleteDraft(draftId);
   };
@@ -128,27 +144,92 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
                       variant="outlined"
                       aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 불러오기`}
                       onClick={() => handleApplySelectedDraft(draft.id)}
+                      sx={{ flex: 1, justifyContent: "flex-start" }}
                     >
-                      <Box className="portfolio-editor-temporary-draft-dialog__item-text">
-                        <Text className="portfolio-editor-temporary-draft-dialog__item-title">
-                          {draft.title || "제목 없는 임시저장"}
-                        </Text>
-                        <Text className="portfolio-editor-temporary-draft-dialog__item-date">
-                          {formatDraftSavedAt(draft.savedAt)}
-                        </Text>
-                      </Box>
+                      <Stack
+                        className="portfolio-editor-temporary-draft-dialog__item-text"
+                        direction="row"
+                        spacing={1}
+                        sx={{ width: "100%", alignItems: "center", justifyContent: "space-between" }}
+                      >
+                        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+                          <Text className="portfolio-editor-temporary-draft-dialog__item-title">
+                            {draft.title || "제목 없는 임시저장"}
+                          </Text>
+                          <Text className="portfolio-editor-temporary-draft-dialog__item-date">
+                            {formatDraftSavedAt(draft.savedAt)}
+                          </Text>
+                        </Stack>
+
+                        <Stack
+                          className="portfolio-editor-temporary-draft-dialog__item-status"
+                          spacing={0.5}
+                          sx={{ alignItems: "flex-end", flexShrink: 0 }}
+                        >
+                          <Chip
+                            size="small"
+                            variant={draft.aiAnalysisResult?.analyzedAt ? "filled" : "outlined"}
+                            color={draft.aiAnalysisResult?.analyzedAt ? "primary" : "default"}
+                            label={draft.aiAnalysisResult?.analyzedAt ? "분석완료" : "분석 전"}
+                          />
+                          <Chip
+                            size="small"
+                            variant={draft.draftGuide?.generatedAt ? "filled" : "outlined"}
+                            color={draft.draftGuide?.generatedAt ? "primary" : "default"}
+                            label={draft.draftGuide?.generatedAt ? "초안완료" : "초안 전"}
+                          />
+                        </Stack>
+                      </Stack>
                     </Button>
 
-                    <Button
-                      className="portfolio-editor-temporary-draft-dialog__delete-button"
-                      type="button"
-                      variant="outlined"
-                      color="error"
-                      aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 삭제`}
-                      onClick={() => handleDeleteSelectedDraft(draft.id)}
-                    >
-                      삭제
-                    </Button>
+                    <Stack spacing={0.5}>
+                      <Tooltip
+                        title={
+                          draft.locked
+                            ? "잠금 해제"
+                            : lockedDraftCount >= maxLockedDraftCount
+                              ? `잠금은 최대 ${maxLockedDraftCount}개까지 가능합니다`
+                              : "밀려나지 않도록 잠그기"
+                        }
+                      >
+                        <span>
+                          <IconButton
+                            className="portfolio-editor-temporary-draft-dialog__lock-button"
+                            type="button"
+                            size="small"
+                            color={draft.locked ? "primary" : "default"}
+                            disabled={!draft.locked && lockedDraftCount >= maxLockedDraftCount}
+                            aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 ${draft.locked ? "잠금 해제" : "잠그기"}`}
+                            onClick={() => onToggleDraftLock(draft.id)}
+                            sx={{
+                              border: "1px solid",
+                              borderColor: draft.locked ? "primary.main" : "#c2c6d8",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            {draft.locked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+
+                      <Tooltip title="삭제">
+                        <IconButton
+                          className="portfolio-editor-temporary-draft-dialog__delete-button"
+                          type="button"
+                          size="small"
+                          color="error"
+                          aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 삭제`}
+                          onClick={() => handleDeleteSelectedDraft(draft.id)}
+                          sx={{
+                            border: "1px solid",
+                            borderColor: "error.main",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Stack>
                 ))}
               </Stack>
