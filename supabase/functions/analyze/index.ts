@@ -65,11 +65,15 @@ export default {
 
       // 폼/커밋(최대 4배치)/구조 분석 요청은 서로 결과가 필요 없는 독립적인 요청이라 동시에 보낸다.
       // Alan AI 호출 1건이 ~30초 걸려서, 순서대로 기다리면 7번 × 30초로 너무 오래 걸린다.
-      const [formSummary, commitSummaries, structureSummary] = await Promise.all([
+      const [formResult, commitResults, structureResult] = await Promise.all([
         callAlanAi(formContextPrompt),
         Promise.all(commitBatchPrompts.map(prompt => callAlanAi(prompt))),
         callAlanAi(structurePrompt),
       ]);
+
+      const formSummary = formResult.answer;
+      const commitSummaries = commitResults.map(result => result.answer);
+      const structureSummary = structureResult.answer;
 
       console.log("[analyze] formSummary:", formSummary);
       console.log("[analyze] commitSummaries:", commitSummaries);
@@ -88,12 +92,22 @@ export default {
 
       console.log("[analyze] finalMergePrompt:", finalMergePrompt);
 
-      const finalRaw = await callAlanAi(finalMergePrompt);
-      const aiAnalysisResult = parseAlanJson(finalRaw);
+      const finalResult = await callAlanAi(finalMergePrompt);
+      const aiAnalysisResult = parseAlanJson(finalResult.answer);
+
+      // 이번 요청에서 실제로 어떤 client_id(이름)가 몇 번 쓰였는지 집계. 하루 100회 한도 소진 여부를 가늠하는 용도.
+      const alanKeyNames = [formResult.keyName, ...commitResults.map(result => result.keyName), structureResult.keyName, finalResult.keyName];
+      const alanUsage = Object.entries(
+        alanKeyNames.reduce((acc, name) => {
+          acc[name] = (acc[name] ?? 0) + 1;
+          return acc;
+        }, {} as Record<string, number>),
+      ).map(([keyName, callCount]) => ({ keyName, callCount }));
 
       console.log("[analyze] aiAnalysisResult:", aiAnalysisResult);
+      console.log("[analyze] alanUsage:", alanUsage);
 
-      return Response.json({ githubData, aiAnalysisResult });
+      return Response.json({ githubData, aiAnalysisResult, alanUsage });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });

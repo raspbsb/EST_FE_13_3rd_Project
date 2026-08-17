@@ -4,6 +4,10 @@
 
 const ALAN_API_BASE = "https://kdt-api-function.azurewebsites.net";
 
+// ALAN_API_KEYS에 등록한 client_id 순서와 동일한 순서로 맞춘 이름 목록.
+// 어떤 client_id가 실제로 쓰였는지 로그/응답에는 이름만 노출하고, client_id 원본 값은 노출하지 않는다.
+const ALAN_API_KEY_NAMES = ["배정호", "유태구", "맹예진", "강채희", "오예은"];
+
 // Alan AI 호출/응답 관련 에러
 export class AlanApiError extends Error {}
 
@@ -13,8 +17,8 @@ const getAlanApiKeys = () =>
     .map(key => key.trim())
     .filter(Boolean);
 
-// content(질문)를 Alan AI에 보내고 응답 텍스트(answer 필드)를 받는다.
-// 등록된 client_id를 순서대로 시도하고, 하나라도 성공하면 그 결과를 바로 반환한다.
+// content(질문)를 Alan AI에 보내고 { answer, keyName }을 받는다.
+// 등록된 client_id를 순서대로 시도하고, 하나라도 성공하면 그 결과와 함께 실제로 성공한 client_id의 이름을 반환한다.
 export const callAlanAi = async (content: string) => {
   const apiKeys = getAlanApiKeys();
 
@@ -24,7 +28,10 @@ export const callAlanAi = async (content: string) => {
 
   let lastError: unknown;
 
-  for (const clientId of apiKeys) {
+  for (let index = 0; index < apiKeys.length; index += 1) {
+    const clientId = apiKeys[index];
+    const keyName = ALAN_API_KEY_NAMES[index] ?? `client_id ${index + 1}번`;
+
     try {
       const url = new URL(`${ALAN_API_BASE}/api/v1/question`);
 
@@ -46,7 +53,7 @@ export const callAlanAi = async (content: string) => {
         continue;
       }
 
-      return data.answer;
+      return { answer: data.answer, keyName };
     } catch (error) {
       // 네트워크 오류 등으로 이 client_id가 실패해도, 다음 client_id로 계속 시도한다.
       lastError = error;

@@ -723,6 +723,8 @@ export default function PortfolioEditor({ data }) {
       // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 Alan AI 최종 분석 결과 확인
       console.log("[PortfolioEditor] analyze githubData:", data.githubData);
       console.log("[PortfolioEditor] analyze aiAnalysisResult:", data.aiAnalysisResult);
+      // 이번 분석 1회에 Alan API 키(이름)가 몇 번씩 쓰였는지 확인 (하루 100회/키 한도 소진 여부 가늠용)
+      console.log("[PortfolioEditor] analyze alanUsage:", data.alanUsage);
 
       setAiAnalysisResult(prev => ({
         ...prev,
