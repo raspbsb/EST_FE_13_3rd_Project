@@ -5,6 +5,7 @@
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -128,15 +129,42 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
                       variant="outlined"
                       aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 불러오기`}
                       onClick={() => handleApplySelectedDraft(draft.id)}
+                      sx={{ flex: 1, justifyContent: "flex-start" }}
                     >
-                      <Box className="portfolio-editor-temporary-draft-dialog__item-text">
-                        <Text className="portfolio-editor-temporary-draft-dialog__item-title">
-                          {draft.title || "제목 없는 임시저장"}
-                        </Text>
-                        <Text className="portfolio-editor-temporary-draft-dialog__item-date">
-                          {formatDraftSavedAt(draft.savedAt)}
-                        </Text>
-                      </Box>
+                      <Stack
+                        className="portfolio-editor-temporary-draft-dialog__item-text"
+                        direction="row"
+                        spacing={1}
+                        sx={{ width: "100%", alignItems: "center", justifyContent: "space-between" }}
+                      >
+                        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+                          <Text className="portfolio-editor-temporary-draft-dialog__item-title">
+                            {draft.title || "제목 없는 임시저장"}
+                          </Text>
+                          <Text className="portfolio-editor-temporary-draft-dialog__item-date">
+                            {formatDraftSavedAt(draft.savedAt)}
+                          </Text>
+                        </Stack>
+
+                        <Stack
+                          className="portfolio-editor-temporary-draft-dialog__item-status"
+                          spacing={0.5}
+                          sx={{ alignItems: "flex-end", flexShrink: 0 }}
+                        >
+                          <Chip
+                            size="small"
+                            variant={draft.aiAnalysisResult?.analyzedAt ? "filled" : "outlined"}
+                            color={draft.aiAnalysisResult?.analyzedAt ? "primary" : "default"}
+                            label={draft.aiAnalysisResult?.analyzedAt ? "분석완료" : "분석 전"}
+                          />
+                          <Chip
+                            size="small"
+                            variant={draft.draftGuide?.generatedAt ? "filled" : "outlined"}
+                            color={draft.draftGuide?.generatedAt ? "primary" : "default"}
+                            label={draft.draftGuide?.generatedAt ? "초안완료" : "초안 전"}
+                          />
+                        </Stack>
+                      </Stack>
                     </Button>
 
                     <Button

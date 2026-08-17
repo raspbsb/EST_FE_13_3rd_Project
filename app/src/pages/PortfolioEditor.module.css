@@ -350,23 +350,20 @@
   min-width: 64px;
   border-radius: 8px;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__item-text.MuiBox-root) {
-  display: flex;
+.page :global(.portfolio-editor-temporary-draft-dialog__item-text.MuiStack-root) {
   min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  flex: 1 1 auto;
 }
 .page :global(.portfolio-editor-temporary-draft-dialog__item-title.MuiTypography-root) {
   color: var(--portfolio-text-primary);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 20px;
 }
 .page :global(.portfolio-editor-temporary-draft-dialog__item-date.MuiTypography-root) {
   color: var(--portfolio-text-secondary);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 16px;
 }
 @media (max-width: 767px) {
