@@ -142,6 +142,11 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
           desktop: "left",
         },
         width: "100%",
+        pb: {
+          mobile: "24px",
+          tablet: "48px",
+          desktop: "48px",
+        },
       }}
     >
       {/* 프로필 이미지 업로드 */}

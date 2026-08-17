@@ -119,11 +119,7 @@ export default function ActivityStats({ mode, profile }) {
   ];
 
   return (
-    <Box
-      sx={{
-        pt: "0",
-      }}
-    >
+    <Box>
       <Grid
         container
         spacing={3}
