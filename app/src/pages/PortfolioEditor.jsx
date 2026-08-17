@@ -1,11 +1,17 @@
 // React Hooks
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMatch, useNavigate, useParams } from "react-router-dom";
 
 // Material UI Components
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 
@@ -372,6 +378,26 @@ export default function PortfolioEditor({ data }) {
     if (reason === "clickaway") return;
 
     setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
+
+  // confirm() 대신 쓰는 확인 다이얼로그 상태. 열려있는 동안 사용자의 선택을 Promise로 기다린다.
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, message: "" });
+  const confirmResolverRef = useRef(null);
+
+  // 확인/취소 버튼을 눌러 답할 때까지 기다리는 확인창을 띄운다. window.confirm과 같은 방식으로 Promise<boolean>을 반환한다.
+  const requestConfirm = useCallback(message => {
+    setConfirmDialog({ open: true, message });
+
+    return new Promise(resolve => {
+      confirmResolverRef.current = resolve;
+    });
+  }, []);
+
+  // 확인/취소 결과를 requestConfirm을 호출한 쪽에 전달하고 다이얼로그를 닫는다.
+  const handleConfirmDialogResult = useCallback(result => {
+    setConfirmDialog(prev => ({ ...prev, open: false }));
+    confirmResolverRef.current?.(result);
+    confirmResolverRef.current = null;
   }, []);
 
   // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용). 알림을 잠깐 보여준 뒤 이동한다.
@@ -892,14 +918,14 @@ export default function PortfolioEditor({ data }) {
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
   const handleApplyDraft = useCallback(
-    draftId => {
+    async draftId => {
       // 임시저장 목록에서 사용자가 선택한 저장본을 찾는다.
       const selectedDraft = temporaryDrafts.find(draft => draft.id === draftId);
 
       if (!selectedDraft) return false;
 
       // 저장본을 불러오면 현재 작성 중인 텍스트가 바뀌므로, 적용 전에 한 번 더 확인한다.
-      const shouldApply = confirm(
+      const shouldApply = await requestConfirm(
         "현재 작성 중인 내용이 선택한 임시저장 내용으로 바뀝니다.\n기존에 작성 중이던 내용은 사라질 수 있습니다.\n이 저장본을 불러올까요?",
       );
 
@@ -927,7 +953,7 @@ export default function PortfolioEditor({ data }) {
 
       return true;
     },
-    [temporaryDrafts],
+    [temporaryDrafts, requestConfirm],
   );
 
   // 선택한 카테고리가 비어 있거나 최대 개수/중복 조건에 걸리면 무시하고, 새 카테고리만 추가
@@ -1060,64 +1086,67 @@ export default function PortfolioEditor({ data }) {
   );
 
   // 이미지 추가 : 파일 선택/드롭으로 들어온 파일 배열을 받아서 검증하고 formData.images에 추가하는 함수
-  const handleAddImages = useCallback(files => {
-    setFormData(prev => {
-      // FileList는 배열 메서드를 바로 쓰기 어려우므로 Array.from으로 실제 배열로 바꾼다.
-      // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
-      const selectedFiles = Array.from(files);
-      // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
-      const remainingImageCount = MAX_IMAGE_COUNT - prev.images.length;
+  const handleAddImages = useCallback(
+    files => {
+      setFormData(prev => {
+        // FileList는 배열 메서드를 바로 쓰기 어려우므로 Array.from으로 실제 배열로 바꾼다.
+        // (사용자에게) 선택된 파일 = 이미지 섹션에서 받은 파일 배열을 실제 배열로 변경해 저장
+        const selectedFiles = Array.from(files);
+        // 받을 수 있는 남은 이미지 = 최대 이미지 수 - 현재 이미지 개수
+        const remainingImageCount = MAX_IMAGE_COUNT - prev.images.length;
 
-      // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
-      if (remainingImageCount <= 0) {
-        notify(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`, "warning");
-        return prev;
-      }
+        // 받을 수 있는 남은 이미지가 0이하면 리턴하고 경고 (더이상 이미지 첨부할 수 없게 함)
+        if (remainingImageCount <= 0) {
+          notify(`이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다.`, "warning");
+          return prev;
+        }
 
-      // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
-      if (selectedFiles.length > remainingImageCount) {
-        notify(
-          `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
-          "warning",
+        // 남은 이미지 개수는 있지만, 사용자가 남은 이미지 개수보다 많은 파일을 선택했을 때 리턴하고 경고
+        if (selectedFiles.length > remainingImageCount) {
+          notify(
+            `이미지는 최대 ${MAX_IMAGE_COUNT}장까지 업로드할 수 있습니다. ${remainingImageCount}장만 더 추가할 수 있습니다.`,
+            "warning",
+          );
+          return prev;
+        }
+
+        // png/jpeg/webp 타입이 아닌 파일들을 분류
+        const invalidTypeFiles = selectedFiles.filter(file => !ALLOWED_IMAGE_TYPES.includes(file.type));
+
+        // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
+        if (invalidTypeFiles.length > 0) {
+          notify("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.", "warning");
+          return prev;
+        }
+
+        // 최대 크기 이상의 파일들을 분류
+        const oversizedFiles = selectedFiles.filter(file => file.size > MAX_IMAGE_SIZE);
+
+        // 최대 크기 이상인 파일이 있다면 리턴하고 경고
+        if (oversizedFiles.length > 0) {
+          notify("10MB 이하 이미지만 업로드할 수 있습니다.", "warning");
+          return prev;
+        }
+
+        // 사용자가 선택한 파일이 모두 검증을 통과한 경우에만 이미지 객체로 변환한다.
+        // 조건에 맞는 이미지들을 객체로 생성하는 함수
+        const nextImages = selectedFiles.map((file, index) =>
+          createPortfolioImageItem({
+            file,
+            order: prev.images.length + index + 1,
+            isThumbnail: prev.images.length === 0 && index === 0,
+          }),
         );
-        return prev;
-      }
 
-      // png/jpeg/webp 타입이 아닌 파일들을 분류
-      const invalidTypeFiles = selectedFiles.filter(file => !ALLOWED_IMAGE_TYPES.includes(file.type));
-
-      // 타입이 맞지 않는 파일이 있다면 리턴하고 경고
-      if (invalidTypeFiles.length > 0) {
-        notify("PNG, JPG, WebP 이미지만 업로드할 수 있습니다.", "warning");
-        return prev;
-      }
-
-      // 최대 크기 이상의 파일들을 분류
-      const oversizedFiles = selectedFiles.filter(file => file.size > MAX_IMAGE_SIZE);
-
-      // 최대 크기 이상인 파일이 있다면 리턴하고 경고
-      if (oversizedFiles.length > 0) {
-        notify("10MB 이하 이미지만 업로드할 수 있습니다.", "warning");
-        return prev;
-      }
-
-      // 사용자가 선택한 파일이 모두 검증을 통과한 경우에만 이미지 객체로 변환한다.
-      // 조건에 맞는 이미지들을 객체로 생성하는 함수
-      const nextImages = selectedFiles.map((file, index) =>
-        createPortfolioImageItem({
-          file,
-          order: prev.images.length + index + 1,
-          isThumbnail: prev.images.length === 0 && index === 0,
-        }),
-      );
-
-      // 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
-      return {
-        ...prev,
-        images: normalizeImageOrder([...prev.images, ...nextImages]),
-      };
-    });
-  }, [notify]);
+        // 기존거에 이미지 순서를 재정렬한 이미지 넣어서 반환
+        return {
+          ...prev,
+          images: normalizeImageOrder([...prev.images, ...nextImages]),
+        };
+      });
+    },
+    [notify],
+  );
 
   // 선택한 이미지를 삭제하는 함수
   const handleDeleteImage = useCallback(imageId => {
@@ -1240,6 +1269,7 @@ export default function PortfolioEditor({ data }) {
           onDeleteDraft={handleDeleteDraft}
           onToggleDraftLock={handleToggleDraftLock}
           maxLockedDraftCount={MAX_LOCKED_DRAFT_COUNT}
+          onRequestConfirm={requestConfirm}
         />
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
@@ -1346,6 +1376,25 @@ export default function PortfolioEditor({ data }) {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      <Dialog
+        open={confirmDialog.open}
+        onClose={() => handleConfirmDialogResult(false)}
+        aria-labelledby="portfolio-editor-confirm-dialog-title"
+      >
+        <DialogTitle id="portfolio-editor-confirm-dialog-title">확인</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ whiteSpace: "pre-line" }}>{confirmDialog.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button type="button" onClick={() => handleConfirmDialogResult(false)}>
+            취소
+          </Button>
+          <Button type="button" variant="contained" autoFocus onClick={() => handleConfirmDialogResult(true)}>
+            확인
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

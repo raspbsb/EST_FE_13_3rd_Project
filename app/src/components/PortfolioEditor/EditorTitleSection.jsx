@@ -38,6 +38,7 @@ function EditorTitleSection({
   onDeleteDraft,
   onToggleDraftLock,
   maxLockedDraftCount,
+  onRequestConfirm,
 }) {
   // 전체 임시저장 목록 모달의 열림 상태
   const [isDraftListOpen, setIsDraftListOpen] = useState(false);
@@ -58,8 +59,8 @@ function EditorTitleSection({
   };
 
   // 저장본 적용이 성공하면 모달을 닫고, 취소되면 그대로 둔다.
-  const handleApplySelectedDraft = draftId => {
-    const didApply = onApplyDraft(draftId);
+  const handleApplySelectedDraft = async draftId => {
+    const didApply = await onApplyDraft(draftId);
 
     if (didApply) {
       handleCloseDraftList();
@@ -67,8 +68,10 @@ function EditorTitleSection({
   };
 
   // 삭제 전 확인창을 띄운 뒤 선택한 임시저장본만 삭제한다.
-  const handleDeleteSelectedDraft = draftId => {
-    if (!confirm("이 임시저장 데이터를 삭제할까요?")) return;
+  const handleDeleteSelectedDraft = async draftId => {
+    const shouldDelete = await onRequestConfirm("이 임시저장 데이터를 삭제할까요?");
+
+    if (!shouldDelete) return;
 
     onDeleteDraft(draftId);
   };
