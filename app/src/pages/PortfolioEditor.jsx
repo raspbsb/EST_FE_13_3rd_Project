@@ -17,7 +17,8 @@ import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPrevi
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
+// GitHub Provider가 Supabase에서 활성화되면 handleCompleteAiAnalysis의 연동 확인 주석과 함께 다시 사용할 것.
+// import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
 import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
@@ -630,52 +631,54 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
-    let isGithubLinked = false;
-
-    try {
-      isGithubLinked = await getIsGithubLinked();
-    } catch (error) {
-      alert(error.message);
-      return;
-    }
-
-    if (!isGithubLinked) {
-      const shouldLink = confirm(
-        "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
-      );
-
-      if (!shouldLink) return;
-
-      // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
-      if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
-        const pendingDraft = {
-          id: crypto.randomUUID(),
-          title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
-          savedAt: new Date().toISOString(),
-          formData: createDraftFormData(formData),
-          aiAnalysisResult,
-          draftGuide,
-        };
-
-        setTemporaryDrafts(prev => {
-          const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
-
-          saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
-
-          return nextDrafts;
-        });
-
-        saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
-      }
-
-      try {
-        await linkGithubIdentity({ redirectTo: window.location.href });
-      } catch (error) {
-        alert(error.message);
-      }
-
-      return;
-    }
+    // TODO: GitHub 연동(Supabase Auth Provider) 활성화되면 아래 주석 풀어서 다시 연결할 것.
+    // 지금은 Supabase 프로젝트에 GitHub Provider 자체가 비활성화돼 있어서 linkIdentity가 항상 실패한다.
+    // let isGithubLinked = false;
+    //
+    // try {
+    //   isGithubLinked = await getIsGithubLinked();
+    // } catch (error) {
+    //   alert(error.message);
+    //   return;
+    // }
+    //
+    // if (!isGithubLinked) {
+    //   const shouldLink = confirm(
+    //     "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
+    //   );
+    //
+    //   if (!shouldLink) return;
+    //
+    //   // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
+    //   if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+    //     const pendingDraft = {
+    //       id: crypto.randomUUID(),
+    //       title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
+    //       savedAt: new Date().toISOString(),
+    //       formData: createDraftFormData(formData),
+    //       aiAnalysisResult,
+    //       draftGuide,
+    //     };
+    //
+    //     setTemporaryDrafts(prev => {
+    //       const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+    //
+    //       saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+    //
+    //       return nextDrafts;
+    //     });
+    //
+    //     saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
+    //   }
+    //
+    //   try {
+    //     await linkGithubIdentity({ redirectTo: window.location.href });
+    //   } catch (error) {
+    //     alert(error.message);
+    //   }
+    //
+    //   return;
+    // }
 
     // 버튼/분석 카드 영역만 로딩 상태로 표시하고, 나머지 폼은 계속 조작할 수 있게 둔다.
     setEditorUi(prev => ({ ...prev, isAnalyzing: true }));
@@ -696,7 +699,8 @@ export default function PortfolioEditor({ data }) {
     } finally {
       setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
     }
-  }, [formData, aiAnalysisResult, draftGuide]);
+    // GitHub 연동 분기 주석을 풀면 aiAnalysisResult, draftGuide도 다시 deps에 넣을 것.
+  }, [formData]);
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
   const handleGenerateDraftGuide = useCallback(() => {
