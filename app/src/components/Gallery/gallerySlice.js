@@ -35,24 +35,26 @@ const stringToColumnName = (sortBy = "created_at") => {
  *
  * @param {string} searchTerm 검색 문자열 필터
  * @param {Array} category 카테고리 필터
+ * @param {Array} techStack 기술 스택 필터
  * @param {string} sortBy 정렬 방식
  * @param {boolean} ascending 오름차순?
  * @param {number} rangeFrom fetch 범위 시작 index 번호
  * @param {number} rangeTo fetch 범위 끝 index 번호
  */
-function buildPortfolioQuery(
+function buildPortfolioQuery({
   searchTerm = "",
   category = [],
+  techStack = [],
   sortBy = "created_at",
   ascending = false,
   rangeFrom = 0,
   rangeTo = 7,
-) {
+}) {
   let query = supabase
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories!inner(*), portfolio_tech_stacks!inner(*), portfolio_likes(*)",
       {
         count: "exact",
       },
@@ -61,9 +63,14 @@ function buildPortfolioQuery(
   // 검색 문자열 필터 추가  * 현재 코드로는 대소문자를 구분함
   query = query.ilike("title", `%${searchTerm.trim()}%`);
 
-  // 카테고리 필터 추가
+  // 카테고리 필터 추가  * 현재 미사용
   if (category.length > 0) {
     query = query.in("portfolio_categories.category", category);
+  }
+
+  // 기술 스택 필터 추가
+  if (techStack.length > 0) {
+    query = query.in("portfolio_tech_stacks.tech_stack", techStack);
   }
 
   // 정렬 방식 추가
@@ -92,30 +99,42 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
 });
 export const fetchPortfolios = createAsyncThunk(
   "gallery",
-  async ({ searchTerm = "", category = [], sortBy = "created_at", ascending = false }) => {
-    const query = buildPortfolioQuery(searchTerm, category, sortBy, ascending, 0, 7);
+  async ({ searchTerm = "", category = [], techStack = [], sortBy = "created_at", ascending = false }) => {
+    const query = buildPortfolioQuery({ searchTerm, category, techStack, sortBy, ascending, rangeFrom: 0, rangeTo: 7 });
     const result = await query;
     return result;
   },
 );
 export const fetchMorePortfolios = createAsyncThunk(
   "gallery/more",
-  async ({
-    searchTerm = "",
-    category = [],
-    sortBy = "created_at",
-    ascending = false,
-    visibleCount,
-    fetchCount = 4,
-  }) => {
-    let query = buildPortfolioQuery(
+  async (
+    {
+      searchTerm = "",
+      category = [],
+      techStack = [],
+      sortBy = "created_at",
+      ascending = false,
+      visibleCount,
+      fetchCount = 4,
+    },
+    { getState },
+  ) => {
+    const { count } = getState().gallery;
+
+    // 요청 자체를 생략
+    if (visibleCount >= count) {
+      return { data: [], error: null, count };
+    }
+
+    let query = buildPortfolioQuery({
       searchTerm,
       category,
+      techStack,
       sortBy,
       ascending,
-      visibleCount - 1,
-      visibleCount + fetchCount - 1,
-    );
+      rangeFrom: visibleCount - 1,
+      rangeTo: Math.min(visibleCount + fetchCount - 1, count - 1),
+    });
 
     const result = await query;
     return result;
