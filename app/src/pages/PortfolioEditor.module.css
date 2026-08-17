@@ -348,11 +348,6 @@
   padding: 12px;
   text-align: left;
 }
-:global(.portfolio-editor-temporary-draft-dialog__delete-button.MuiButton-root) {
-  flex: 0 0 auto;
-  min-width: 64px;
-  border-radius: 8px;
-}
 :global(.portfolio-editor-temporary-draft-dialog__item-text.MuiStack-root) {
   min-width: 0;
   flex: 1 1 auto;
