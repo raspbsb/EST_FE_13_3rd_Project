@@ -60,8 +60,16 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
   return (
     <Box
       sx={{
-        width: "191px",
-        height: "192px",
+        width: {
+          mobile: 120,
+          tablet: 191,
+          desktop: 191,
+        },
+        height: {
+          mobile: 120,
+          tablet: 192,
+          desktop: 192,
+        },
         position: "relative",
       }}
       onMouseEnter={() => setIsHover(true)}
@@ -74,8 +82,16 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
           src={image}
           alt="프로필 이미지"
           sx={{
-            width: "191px",
-            height: "192px",
+            width: {
+              mobile: 120,
+              tablet: 191,
+              desktop: 191,
+            },
+            height: {
+              mobile: 120,
+              tablet: 192,
+              desktop: 192,
+            },
             borderRadius: "50%",
             border: "1px solid #e0e0e0",
             objectFit: "cover",
@@ -84,8 +100,16 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
       ) : (
         <AccountCircleIcon
           sx={{
-            width: "191px",
-            height: "192px",
+            width: {
+              mobile: 120,
+              tablet: 191,
+              desktop: 191,
+            },
+            height: {
+              mobile: 120,
+              tablet: 192,
+              desktop: 192,
+            },
             borderRadius: "50%",
             border: "1px solid #e0e0e0",
           }}
@@ -99,8 +123,9 @@ export default function ProfileAvatar({ avatarPath, editable = false, onChange }
           startIcon={<CloseIcon />}
           sx={{
             position: "absolute",
-            top: "80px",
-            left: "30px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
             minWidth: "auto",
             px: 1,
             py: 0.5,

@@ -1,5 +1,8 @@
 import { supabase } from "../../utils/supabase";
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../../store/userSlice";
+
 import TagChip from "../TagChip";
 
 import { CloseIcon, LockIcon } from "../../lib/icons";
@@ -24,6 +27,9 @@ import FormLabel from "@mui/material/FormLabel";
 export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.user);
 
   //Edit dialog form 관리
   const [form, setForm] = useState({
@@ -115,21 +121,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
   const handleSubmit = async e => {
     e.preventDefault();
 
-    // Auth 서버에 요청해서 현재 사용자 인증
     try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        throw userError;
-      }
       if (!user) {
         alert("로그인이 필요합니다.");
         return;
       }
-      // Supabase 업데이트
+
       const { data, error } = await supabase
         .from("profiles")
         .update({
@@ -149,10 +146,11 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
       if (error) {
         throw error;
       }
+
       console.log("프로필 수정 완료:", data);
 
-      // DB 수정 성공 후 화면도 변경
       onProfileUpdate(data);
+      dispatch(updateProfile(data));
 
       onClose();
     } catch (error) {
@@ -241,7 +239,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 onChange={handleSkillChange}
                 onKeyDown={handleSkillKeyDown}
               />
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ pt: "10px" }}>
+              <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" sx={{ pt: "10px" }}>
                 {form.skills.map(skill => (
                   <TagChip key={skill} label={skill} onDelete={() => handleDeleteSkill(skill)} />
                 ))}
