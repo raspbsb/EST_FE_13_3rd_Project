@@ -28,6 +28,7 @@ import styles from "./PortfolioEditor.module.css";
 // Utils
 import { deleteLocalStorageItem, loadLocalStorageItem, saveLocalStorageItem } from "../utils/localStorage";
 import { createPortfolioPayload } from "../utils/portfolioPayload";
+import { getEdgeFunctionErrorMessage } from "../utils/supabaseError";
 import {
   createEmptyFormErrors,
   getFirstFormErrorMessage,
@@ -721,7 +722,7 @@ export default function PortfolioEditor({ data }) {
         analyzedAt: data.analyzedAt,
       }));
     } catch (error) {
-      alert(error.message);
+      alert(await getEdgeFunctionErrorMessage(error));
     } finally {
       setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
     }
@@ -772,7 +773,7 @@ export default function PortfolioEditor({ data }) {
         isSummaryApplied: false,
       }));
     } catch (error) {
-      alert(error.message);
+      alert(await getEdgeFunctionErrorMessage(error));
     } finally {
       setEditorUi(prev => ({ ...prev, isGeneratingDraft: false }));
     }
