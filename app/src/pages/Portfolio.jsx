@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { supabase } from "../utils/supabase";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -24,8 +25,12 @@ export default function Portfolio() {
     };
   }, [id]);
 
+  async function incrementViews() {
+    await supabase.rpc("increment_portfolio_view", { p_project_id: data.project_id });
+  }
   useEffect(() => {
     if (status !== "succeeded") return;
+    incrementViews();
     if (!data?.author_id) return;
     dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
   }, [status]);

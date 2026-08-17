@@ -20,6 +20,9 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Local Claude Code preview/debug config
+.claude/
 .DS_Store
 *.suo
 *.ntvs*
