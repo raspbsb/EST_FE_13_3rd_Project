@@ -302,3 +302,47 @@ export const createFinalMergePrompt = ({ formSummary, commitSummary, structureSu
   // 위에서 섹션별로 이미 절단했지만, 라벨/줄바꿈 여유 계산이 어긋나는 극단적인 경우를 대비한 최종 안전장치.
   return truncateForPrompt(prompt, AI_PROMPT_BUDGET);
 };
+
+// ── 5. 초안 가이드 생성 프롬프트 ──────────────────────────────
+
+// 사용자가 입력한 정보만 근거로 삼고, 없는 기능/기술을 지어내지 않도록 명시한다.
+const DRAFT_GUIDE_INSTRUCTION = `아래는 사용자가 작성한 프로젝트 정보다. 이 정보를 바탕으로 포트폴리오용 프로젝트 설명 초안과 한 줄 요약을 작성하라.
+기존설명에 없는 기능이나 기술을 새로 지어내지 마라. 기존설명을 다듬고 문장을 자연스럽게 보완하는 데 집중하라.
+draftDescription은 200자 이상 500자 이내로 작성하라.
+shortSummary는 40자 이내로, 프로젝트를 한 문장으로 소개하는 문구로 작성하라.
+설명 없이 유효한 JSON만 출력하라.
+
+출력 형식:
+{"draftDescription":"","shortSummary":""}`;
+
+export interface DraftGuideFormContext {
+  title?: string;
+  description?: string;
+  author_role?: string;
+  project_type?: string;
+  categories?: { label: string }[];
+  tech_stacks?: { label: string }[];
+}
+
+// 사용자 입력 폼 데이터(주로 기존 설명)를 900자 예산 안에서 초안 생성 프롬프트로 조립한다.
+export const createDraftGuidePrompt = (formData: DraftGuideFormContext) => {
+  const categories = (formData.categories ?? []).map(item => item.label).join(", ");
+  const techStacks = (formData.tech_stacks ?? []).map(item => item.label).join(", ");
+
+  const fixedLines = [
+    `프로젝트명:${truncateForPrompt(formData.title, 50)}`,
+    `담당역할:${truncateForPrompt(formData.author_role, 80)}`,
+    `참여형태:${formData.project_type ?? ""}`,
+    `카테고리:${categories}`,
+    `기술스택:${techStacks}`,
+  ].join("\n");
+
+  const descriptionPrefix = "기존설명:";
+  const headerLength = DRAFT_GUIDE_INSTRUCTION.length + fixedLines.length + descriptionPrefix.length + 4;
+  const descriptionLimit = Math.max(0, AI_PROMPT_BUDGET - headerLength);
+  const description = truncateForPrompt(formData.description, descriptionLimit);
+
+  const prompt = [DRAFT_GUIDE_INSTRUCTION, "", fixedLines, `${descriptionPrefix}${description}`].join("\n");
+
+  return truncateForPrompt(prompt, AI_PROMPT_BUDGET);
+};

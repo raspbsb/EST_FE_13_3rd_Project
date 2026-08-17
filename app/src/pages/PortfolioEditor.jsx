@@ -141,13 +141,6 @@ const createDraftFormData = formData => ({
   images: [],
 });
 
-// 개발 단계에서 초안 생성 버튼 클릭 시 보여줄 AI 추천 설명/한 줄 요약 더미 데이터
-const developmentDraftGuide = {
-  aiDraftDescription:
-    "Portfolio+는 프로젝트 등록부터 이미지 관리, 카테고리와 기술 스택 기반 탐색, GitHub 저장소 분석 결과 표시까지 하나의 흐름으로 연결하는 포트폴리오 갤러리 서비스입니다. 제작자는 프로젝트 정보를 체계적으로 정리하고, 방문자는 작품의 핵심 기능과 기술적 특징을 빠르게 확인할 수 있습니다.",
-  aiShortSummary: "GitHub 분석으로 프로젝트 정보를 보완하고 작품 탐색부터 협업 문의까지 연결하는 포트폴리오 갤러리",
-};
-
 // 분석/초안 생성 시점을 화면에 표시하기 위한 YYYY-MM-DD HH:mm 형식 문자열 생성 함수
 const formatEditorTimestamp = date => {
   const pad = value => String(value).padStart(2, "0");
@@ -362,6 +355,7 @@ export default function PortfolioEditor({ data }) {
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
     isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
+    isGeneratingDraft: false, // 초안 생성 요청 처리 중인지 (draft Edge Function 응답 대기)
     isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
@@ -743,8 +737,8 @@ export default function PortfolioEditor({ data }) {
     // GitHub 연동 분기 주석을 풀면 aiAnalysisResult, draftGuide도 다시 deps에 넣을 것.
   }, [formData]);
 
-  // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
-  const handleGenerateDraftGuide = useCallback(() => {
+  // 초안 생성 버튼 클릭 시 draft Edge Function을 호출해 AI 추천 설명 초안/한 줄 요약을 받아오는 함수
+  const handleGenerateDraftGuide = useCallback(async () => {
     // 초안 생성은 프로젝트 설명이 핵심 입력값이므로 draft 전용 검증 기준을 먼저 적용한다.
     const nextErrors = validateDraftGuideFieldErrors(formData);
     setFormValidationMode("draft");
@@ -755,16 +749,42 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
-    // 실제 AI 연결 전까지는 개발용 초안을 사용하고, 생성 당시의 사용자 설명을 별도로 보관한다.
-    setDraftGuide(prev => ({
-      ...prev,
-      originalDescription: formData.description,
-      aiDraftDescription: developmentDraftGuide.aiDraftDescription,
-      aiShortSummary: developmentDraftGuide.aiShortSummary,
-      generatedAt: formatEditorTimestamp(new Date()),
-      appliedDescriptionSource: "current",
-      isSummaryApplied: false,
-    }));
+    setEditorUi(prev => ({ ...prev, isGeneratingDraft: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("draft", {
+        body: {
+          formData: {
+            title: formData.title,
+            description: formData.description,
+            author_role: formData.author_role,
+            project_type: formData.project_type,
+            categories: formData.categories,
+            tech_stacks: formData.tech_stacks,
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      console.log("[PortfolioEditor] draft draftGuideResult:", data.draftGuideResult);
+      console.log("[PortfolioEditor] draft alanUsage:", data.alanUsage);
+
+      setDraftGuide(prev => ({
+        ...prev,
+        originalDescription: formData.description,
+        aiDraftDescription: data.draftGuideResult.draftDescription,
+        aiShortSummary: data.draftGuideResult.shortSummary,
+        generatedAt: formatEditorTimestamp(new Date()),
+        appliedDescriptionSource: "current",
+        isSummaryApplied: false,
+      }));
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setEditorUi(prev => ({ ...prev, isGeneratingDraft: false }));
+    }
   }, [formData]);
 
   // 초안 생성 당시의 기존 프로젝트 설명을 다시 프로젝트 설명 입력값에 적용하는 함수
@@ -1278,6 +1298,7 @@ export default function PortfolioEditor({ data }) {
               formInputSx={formInputSx}
               draftGuide={draftGuide}
               summary={draftGuide.aiShortSummary}
+              isGenerating={editorUi.isGeneratingDraft}
               onGenerateDraftGuide={handleGenerateDraftGuide}
               onApplyCurrentDescription={handleApplyCurrentDescription}
               onApplyDraftDescription={handleApplyDraftDescription}

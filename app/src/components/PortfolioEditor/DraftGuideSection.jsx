@@ -5,6 +5,7 @@
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
@@ -17,6 +18,7 @@ function DraftGuideSection({
   formInputSx,
   draftGuide,
   summary,
+  isGenerating = false,
   onGenerateDraftGuide,
   onApplyCurrentDescription,
   onApplyDraftDescription,
@@ -64,11 +66,17 @@ function DraftGuideSection({
               className="portfolio-editor-ai-action-button"
               type="button"
               variant="contained"
-              disabled={isDraftGenerated}
-              startIcon={isDraftGenerated ? null : <AwesomeIcon aria-hidden="true" />}
+              disabled={isDraftGenerated || isGenerating}
+              startIcon={
+                isGenerating ? (
+                  <CircularProgress size={16} color="inherit" aria-hidden="true" />
+                ) : isDraftGenerated ? null : (
+                  <AwesomeIcon aria-hidden="true" />
+                )
+              }
               onClick={onGenerateDraftGuide}
             >
-              {isDraftGenerated ? "생성 완료" : "초안 생성"}
+              {isGenerating ? "생성 중..." : isDraftGenerated ? "생성 완료" : "초안 생성"}
             </Button>
           </Stack>
         </Stack>

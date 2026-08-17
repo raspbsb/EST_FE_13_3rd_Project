@@ -2,45 +2,66 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-// Setup type definitions for built-in Supabase Runtime APIs
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
+import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
+import { createDraftGuidePrompt, type DraftGuideFormContext } from "../_shared/prompts.ts";
 
-console.log("Hello from Functions!");
-
-// This endpoint uses 'publishable' | 'secret' access, apiKey is required.
-// Use publishable for Client-facing, key-validated endpoints
-// Use secret for Server-to-server, internal calls
+// 사용자가 입력한 프로젝트 정보(주로 기존 설명)를 받아 Alan AI에 초안 생성 프롬프트를 보내고,
+// 다듬어진 프로젝트 설명 초안과 한 줄 요약을 JSON으로 만들어 반환한다.
+// CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async (req, ctx) => {
-    // Called by another service with a secret key
-    // ctx.supabaseAdmin bypasses RLS — use for privileged operations
-    /*
-    if (ctx.authMode === "secret") {
-      const { user_id } = await req.json();
-      const { data } = await ctx.supabaseAdmin.auth.admin.getUserById(user_id);
+  fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
+    let formData: DraftGuideFormContext | undefined;
+
+    // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
+    try {
+      ({ formData } = await req.json());
+    } catch {
+      return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
+    }
+
+    if (!formData || typeof formData.description !== "string" || !formData.description.trim()) {
+      return Response.json({ error: "description이 필요합니다." }, { status: 400 });
+    }
+
+    try {
+      const draftGuidePrompt = createDraftGuidePrompt(formData);
+
+      // 개발 확인용 콘솔 : 실제로 Alan AI에 보낼 프롬프트가 900자 예산 안에서 잘 조립됐는지 확인
+      console.log("[draft] draftGuidePrompt:", draftGuidePrompt);
+
+      const result = await callAlanAi(draftGuidePrompt);
+      const draftGuideResult = parseAlanJson(result.answer);
+
+      console.log("[draft] draftGuideResult:", draftGuideResult);
+      console.log("[draft] alanUsage:", result.keyName);
 
       return Response.json({
-        email: data?.user?.email,
+        draftGuideResult,
+        alanUsage: [{ keyName: result.keyName, callCount: 1 }],
       });
+    } catch (error) {
+      if (error instanceof AlanApiError) {
+        return Response.json({ error: error.message }, { status: 502 });
+      }
+
+      console.error(error);
+
+      return Response.json({ error: "초안 생성 중 오류가 발생했습니다." }, { status: 500 });
     }
-    */
-
-    const { name } = await req.json();
-
-    return Response.json({
-      message: `Hello ${name}!`,
-    });
   }),
 };
 
 /* To invoke locally:
 
   1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+  2. Run `supabase functions serve --env-file ./supabase/.env.local`
+  3. Make an HTTP request:
 
   curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/draft' \
     --header 'apiKey: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' \
-    --data '{"name":"Functions"}'
+    --header 'Content-Type: application/json' \
+    --data '{"formData":{"title":"Portfolio+","description":"..."}}'
 
 */
