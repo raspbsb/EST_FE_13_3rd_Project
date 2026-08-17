@@ -5,17 +5,25 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
+import {
+  createCommitBatchPrompts,
+  createFormContextPrompt,
+  createStructurePrompt,
+  type PortfolioFormContext,
+} from "../_shared/prompts.ts";
 
-// GitHub 저장소 URL을 받아 분석에 필요한 GitHub 데이터를 수집해 반환한다.
-// AI 프롬프트 조립/Alan AI 요청은 이후 단계에서 이 응답을 입력으로 사용해 추가한다.
+// GitHub 저장소 URL과 사용자 입력 폼 데이터를 받아 GitHub 데이터를 수집하고,
+// Alan AI에 보낼 프롬프트(폼/커밋/구조)를 조립해 반환한다.
+// 실제 Alan AI 호출/응답 취합은 이후 단계에서 이 프롬프트들을 입력으로 사용해 추가한다.
 // CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
   fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
     let repositoryUrl: string | undefined;
+    let formData: PortfolioFormContext | undefined;
 
     // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
     try {
-      ({ repositoryUrl } = await req.json());
+      ({ repositoryUrl, formData } = await req.json());
     } catch {
       return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
     }
@@ -40,7 +48,20 @@ export default {
       // 개발 확인용 콘솔 : GitHub에서 실제로 수집된 데이터 형태 확인
       console.log("[analyze] githubData:", JSON.stringify(githubData, null, 2));
 
-      return Response.json({ githubData });
+      const formContextPrompt = createFormContextPrompt(formData ?? {});
+      const commitBatchPrompts = createCommitBatchPrompts(githubData.commits);
+      const structurePrompt = createStructurePrompt({
+        fileTree: githubData.fileTree,
+        languages: githubData.languages,
+        readme: githubData.readme,
+      });
+
+      // 개발 확인용 콘솔 : 실제로 Alan AI에 보낼 프롬프트가 900자 예산 안에서 잘 조립됐는지 확인
+      console.log("[analyze] formContextPrompt:", formContextPrompt);
+      console.log("[analyze] commitBatchPrompts:", commitBatchPrompts);
+      console.log("[analyze] structurePrompt:", structurePrompt);
+
+      return Response.json({ githubData, prompts: { formContextPrompt, commitBatchPrompts, structurePrompt } });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });

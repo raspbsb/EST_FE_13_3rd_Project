@@ -685,15 +685,28 @@ export default function PortfolioEditor({ data }) {
 
     try {
       const { data, error } = await supabase.functions.invoke("analyze", {
-        body: { repositoryUrl: formData.repository_url },
+        body: {
+          repositoryUrl: formData.repository_url,
+          formData: {
+            title: formData.title,
+            description: formData.description,
+            author_role: formData.author_role,
+            project_type: formData.project_type,
+            team_size: formData.team_size,
+            environment: formData.environment,
+            categories: formData.categories,
+            tech_stacks: formData.tech_stacks,
+          },
+        },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터 확인
-      // 화면(aiAnalysisResult)에 반영하는 건 Alan AI 프롬프트/응답 연결 단계에서 처리한다.
+      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 조립된 프롬프트 확인
+      // 화면(aiAnalysisResult)에 반영하는 건 Alan AI 호출/응답 연결 단계에서 처리한다.
       console.log("[PortfolioEditor] analyze githubData:", data.githubData);
+      console.log("[PortfolioEditor] analyze prompts:", data.prompts);
     } catch (error) {
       alert(error.message);
     } finally {
