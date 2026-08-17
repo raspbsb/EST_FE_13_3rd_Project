@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import useNotifications from "../../hooks/useNotifications";
 
 import ContactDialog from "./ContactDialog";
 import MessageDialog from "./MessageDialog";
@@ -10,8 +9,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 
-export default function ProfileNav() {
-  const { notifications, handleMessageRead, handleMessageDelete } = useNotifications();
+export default function ProfileNav({ notificationState }) {
+  const { notifications, handleMessageRead, handleMessageDelete } = notificationState;
   const location = useLocation();
 
   const [openContact, setOpenContact] = useState(false);

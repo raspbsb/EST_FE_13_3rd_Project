@@ -1,4 +1,6 @@
 import { supabase } from "../../utils/supabase";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useTheme } from "@mui/material/styles";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -15,6 +17,10 @@ import Text from "@mui/material/Typography";
 import { CloseIcon } from "../../lib/icons";
 
 export default function MessageDialog({ open, onClose, message, onMessageRead, onMessageDelete }) {
+  const { user } = useSelector(state => state.user);
+
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -47,16 +53,7 @@ export default function MessageDialog({ open, onClose, message, onMessageRead, o
 
     try {
       // 현재 로그인한 사용자 확인
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser();
-
-      if (authError) {
-        throw authError;
-      }
-
-      if (!user) {
+      if (!user?.id) {
         console.error("로그인한 사용자가 없습니다.");
         return;
       }
@@ -82,87 +79,114 @@ export default function MessageDialog({ open, onClose, message, onMessageRead, o
   if (!message) return null;
 
   return (
-    <Dialog fullScreen={fullScreen} open={open} onClose={onClose} maxWidth="sm" fullWidth aria-labelledby="메세지">
-      <DialogTitle
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        메세지
-        <IconButton onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-
-      <DialogContent
-        sx={{
-          px: 3,
-        }}
-        dividers
-      >
-        <Box
+    <>
+      <Dialog fullScreen={fullScreen} open={open} onClose={onClose} maxWidth="sm" fullWidth aria-labelledby="메세지">
+        <DialogTitle
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
           }}
+        >
+          메세지
+          <IconButton onClick={onClose}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            px: 3,
+          }}
+          dividers
         >
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
-              mb: 2,
+              justifyContent: "space-between",
             }}
           >
-            <Text component="h3" variant="body1" sx={{ width: 100 }}>
-              {message.sender}
-            </Text>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                mb: 2,
+              }}
+            >
+              <Text component="h3" variant="body1" sx={{ width: 100 }}>
+                {message.sender}
+              </Text>
 
-            <Text component="h4" variant="subtitle2">
-              {message.job}
+              <Text component="h4" variant="subtitle2">
+                {message.job}
+              </Text>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                mb: 3,
+              }}
+            >
+              <Text component="span" variant="body1">
+                {message.createdAt}
+              </Text>
+            </Box>
+          </Box>
+
+          <Box sx={{ border: "1px solid #ccc", p: 2, bgcolor: "#fff" }}>
+            <Text
+              component="p"
+              variant="subtitle2"
+              sx={{
+                whiteSpace: "pre-line",
+              }}
+            >
+              {message.content}
             </Text>
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              mb: 3,
-            }}
-          >
-            <Text component="span" variant="body1">
-              {message.createdAt}
+          <Box sx={{ pt: 2 }}>
+            <Text component="span" variant="subtitle2" sx={{ color: "primary.main" }}>
+              ⓘ 이 메시지는 비공개 제안을 포함하고 있습니다.
             </Text>
           </Box>
-        </Box>
+        </DialogContent>
 
-        <Box sx={{ border: "1px solid #ccc", p: 2, bgcolor: "#fff" }}>
-          <Text
-            component="p"
-            variant="subtitle2"
-            sx={{
-              whiteSpace: "pre-line",
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button variant="contained" color="error" onClick={() => setOpenDeleteConfirm(true)}>
+            삭제
+          </Button>
+          <Button variant="contained" sx={{ bgcolor: "text.primary" }} onClick={handleMarkAsRead}>
+            읽음 표시
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* 메세지 삭제 확인 모달 */}
+      <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>메시지를 삭제하시겠습니까?</DialogTitle>
+
+        <DialogContent>
+          <Text variant="body2" color="text.secondary">
+            삭제한 메시지는 다시 복구할 수 없습니다.
+          </Text>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setOpenDeleteConfirm(false)}>취소</Button>
+
+          <Button
+            variant="contained"
+            color="error"
+            onClick={async () => {
+              await handleDelete();
+              setOpenDeleteConfirm(false);
             }}
           >
-            {message.content}
-          </Text>
-        </Box>
-
-        <Box sx={{ pt: 2 }}>
-          <Text component="span" variant="subtitle2" sx={{ color: "primary.main" }}>
-            ⓘ 이 메시지는 비공개 제안을 포함하고 있습니다.
-          </Text>
-        </Box>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button variant="contained" color="error" onClick={handleDelete}>
-          삭제
-        </Button>
-        <Button variant="contained" sx={{ bgcolor: "text.primary" }} onClick={handleMarkAsRead}>
-          읽음 표시
-        </Button>
-      </DialogActions>
-    </Dialog>
+            삭제
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

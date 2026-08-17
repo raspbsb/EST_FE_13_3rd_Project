@@ -40,6 +40,7 @@ const createTechStackData = techStacks =>
 // 첨부 이미지 상태에서 미리보기용 값을 제외하고 Storage 업로드와 이미지 테이블 저장에 필요한 값만 추출하는 함수
 const createImageData = images =>
   images.map(image => ({
+    image_path: image.imagePath ?? null,
     file: image.file,
     name: image.name,
     size: image.size,

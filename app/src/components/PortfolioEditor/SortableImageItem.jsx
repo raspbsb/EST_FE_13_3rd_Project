@@ -12,11 +12,12 @@ export default function SortableImageItem({
   onSetThumbnailImage,
   onDeleteImage,
 }) {
+  // dnd-kit이 이 이미지 아이템의 드래그 핸들러와 위치 변환 값을 제공한다.
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: image.id,
   });
 
-  // dnd-kit 라이브러리 사용을 위한 예외적인 인라인 스타일 사용
+  // dnd-kit이 계산한 transform/transition은 드래그 중 위치 이동을 위해 인라인 style로 전달해야 한다.
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -55,6 +56,7 @@ export default function SortableImageItem({
         >
           <PushPinIcon />
         </ImageActionButton>
+        {/* 이동 버튼에만 드래그 이벤트를 연결해 삭제/대표 지정 버튼과 동작이 섞이지 않게 한다. */}
         <ImageActionButton
           aria-label={`이미지 ${imageNumber} 이동`}
           sx={thumbnailActionButtonSx}

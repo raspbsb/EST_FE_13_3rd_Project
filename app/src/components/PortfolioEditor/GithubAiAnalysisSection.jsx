@@ -20,15 +20,20 @@ import { evidenceTabs } from "../../constants/portfolioOptions";
 import { memo, useState } from "react";
 
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAiAnalysis }) {
+  // 분석 근거 아코디언이 열려 있는지 관리한다.
   const [isEvidenceExpanded, setIsEvidenceExpanded] = useState(false);
+  // 분석 근거 내부 탭 선택값. false면 아직 아무 탭도 선택하지 않은 상태다.
   const [selectedEvidenceTab, setSelectedEvidenceTab] = useState(false);
+  // 분석 완료 시점이 있으면 버튼을 완료 상태로 고정한다.
   const isAnalysisCompleted = Boolean(aiAnalysisResult.analyzedAt);
+  // 실제 AI 응답에 근거 탭이 없을 때는 개발용 기본 탭을 보여준다.
   const analysisEvidenceTabs =
     Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0
       ? aiAnalysisResult.analysisEvidence
       : evidenceTabs;
   const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
 
+  // 아코디언을 접으면 선택된 탭도 초기화해 다음에 펼쳤을 때 안내 문구부터 보이게 한다.
   const handleEvidenceAccordionChange = (_, isExpanded) => {
     setIsEvidenceExpanded(isExpanded);
 
@@ -37,10 +42,12 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAi
     }
   };
 
+  // 분석 근거 탭을 선택하면 아래 근거 텍스트 박스에 해당 탭 내용을 표시한다.
   const handleEvidenceTabChange = (_, nextEvidenceTab) => {
     setSelectedEvidenceTab(nextEvidenceTab);
   };
 
+  // AI 분석 결과 객체를 화면 카드 렌더링에 쓰기 쉬운 배열로 변환한다.
   const analysisResultItems = [
     { title: "프로젝트 요약", description: aiAnalysisResult.projectSummary },
     { title: "주요 기능", description: aiAnalysisResult.mainFeatures },

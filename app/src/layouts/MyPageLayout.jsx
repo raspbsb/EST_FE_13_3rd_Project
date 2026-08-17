@@ -1,8 +1,10 @@
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
+import useNotifications from "../hooks/useNotifications";
 
 import Container from "@mui/material/Container";
+import { Stack } from "@mui/material";
 
 import ProfileHeader from "../components/mypage/ProfileHeader";
 import ActivityStats from "../components/mypage/ActivityStats";
@@ -15,6 +17,8 @@ export default function MyPageLayout() {
   //프로필 상태 관리
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const notificationState = useNotifications();
 
   //Redux에서 profile이 들어오면 local state에 넣기
   useEffect(() => {
@@ -37,12 +41,11 @@ export default function MyPageLayout() {
 
   return (
     <>
-      <ProfileNav />
+      <ProfileNav notificationState={notificationState} />
 
       <Container
         component="main"
         maxWidth={false}
-        disableGutters
         sx={{
           maxWidth: "1272px",
           mx: "auto",
@@ -53,14 +56,16 @@ export default function MyPageLayout() {
           },
         }}
       >
-        <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
+        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 }, columnGap: 0 }}>
+          <ProfileHeader mode="mypage" profile={profile} onProfileUpdate={setProfile} />
 
-        <ActivityStats profile={profile} />
+          <ActivityStats profile={profile} />
 
-        <Outlet context={{ profile }} />
+          <Outlet context={{ profile, notificationState }} />
+        </Stack>
       </Container>
 
-      <MobileProfileNav />
+      <MobileProfileNav notificationState={notificationState} />
     </>
   );
 }

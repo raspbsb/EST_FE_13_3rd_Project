@@ -49,7 +49,7 @@ export default function Gallery() {
   const dispatch = useDispatch();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("all");
+  const [techStack, setTechStack] = useState("all");
   const [sortBy, setSortBy] = useState("created_at");
   const { data, status, count, featured } = useSelector(
     state =>
@@ -72,17 +72,17 @@ export default function Gallery() {
     dispatch(
       fetchPortfolios({
         searchTerm,
-        category: category === "all" ? [] : [category],
+        techStack: techStack === "all" ? [] : [techStack],
         sortBy,
         ascending: false,
       }),
     );
-  }, [dispatch, searchTerm, category, sortBy]);
+  }, [dispatch, searchTerm, techStack, sortBy]);
   const handleShowMore = () => {
     dispatch(
       fetchMorePortfolios({
         searchTerm,
-        category: category === "all" ? [] : [category],
+        techStack: techStack === "all" ? [] : [techStack],
         sortBy,
         ascending: false,
         visibleCount: data.length,
@@ -168,9 +168,9 @@ export default function Gallery() {
                   {normalizedTechOptions.slice(0, 3).map(tech => (
                     <Box
                       key={`chip-${tech.value}`}
-                      onClick={() => setCategory(category === tech.value ? "all" : tech.value)}
+                      onClick={() => setTechStack(techStack === tech.value ? "all" : tech.value)}
                     >
-                      <TagChip label={tech.label} className={category === tech.value ? "active" : ""} />
+                      <TagChip label={tech.label} className={techStack === tech.value ? "active" : ""} />
                     </Box>
                   ))}
                 </Box>
@@ -191,7 +191,7 @@ export default function Gallery() {
                   sx={{ width: { mobile: "100%", tablet: "220px" } }}
                 />
                 <FormControl size="small" sx={{ minWidth: 130, width: { mobile: "100%", tablet: "auto" } }}>
-                  <Select value={category} onChange={e => setCategory(e.target.value)}>
+                  <Select value={techStack} onChange={e => setTechStack(e.target.value)}>
                     <MenuItem value="all">전체 기술스택</MenuItem>
                     {normalizedTechOptions.map(tech => (
                       <MenuItem key={`opt-${tech.value}`} value={tech.value}>

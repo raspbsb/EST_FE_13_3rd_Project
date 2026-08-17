@@ -26,6 +26,7 @@ import PortfolioMetaChip from "./PortfolioMetaChip";
 
 const selectableCategoryOptions = categoryOptions.filter(option => option.value !== "search-web");
 const selectableTechStackOptions = techStackOptions;
+// MUI Autocomplete freeSolo에서 기본 검색 결과를 만든 뒤 직접 입력 옵션을 앞에 추가할 때 사용
 const filterTechStackOptions = createFilterOptions();
 const selectMenuProps = {
   disableScrollLock: true,
@@ -64,9 +65,11 @@ function ProjectMetaSection({
   maxTechStackCount,
   formErrors = {},
 }) {
+  // Autocomplete 입력창에 보이는 텍스트. 칩으로 추가되면 빈 문자열로 초기화한다.
   const [techStackInputValue, setTechStackInputValue] = useState("");
   const [categoryInputValue, setCategoryInputValue] = useState("");
 
+  // 카테고리는 목록에서 선택한 값만 추가하고, 선택 후 검색창을 비운다.
   const handleCategoryChange = useCallback(
     (_, selectedOption) => {
       handleAddCategory(selectedOption);
@@ -75,6 +78,7 @@ function ProjectMetaSection({
     [handleAddCategory],
   );
 
+  // 기술 스택은 선택값 또는 직접 입력값을 추가하고, 추가 후 입력창을 비운다.
   const handleTechStackChange = useCallback(
     (_, selectedOption) => {
       handleAddTechStack(selectedOption);
@@ -83,6 +87,7 @@ function ProjectMetaSection({
     [handleAddTechStack],
   );
 
+  // 기술 스택 검색 결과 맨 위에 "직접 입력 중: 현재 입력값" 옵션을 동적으로 추가한다.
   const handleFilterTechStackOptions = useCallback((options, params) => {
     const filteredOptions = filterTechStackOptions(options, params);
     const inputValue = params.inputValue.trim();
@@ -112,6 +117,7 @@ function ProjectMetaSection({
   );
 
   const isCategoryLimitReached = categories.length >= maxCategoryCount;
+  // 최대 개수에 도달하면 Autocomplete를 비활성화해 추가 입력을 막는다.
   const isTechStackLimitReached = techStacks.length >= maxTechStackCount;
 
   return (
