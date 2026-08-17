@@ -573,9 +573,13 @@ export default function PortfolioEditor({ data }) {
         return;
       }
 
+      // 이미지를 건드리지 않고 다른 필드만 수정해서 제출하면 normalizeImageOrder가 한 번도 안 돌 수 있다.
+      // 대표 이미지가 2개 이상(또는 0개)인 상태로 그대로 저장되면 DB 유니크 제약에 걸리므로 제출 직전에 한 번 더 강제한다.
+      const normalizedFormData = { ...formData, images: normalizeImageOrder(formData.images) };
+
       // formData는 화면 관리용 구조라서, 백엔드 저장 전에 테이블 구조에 맞는 payload로 변환한다.
       const payload = createPortfolioPayload({
-        formData,
+        formData: normalizedFormData,
         aiAnalysisResult,
         draftGuide,
       });
