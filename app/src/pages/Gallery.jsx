@@ -124,9 +124,9 @@ export default function Gallery() {
                   display: "grid",
                   gap: { mobile: 2, tablet: 2.5, desktop: 3 },
                   gridTemplateColumns: {
-                    mobile: "repeat(1, 1fr)",
-                    tablet: "repeat(3, 1fr)",
-                    desktop: "repeat(4, 1fr)",
+                    mobile: "minmax(0, 1fr)",
+                    tablet: "repeat(3, minmax(0, 1fr))",
+                    desktop: "repeat(4, minmax(0, 1fr))",
                   },
                 }}
               >
@@ -135,7 +135,7 @@ export default function Gallery() {
                   return (
                     <Box
                       key={cardItem?.id ? `featured-${cardItem.id}` : `featured-idx-${index}`}
-                      sx={{ width: "100%" }}
+                      sx={{ width: "100%", minWidth: 0 }}
                     >
                       <ProjectCard portfolio={cardItem} project={cardItem} data={cardItem} {...cardItem} />
                     </Box>
@@ -229,16 +229,19 @@ export default function Gallery() {
                     display: "grid",
                     gap: { mobile: 2, tablet: 2.5, desktop: 3 },
                     gridTemplateColumns: {
-                      mobile: "repeat(1, 1fr)",
-                      tablet: "repeat(3, 1fr)",
-                      desktop: "repeat(4, 1fr)",
+                      mobile: "minmax(0, 1fr)",
+                      tablet: "repeat(3, minmax(0, 1fr))",
+                      desktop: "repeat(4, minmax(0, 1fr))",
                     },
                   }}
                 >
                   {data.map((item, idx) => {
                     const cardItem = formatCardData(item);
                     return (
-                      <Box key={cardItem?.id ? `gallery-${cardItem.id}` : `gallery-idx-${idx}`} sx={{ width: "100%" }}>
+                      <Box
+                        key={cardItem?.id ? `gallery-${cardItem.id}` : `gallery-idx-${idx}`}
+                        sx={{ width: "100%", minWidth: 0 }}
+                      >
                         <ProjectCard portfolio={cardItem} project={cardItem} data={cardItem} {...cardItem} />
                       </Box>
                     );
