@@ -1,6 +1,6 @@
 /**
  * GitHub 저장소 분석 결과, 수정 제한 안내, 분석 근거 아코디언 섹션
- * @param {{ sectionCardSx: object, aiAnalysisResult: object }} props - sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체
+ * @param {{ sectionCardSx: object, aiAnalysisResult: object, isAnalyzing: boolean }} props - sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체, isAnalyzing: 저장소 분석 요청 처리 중 여부
  * @returns {JSX.Element} GitHub AI 분석 결과 카드 목록, 수정 제한 안내, 분석 근거 아코디언
  */
 import Accordion from "@mui/material/Accordion";
@@ -9,6 +9,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Tab from "@mui/material/Tab";
@@ -19,7 +20,7 @@ import AnalysisResultCard from "./AnalysisResultCard";
 import { evidenceTabs } from "../../constants/portfolioOptions";
 import { memo, useState } from "react";
 
-function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAiAnalysis }) {
+function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing = false, onCompleteAiAnalysis }) {
   // 분석 근거 아코디언이 열려 있는지 관리한다.
   const [isEvidenceExpanded, setIsEvidenceExpanded] = useState(false);
   // 분석 근거 내부 탭 선택값. false면 아직 아무 탭도 선택하지 않은 상태다.
@@ -100,11 +101,17 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, onCompleteAi
             type="button"
             variant="contained"
             size="medium"
-            disabled={isAnalysisCompleted}
-            startIcon={isAnalysisCompleted ? null : <AwesomeIcon aria-hidden="true" />}
+            disabled={isAnalysisCompleted || isAnalyzing}
+            startIcon={
+              isAnalyzing ? (
+                <CircularProgress size={16} color="inherit" aria-hidden="true" />
+              ) : isAnalysisCompleted ? null : (
+                <AwesomeIcon aria-hidden="true" />
+              )
+            }
             onClick={onCompleteAiAnalysis}
           >
-            {isAnalysisCompleted ? "분석 완료" : "저장소 분석"}
+            {isAnalyzing ? "분석 중..." : isAnalysisCompleted ? "분석 완료" : "저장소 분석"}
           </Button>
         </Stack>
       </Stack>

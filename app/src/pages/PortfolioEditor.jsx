@@ -140,24 +140,6 @@ const createDraftFormData = formData => ({
   images: [],
 });
 
-// 개발 단계에서 GitHub 저장소 분석 버튼 클릭 시 보여줄 AI 분석 결과 더미 데이터
-const developmentAiAnalysisResult = {
-  projectSummary:
-    "Portfolio+는 창작자와 개발자가 자신의 프로젝트를 등록하고, 방문자와 채용 담당자가 분야와 기술 스택을 기준으로 작품을 탐색할 수 있는 AI 기반 포트폴리오 갤러리 플랫폼입니다.",
-  mainFeatures:
-    "포트폴리오 등록·수정·삭제, 이미지 업로드, 카테고리·기술 스택 기반 탐색, 좋아요·북마크, 제작자 프로필, GitHub 저장소 분석 기능을 제공합니다.",
-  technicalFeatures:
-    "React와 MUI 기반의 컴포넌트 구조로 입력 UI를 구성하고, Supabase 연동을 전제로 사용자 인증, 프로젝트 데이터, 이미지 저장 흐름을 분리해 관리합니다.",
-  projectStructure:
-    "기본 정보, 이미지 첨부, 메타 정보, AI 분석 결과, 초안 가이드, 하단 액션바가 섹션 단위로 분리된 등록·수정 중심의 포트폴리오 편집 화면입니다.",
-  analyzedRole:
-    "등록·수정 페이지의 입력 흐름, 이미지 관리, 메타 정보 선택, AI 분석 결과 표시, 초안 가이드 UI와 상태 연결을 담당했습니다.",
-  participationDetails:
-    "기획 문서와 화면 설계 자료를 기준으로 정보 구조를 정리하고, 사용자가 입력한 데이터를 저장과 미리보기 흐름에 연결할 수 있도록 구현했습니다.",
-  analysisLimitation:
-    "분석 한계 : GitHub 저장소 정보와 사용자가 입력한 설명만으로는 실제 기여도와 협업 맥락을 완전히 판단하기 어렵습니다.",
-};
-
 // 개발 단계에서 초안 생성 버튼 클릭 시 보여줄 AI 추천 설명/한 줄 요약 더미 데이터
 const developmentDraftGuide = {
   aiDraftDescription:
@@ -361,6 +343,7 @@ export default function PortfolioEditor({ data }) {
   const [editorUi, setEditorUi] = useState({
     activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
+    isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
     isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
@@ -694,11 +677,25 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
-    setAiAnalysisResult(prev => ({
-      ...prev,
-      ...developmentAiAnalysisResult,
-      analyzedAt: formatEditorTimestamp(new Date()),
-    }));
+    // 버튼/분석 카드 영역만 로딩 상태로 표시하고, 나머지 폼은 계속 조작할 수 있게 둔다.
+    setEditorUi(prev => ({ ...prev, isAnalyzing: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze", {
+        body: { repositoryUrl: formData.repository_url },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터 확인
+      // 화면(aiAnalysisResult)에 반영하는 건 Alan AI 프롬프트/응답 연결 단계에서 처리한다.
+      console.log("[PortfolioEditor] analyze githubData:", data.githubData);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
+    }
   }, [formData, aiAnalysisResult, draftGuide]);
 
   // 초안 생성 버튼 클릭 시 현재 프로젝트 설명을 보관하고 개발용 AI 초안/한 줄 요약을 생성 상태에 반영하는 함수
@@ -1169,6 +1166,7 @@ export default function PortfolioEditor({ data }) {
                 <GithubAiAnalysisSection
                   sectionCardSx={sectionCardSx}
                   aiAnalysisResult={aiAnalysisResult}
+                  isAnalyzing={editorUi.isAnalyzing}
                   onCompleteAiAnalysis={handleCompleteAiAnalysis}
                 />
               </Stack>
