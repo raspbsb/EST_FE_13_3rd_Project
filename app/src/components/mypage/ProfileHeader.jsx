@@ -1,5 +1,7 @@
 import { supabase } from "../../utils/supabase";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { updateProfile } from "../../store/userSlice";
 import ProfileAvatar from "./ProfileAvatar";
 import EditDialog from "./EditDialog";
 import TagChip from "../TagChip";
@@ -15,6 +17,8 @@ import ListItem from "@mui/material/ListItem";
 import { EditIcon, EmailIcon, LinkIcon } from "../../lib/icons";
 
 export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
+  const dispatch = useDispatch();
+
   //Edit Dialog 상태 관리
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -54,8 +58,10 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
           throw profileError;
         }
 
-        // 부모 profile state 업데이트
+        // local profile 업데이트
         onProfileUpdate(data);
+        // Redux user.profile 업데이트
+        dispatch(updateProfile(data));
 
         console.log("프로필 이미지 삭제 성공");
         return;
@@ -106,6 +112,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
 
       // 화면에 업데이트
       onProfileUpdate(data);
+      dispatch(updateProfile(data));
 
       console.log("프로필 이미지 업로드 성공:", filePath);
     } catch (error) {
@@ -114,14 +121,71 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
   };
 
   return (
-    <Box component="section" sx={{ display: "flex", gap: 2 }}>
+    <Box
+      component="section"
+      sx={{
+        display: "flex",
+        gap: { mobile: 2, tablet: 3, desktop: 2 },
+        flexDirection: {
+          mobile: "column",
+          tablet: "row",
+          desktop: "row",
+        },
+        alignItems: {
+          mobile: "center",
+          tablet: "flex-start",
+          desktop: "flex-start",
+        },
+        textAlign: {
+          mobile: "center",
+          tablet: "left",
+          desktop: "left",
+        },
+        width: "100%",
+      }}
+    >
       {/* 프로필 이미지 업로드 */}
       <ProfileAvatar avatarPath={profile.avatar_path} editable={mode === "mypage"} onChange={handleAvatarChange} />
 
       {/* 프로필 info */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Text component="h2" variant="h4" fontWeight={700}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: { mobile: 1.5, tablet: 2, desktop: 2 },
+          alignItems: {
+            mobile: "center",
+            tablet: "flex-start",
+            desktop: "flex-start",
+          },
+          width: "100%",
+          minWidth: 0,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: {
+              mobile: "center",
+              tablet: "flex-start",
+              desktop: "flex-start",
+            },
+            gap: 1,
+          }}
+        >
+          <Text
+            component="h2"
+            variant="h4"
+            fontWeight={700}
+            sx={{
+              fontSize: {
+                mobile: "20px",
+                tablet: "34px",
+                desktop: "34px",
+              },
+            }}
+          >
             {profile.user_name}
           </Text>
           {/* Edit Dialog 버튼 */}
@@ -138,22 +202,74 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
             onProfileUpdate={onProfileUpdate}
           />
         </Box>
-        <Text component="h2" variant="h6" sx={{ color: "primary.main" }}>
+        <Text
+          component="h2"
+          variant="h6"
+          sx={{
+            color: "primary.main",
+            fontSize: {
+              mobile: "16px",
+              tablet: "20px",
+              desktop: "20px",
+            },
+          }}
+        >
           {profile.user_category}
         </Text>
-        <Text component="p" variant="body1">
+        <Text
+          component="p"
+          variant="body1"
+          sx={{
+            p: {
+              mobile: 2,
+              tablet: "0",
+              desktop: "0",
+            },
+          }}
+        >
           {profile.bio}
         </Text>
 
         {/* 기술 스택 */}
-        <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" color="primary">
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          flexwrap="wrap"
+          justifycontent={{
+            mobile: "center",
+            tablet: "flex-start",
+            desktop: "flex-start",
+          }}
+          color="primary"
+        >
           {profile.skills?.map(skill => (
             <TagChip key={skill} label={skill} color="primary" />
           ))}
         </Stack>
 
         {/* 컨택 URL */}
-        <List sx={{ display: "inline-flex", paddingTop: 2, gap: 3 }}>
+        <List
+          sx={{
+            display: "flex",
+            flexDirection: {
+              mobile: "column",
+              tablet: "row",
+              desktop: "row",
+            },
+            alignItems: {
+              mobile: "center",
+              tablet: "center",
+              desktop: "center",
+            },
+            paddingTop: 2,
+            gap: {
+              mobile: 1,
+              tablet: 3,
+              desktop: 3,
+            },
+          }}
+        >
           <ListItem sx={{ padding: 0, width: "auto" }}>
             <EmailIcon fontSize="small" />
             <Text component={"a"} href={null} variant="Subtitle1">
