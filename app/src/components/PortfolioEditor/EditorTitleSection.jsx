@@ -10,8 +10,11 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import Tooltip from "@mui/material/Tooltip";
 import Text from "@mui/material/Typography";
+import { DeleteIcon, LockIcon, LockOpenIcon } from "../../lib/icons";
 import { memo, useState } from "react";
 
 const formatDraftSavedAt = savedAt => {
@@ -28,12 +31,21 @@ const formatDraftSavedAt = savedAt => {
   )}`;
 };
 
-function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDraft }) {
+function EditorTitleSection({
+  isEdit,
+  temporaryDrafts,
+  onApplyDraft,
+  onDeleteDraft,
+  onToggleDraftLock,
+  maxLockedDraftCount,
+}) {
   // 전체 임시저장 목록 모달의 열림 상태
   const [isDraftListOpen, setIsDraftListOpen] = useState(false);
   // 임시저장 목록은 최신순으로 저장되므로 첫 번째 항목을 최신 저장본으로 사용
   const latestDraft = temporaryDrafts[0];
   const latestSavedAt = formatDraftSavedAt(latestDraft?.savedAt);
+  // 잠금 개수가 최대치에 도달하면, 이미 잠긴 저장본을 제외하고는 잠금 버튼을 비활성화한다.
+  const lockedDraftCount = temporaryDrafts.filter(draft => draft.locked).length;
 
   // 전체 저장 목록 확인 버튼을 누르면 임시저장 목록 모달을 연다.
   const handleOpenDraftList = () => {
@@ -167,16 +179,54 @@ function EditorTitleSection({ isEdit, temporaryDrafts, onApplyDraft, onDeleteDra
                       </Stack>
                     </Button>
 
-                    <Button
-                      className="portfolio-editor-temporary-draft-dialog__delete-button"
-                      type="button"
-                      variant="outlined"
-                      color="error"
-                      aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 삭제`}
-                      onClick={() => handleDeleteSelectedDraft(draft.id)}
-                    >
-                      삭제
-                    </Button>
+                    <Stack spacing={0.5}>
+                      <Tooltip
+                        title={
+                          draft.locked
+                            ? "잠금 해제"
+                            : lockedDraftCount >= maxLockedDraftCount
+                              ? `잠금은 최대 ${maxLockedDraftCount}개까지 가능합니다`
+                              : "밀려나지 않도록 잠그기"
+                        }
+                      >
+                        <span>
+                          <IconButton
+                            className="portfolio-editor-temporary-draft-dialog__lock-button"
+                            type="button"
+                            size="small"
+                            color={draft.locked ? "primary" : "default"}
+                            disabled={!draft.locked && lockedDraftCount >= maxLockedDraftCount}
+                            aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 ${draft.locked ? "잠금 해제" : "잠그기"}`}
+                            onClick={() => onToggleDraftLock(draft.id)}
+                            sx={{
+                              border: "1px solid",
+                              borderColor: draft.locked ? "primary.main" : "#c2c6d8",
+                              borderRadius: "8px",
+                            }}
+                          >
+                            {draft.locked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+
+                      <Tooltip title="삭제">
+                        <IconButton
+                          className="portfolio-editor-temporary-draft-dialog__delete-button"
+                          type="button"
+                          size="small"
+                          color="error"
+                          aria-label={`${draft.title || "제목 없는 임시저장"} 저장본 삭제`}
+                          onClick={() => handleDeleteSelectedDraft(draft.id)}
+                          sx={{
+                            border: "1px solid",
+                            borderColor: "error.main",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Stack>
                 ))}
               </Stack>

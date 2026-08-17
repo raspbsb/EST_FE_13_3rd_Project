@@ -271,11 +271,28 @@ const createEditorDraftGuide = aiCreated => ({
 const PORTFOLIO_EDITOR_DRAFT_KEY = "portfolio-editor-drafts";
 // 임시저장 목록에서 유지할 최대 저장본 개수
 const MAX_PORTFOLIO_DRAFT_COUNT = 5;
+// 잠글 수 있는 임시저장본 최대 개수. 전부 잠기면 새 임시저장이 밀려날 자리가 없어지므로 5개보다 작게 제한한다.
+const MAX_LOCKED_DRAFT_COUNT = 3;
 // 프로젝트명이 비어 있을 때 임시저장 목록에 표시할 기본 제목
 const UNTITLED_PORTFOLIO_DRAFT_TITLE = "제목 없는 임시저장";
 // GitHub 연동 페이지로 이동하기 전 저장한 임시저장 id를 잠깐 보관하는 key
 // 연동 완료/취소 후 이 페이지로 돌아왔을 때, 이 key에 남아있는 draft를 확인창 없이 자동으로 복원한다.
 const PORTFOLIO_EDITOR_PENDING_RESTORE_KEY = "portfolio-editor-pending-restore-draft-id";
+
+// 잠긴 임시저장본은 밀어내지 않고, 잠기지 않은 것부터(뒤쪽=오래된 것부터) 최대 개수에 맞춰 제거한다.
+const capPortfolioDrafts = drafts => {
+  if (drafts.length <= MAX_PORTFOLIO_DRAFT_COUNT) return drafts;
+
+  const result = [...drafts];
+
+  for (let i = result.length - 1; i >= 0 && result.length > MAX_PORTFOLIO_DRAFT_COUNT; i -= 1) {
+    if (!result[i].locked) {
+      result.splice(i, 1);
+    }
+  }
+
+  return result;
+};
 
 // 등록/수정 페이지 조립용 최상위 컴포넌트
 export default function PortfolioEditor({ data }) {
@@ -798,10 +815,12 @@ export default function PortfolioEditor({ data }) {
       formData: createDraftFormData(formData),
       aiAnalysisResult,
       draftGuide,
+      locked: false,
     };
 
     setTemporaryDrafts(prev => {
-      const nextDrafts = [nextDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+      // 최대 개수를 넘기면 잠기지 않은 저장본부터(오래된 순서로) 밀어내고, 잠긴 저장본은 그대로 둔다.
+      const nextDrafts = capPortfolioDrafts([nextDraft, ...prev]);
 
       saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
 
@@ -810,6 +829,28 @@ export default function PortfolioEditor({ data }) {
     alert("임시저장되었습니다.");
     setAppliedDraftId(nextDraft.id);
   }, [formData, aiAnalysisResult, draftGuide]);
+
+  // 임시저장본 잠금/해제를 토글한다. 잠금은 최대 개수까지만 허용한다.
+  const handleToggleDraftLock = useCallback(draftId => {
+    setTemporaryDrafts(prev => {
+      const target = prev.find(draft => draft.id === draftId);
+
+      if (!target) return prev;
+
+      const lockedCount = prev.filter(draft => draft.locked).length;
+
+      if (!target.locked && lockedCount >= MAX_LOCKED_DRAFT_COUNT) {
+        alert(`임시저장 잠금은 최대 ${MAX_LOCKED_DRAFT_COUNT}개까지만 가능합니다.`);
+        return prev;
+      }
+
+      const nextDrafts = prev.map(draft => (draft.id === draftId ? { ...draft, locked: !draft.locked } : draft));
+
+      saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+      return nextDrafts;
+    });
+  }, []);
 
   // 선택한 임시저장 데이터를 찾아 이미지 제외 폼 데이터와 AI 보조 데이터를 현재 상태에 복원하는 함수
   const handleApplyDraft = useCallback(
@@ -1158,6 +1199,8 @@ export default function PortfolioEditor({ data }) {
           temporaryDrafts={temporaryDrafts}
           onApplyDraft={handleApplyDraft}
           onDeleteDraft={handleDeleteDraft}
+          onToggleDraftLock={handleToggleDraftLock}
+          maxLockedDraftCount={MAX_LOCKED_DRAFT_COUNT}
         />
 
         <Box component="form" onSubmit={handleSubmit} noValidate>
