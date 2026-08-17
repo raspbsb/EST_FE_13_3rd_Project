@@ -23,6 +23,10 @@ import { memo, useState } from "react";
 const EMPTY_EVIDENCE_TEXT = "AI가 분석 근거를 찾지 못했습니다.";
 // 아직 분석을 실행하기 전 기본 상태에서 보여줄 안내 문구
 const NOT_ANALYZED_EVIDENCE_TEXT = "저장소 분석을 실행하면 근거가 표시됩니다.";
+// 분석 근거 탭 최대 개수. 프롬프트에서도 제한하지만, AI가 안 지킬 수도 있어 화면에서도 한 번 더 강제한다.
+const MAX_ANALYSIS_EVIDENCE_COUNT = 8;
+// 탭 라벨 최대 길이. 이것도 프롬프트 지시와 별개로 화면에서 한 번 더 강제한다.
+const MAX_EVIDENCE_LABEL_LENGTH = 12;
 
 function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing = false, onCompleteAiAnalysis }) {
   // 분석 근거 아코디언이 열려 있는지 관리한다.
@@ -34,7 +38,16 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
   // AI 응답에 실제 근거가 있을 때만 탭을 만든다. 없으면 더미로 채우지 않고 빈 상태 문구를 보여준다.
   const hasAnalysisEvidence =
     Array.isArray(aiAnalysisResult.analysisEvidence) && aiAnalysisResult.analysisEvidence.length > 0;
-  const analysisEvidenceTabs = hasAnalysisEvidence ? aiAnalysisResult.analysisEvidence : [];
+  // 프롬프트에서 개수/글자수를 제한해두긴 했지만, AI가 안 지킬 수도 있어 화면에서 한 번 더 잘라낸다.
+  const analysisEvidenceTabs = hasAnalysisEvidence
+    ? aiAnalysisResult.analysisEvidence.slice(0, MAX_ANALYSIS_EVIDENCE_COUNT).map(evidence => ({
+        ...evidence,
+        label:
+          evidence.label && evidence.label.length > MAX_EVIDENCE_LABEL_LENGTH
+            ? `${evidence.label.slice(0, MAX_EVIDENCE_LABEL_LENGTH)}...`
+            : evidence.label,
+      }))
+    : [];
   const selectedEvidence = analysisEvidenceTabs.find(evidence => evidence.value === selectedEvidenceTab);
 
   // 아코디언을 접으면 선택된 탭도 초기화해 다음에 펼쳤을 때 안내 문구부터 보이게 한다.
