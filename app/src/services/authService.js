@@ -13,6 +13,18 @@ export const getIsGithubLinked = async () => {
   return data.identities.some(identity => identity.provider === "github");
 };
 
+// 현재 로그인 계정에 연동된 GitHub 사용자명을 가져온다. 연동 안 돼 있으면 null.
+// 저장소 분석 시 "입력한 저장소 URL의 소유자 = 연동된 본인 계정"인지 확인하는 용도로 쓴다.
+export const getLinkedGithubUsername = async () => {
+  const { data, error } = await supabase.auth.getUserIdentities();
+
+  if (error) throw error;
+
+  const githubIdentity = data.identities.find(identity => identity.provider === "github");
+
+  return githubIdentity?.identity_data?.user_name ?? githubIdentity?.identity_data?.preferred_username ?? null;
+};
+
 // 현재 로그인 계정에 GitHub id를 연동한다.
 // 호출 즉시 브라우저가 GitHub 인증 페이지로 이동하고, 인증이 끝나면 redirectTo로 돌아온다.
 export const linkGithubIdentity = async ({ redirectTo }) => {

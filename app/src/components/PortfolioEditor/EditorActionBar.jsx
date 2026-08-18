@@ -1,24 +1,17 @@
 /**
  * 등록/수정 폼 하단 고정 공개 설정, 저장 액션 버튼 영역
  * @param {{ isEdit: boolean, isPortfolioPublic: boolean, onVisibilityChange: function }} props - isEdit: 수정 페이지 여부, isPortfolioPublic: 포트폴리오 공개 여부, onVisibilityChange: 공개/비공개 스위치 변경 이벤트 핸들러
- * @returns {JSX.Element} 화면 하단 고정 공개 설정 토글과 임시저장/미리보기/작성 완료 버튼 바
+ * @returns {JSX.Element} 화면 하단 고정 공개 설정 토글과 임시저장/작성 완료 버튼 바
  */
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Switch from "@mui/material/Switch";
 import Text from "@mui/material/Typography";
-import { LockIcon, PublicIcon, ViewsIcon } from "../../lib/icons";
+import { LockIcon, PublicIcon } from "../../lib/icons";
 import { memo } from "react";
 
-function EditorActionBar({
-  isEdit,
-  isPortfolioPublic,
-  onVisibilityChange,
-  onSaveDraft,
-  onPreviewOpen,
-  handleFormChange,
-}) {
+function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onSaveDraft, handleFormChange }) {
   return (
     <Box
       className="portfolio-editor-action-bar"
@@ -75,14 +68,10 @@ function EditorActionBar({
           </Box>
         </Stack>
 
-        {/* 임시저장/미리보기/수정완료 버튼 */}
+        {/* 임시저장/수정완료 버튼 */}
         <Stack direction="row" sx={{ gap: 1.5, alignItems: "center" }}>
           <Button type="button" variant="outlined" aria-label="현재 작성 내용을 임시저장" onClick={onSaveDraft}>
             임시저장
-          </Button>
-          <Button type="button" variant="outlined" aria-label="현재 작성 내용 미리보기" onClick={onPreviewOpen}>
-            <ViewsIcon aria-hidden="true" />
-            미리보기
           </Button>
           <Button type="submit" variant="contained" aria-label={isEdit ? "포트폴리오 수정 완료" : "포트폴리오 작성 완료"}>
             {isEdit ? "수정 완료" : "작성 완료"}

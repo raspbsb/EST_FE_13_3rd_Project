@@ -21,12 +21,11 @@ import EditorActionBar from "../components/PortfolioEditor/EditorActionBar";
 import EditorTitleSection from "../components/PortfolioEditor/EditorTitleSection";
 import GithubAiAnalysisSection from "../components/PortfolioEditor/GithubAiAnalysisSection";
 import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmentSection";
-import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPreviewDialog";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
 // GitHub Provider가 Supabase에서 활성화되면 handleCompleteAiAnalysis의 연동 확인 주석과 함께 다시 사용할 것.
-// import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
+// import { getIsGithubLinked, getLinkedGithubUsername, linkGithubIdentity } from "../services/authService";
 import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
@@ -182,6 +181,14 @@ const createOptionFromLabel = ({ label, options }) => {
     label: label ?? "",
   };
 };
+
+// GitHub 저장소 URL(https://github.com/{사용자명}/{저장소명})에서 사용자명만 뽑아낸다.
+// GitHub 연동 필수화(현재 비활성)가 켜지면 handleCompleteAiAnalysis에서 사용할 것 — 그 전까지는 주석 유지(미사용 lint 방지).
+// const extractGithubUsernameFromUrl = repositoryUrl => {
+//   const match = String(repositoryUrl ?? "").match(/^https:\/\/github\.com\/([^/\s]+)\/[^/\s]+\/?$/);
+//
+//   return match ? match[1] : null;
+// };
 
 // Storage에 저장된 image_path를 화면 미리보기용 public URL로 변환
 // DB에는 상대 경로만 저장되어 있고, img 태그에는 접근 가능한 URL이 필요함
@@ -352,11 +359,9 @@ export default function PortfolioEditor({ data }) {
 
   // 화면 동작 관리용 상태 객체
   const [editorUi, setEditorUi] = useState({
-    activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
     isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
     isGeneratingDraft: false, // 초안 생성 요청 처리 중인지 (draft Edge Function 응답 대기)
-    isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
@@ -367,15 +372,25 @@ export default function PortfolioEditor({ data }) {
 
   // alert() 대신 쓰는 스낵바 알림 상태
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  // MUI Snackbar의 autoHideDuration만으로는 안 사라지는 경우가 있어, 직접 타이머로 닫는다.
+  const snackbarTimeoutRef = useRef(null);
 
   // 스낵바를 띄우는 함수. severity: "success" | "error" | "warning" | "info"
   const notify = useCallback((message, severity = "info") => {
+    if (snackbarTimeoutRef.current) clearTimeout(snackbarTimeoutRef.current);
+
     setSnackbar({ open: true, message, severity });
+
+    snackbarTimeoutRef.current = setTimeout(() => {
+      setSnackbar(prev => ({ ...prev, open: false }));
+    }, 4000);
   }, []);
 
-  // 스낵바 자동 닫힘/닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
+  // 스낵바 닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
   const handleCloseSnackbar = useCallback((_, reason) => {
     if (reason === "clickaway") return;
+
+    if (snackbarTimeoutRef.current) clearTimeout(snackbarTimeoutRef.current);
 
     setSnackbar(prev => ({ ...prev, open: false }));
   }, []);
@@ -399,6 +414,57 @@ export default function PortfolioEditor({ data }) {
     confirmResolverRef.current?.(result);
     confirmResolverRef.current = null;
   }, []);
+
+  // 임시저장/제출할 만한 내용이 있는지 여부. popstate 핸들러(클로저)에서 항상 최신값을 읽을 수 있도록 ref로도 들고 있는다.
+  const hasUnsavedContent = hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide });
+  const hasUnsavedContentRef = useRef(hasUnsavedContent);
+  hasUnsavedContentRef.current = hasUnsavedContent;
+
+  // 작성 중인 내용이 있으면 새로고침/탭 닫기 시 브라우저 기본 확인창을 띄운다.
+  useEffect(() => {
+    const handleBeforeUnload = e => {
+      if (!hasUnsavedContentRef.current) return;
+
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
+  // 작성 중인 내용이 있으면 브라우저 뒤로가기/앞으로가기도 막고 확인창을 띄운다.
+  // BrowserRouter는 데이터 라우터 전용인 useBlocker를 못 써서 history API를 직접 다룬다.
+  // 마운트 시 현재 URL과 동일한 더미 history entry를 하나 쌓아두고, popstate가 오면(=뒤로가기 시도) 실제로 나가기 전에 가로챈다.
+  useEffect(() => {
+    const currentUrl = window.location.href;
+
+    window.history.pushState(null, "", currentUrl);
+
+    const handlePopState = async () => {
+      if (!hasUnsavedContentRef.current) {
+        window.removeEventListener("popstate", handlePopState);
+        window.history.go(-1);
+        return;
+      }
+
+      const shouldLeave = await requestConfirm("작성 중인 내용이 저장되지 않을 수 있습니다.\n페이지를 벗어날까요?");
+
+      if (shouldLeave) {
+        window.removeEventListener("popstate", handlePopState);
+        window.history.go(-1);
+        return;
+      }
+
+      // 취소하면 더미 entry를 다시 쌓아서, 다음 뒤로가기 시도도 계속 가로챌 수 있게 한다.
+      window.history.pushState(null, "", currentUrl);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [requestConfirm]);
 
   // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용). 알림을 잠깐 보여준 뒤 이동한다.
   const redirectAfterEditorAlert = useCallback(
@@ -519,8 +585,6 @@ export default function PortfolioEditor({ data }) {
 
       const aiCreated = data.portfolio_ai_created ?? {};
 
-      console.log(aiCreated);
-
       setFormData(createEditorFormData(data));
       setAiAnalysisResult(createEditorAiAnalysisResult(aiCreated));
 
@@ -613,8 +677,6 @@ export default function PortfolioEditor({ data }) {
         draftGuide,
       });
 
-      console.log(payload);
-
       try {
         // 등록 서비스는 인증 확인, portfolios 저장, 정규화 테이블 저장, 이미지 업로드를 순서대로 처리한다.
         const { projectId, needsLogin } = isEdit
@@ -626,8 +688,6 @@ export default function PortfolioEditor({ data }) {
           redirectToLogin();
           return;
         }
-
-        console.log(payload);
 
         // 현재 작성 중이던 내용이 임시저장본에서 불러온 상태였다면, 저장이 끝난 그 임시저장본만 정리한다.
         if (appliedDraftId) {
@@ -652,22 +712,6 @@ export default function PortfolioEditor({ data }) {
     [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId, notify],
   );
 
-  // 미리보기 모달을 여는 함수
-  const handleOpenPreview = useCallback(() => {
-    setEditorUi(prev => ({
-      ...prev,
-      isPreviewOpen: true,
-    }));
-  }, []);
-
-  // 미리보기 모달을 닫는 함수
-  const handleClosePreview = useCallback(() => {
-    setEditorUi(prev => ({
-      ...prev,
-      isPreviewOpen: false,
-    }));
-  }, []);
-
   // GitHub 연동 없이 저장소 분석을 진행할 수 없으므로, 연동 여부를 먼저 확인하고 분기하는 함수
   // 연동 안 됐으면 현재 작성 내용을 임시저장해두고 연동 페이지로 보낸 뒤, 돌아오면 자동 복원되도록 표시한다.
   // 연동 상태에서만 개발용 GitHub AI 분석 결과를 현재 분석 결과 상태에 반영하고 분석 완료 시점을 기록한다.
@@ -683,6 +727,9 @@ export default function PortfolioEditor({ data }) {
 
     // TODO: GitHub 연동(Supabase Auth Provider) 활성화되면 아래 주석 풀어서 다시 연결할 것.
     // 지금은 Supabase 프로젝트에 GitHub Provider 자체가 비활성화돼 있어서 linkIdentity가 항상 실패한다.
+    // 분석 실행 조건(최종본): ① 유효한 GitHub 저장소 URL ② GitHub 계정 연동 ③ 입력한 저장소 URL의 소유자(사용자명)가
+    // 연동된 GitHub 계정의 사용자명과 일치. ①은 이미 validateAiFormFieldErrors + analyze 쪽 URL 파싱으로 걸러지고 있어서
+    // 여기서는 ②③만 추가로 확인한다.
     // let isGithubLinked = false;
     //
     // try {
@@ -729,6 +776,22 @@ export default function PortfolioEditor({ data }) {
     //
     //   return;
     // }
+    //
+    // // 연동은 돼 있지만, 입력한 저장소가 본인 소유가 아니면(사용자명 불일치) 분석을 막는다.
+    // const repoUsername = extractGithubUsernameFromUrl(formData.repository_url);
+    // let linkedUsername = null;
+    //
+    // try {
+    //   linkedUsername = await getLinkedGithubUsername();
+    // } catch (error) {
+    //   alert(error.message);
+    //   return;
+    // }
+    //
+    // if (!repoUsername || !linkedUsername || repoUsername.toLowerCase() !== linkedUsername.toLowerCase()) {
+    //   notify("입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다.", "warning");
+    //   return;
+    // }
 
     // 버튼/분석 카드 영역만 로딩 상태로 표시하고, 나머지 폼은 계속 조작할 수 있게 둔다.
     setEditorUi(prev => ({ ...prev, isAnalyzing: true }));
@@ -752,12 +815,6 @@ export default function PortfolioEditor({ data }) {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
-      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 Alan AI 최종 분석 결과 확인
-      console.log("[PortfolioEditor] analyze githubData:", data.githubData);
-      console.log("[PortfolioEditor] analyze aiAnalysisResult:", data.aiAnalysisResult);
-      // 이번 분석 1회에 Alan API 키(이름)가 몇 번씩 쓰였는지 확인 (하루 100회/키 한도 소진 여부 가늠용)
-      console.log("[PortfolioEditor] analyze alanUsage:", data.alanUsage);
 
       setAiAnalysisResult(prev => ({
         ...prev,
@@ -802,9 +859,6 @@ export default function PortfolioEditor({ data }) {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
-      console.log("[PortfolioEditor] draft draftGuideResult:", data.draftGuideResult);
-      console.log("[PortfolioEditor] draft alanUsage:", data.alanUsage);
 
       setDraftGuide(prev => ({
         ...prev,
@@ -1064,11 +1118,7 @@ export default function PortfolioEditor({ data }) {
     // 이벤트 타겟의 name, value, type, checked 상태를 구조분해할당
     const { name, value, type, checked } = e.target;
 
-    // 개발용 콘솔 : 끝나면 지울것
     const nextValue = type === "checkbox" ? checked : value;
-    // console.log({
-    //   [name]: nextValue,
-    // });
 
     // 이전걸 풀어헤친다음 그 중 formData에 해당하는 것만 값 변경
     setFormData(prev => ({
@@ -1228,22 +1278,12 @@ export default function PortfolioEditor({ data }) {
     });
   }, []);
 
-  // 실험용 콘솔 : 공개여부, 끝나면 지울것
-  // useEffect(() => {
-  //   console.log(isPortfolioPublic);
-  // }, [isPortfolioPublic]);
-
   if (isAuthChecking) {
     return null;
   }
 
   return (
     <>
-      {
-        // 실험용 콘솔 : 전체 페이지 렌더링 여부, 끝나면 지울것
-        // console.log("PortfolioEditor 렌더")
-      }
-
       {/* 메타데이터 */}
       <SeoMeta
         title={`${isEdit ? "포트폴리오 수정" : "새 포트폴리오 작성"} | ${SITE_NAME}`}
@@ -1352,19 +1392,11 @@ export default function PortfolioEditor({ data }) {
               isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
               onSaveDraft={handleSaveDraft}
-              onPreviewOpen={handleOpenPreview}
               handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>
       </Container>
-      <PortfolioPreviewDialog
-        open={editorUi.isPreviewOpen}
-        onClose={handleClosePreview}
-        formData={formData}
-        aiAnalysisResult={aiAnalysisResult}
-        draftGuide={draftGuide}
-      />
 
       <Snackbar
         open={snackbar.open}

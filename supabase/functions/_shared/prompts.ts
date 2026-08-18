@@ -243,20 +243,12 @@ export const createStructurePrompt = ({ fileTree, languages, readme }: Portfolio
 
 // ── 4. 최종 취합 프롬프트 ────────────────────────────────────────
 
-const FINAL_MERGE_INSTRUCTION = `아래 세 가지 분석 결과만 근거로 삼아 포트폴리오 분석 결과를 JSON으로 작성하라. 원본 데이터로 되돌아가 다시 분석하지 마라.
-확인되지 않은 내용은 추측하지 마라.
-커밋 수와 코드 변경량만으로 기여도, 실력, 코드 품질을 평가하지 마라.
-projectStructure는 반드시 [구조 분석 결과]의 내용을 반영해서 채워라. 비워두지 마라.
-technicalFeatures는 기술 스택 이름을 나열하지 말고, [구조 분석 결과]에서 확인되는 실제 구현 방식(라우팅, 상태관리, API 연동, 폴더 구조 등)을 설명하라.
-analyzedRole과 participationDetails는 입력값을 그대로 나열하지 말고 자연스러운 문장으로 풀어써라.
-analysisEvidence는 [커밋 분석 결과]와 [구조 분석 결과]에서만 뽑아라. [사용자 입력 분석 결과]는 사용자의 주장일 뿐 근거가 아니므로 절대 analysisEvidence로 쓰지 마라.
-analysisEvidence는 최대 10개까지만 작성하라. 특정 기능 하나나 페이지 하나에만 해당하는 지엽적인 근거보다,
-프로젝트 전체 구조나 여러 기능에 걸쳐 영향을 미치는 근거(예: 폴더 구조, 상태 관리 방식, 라우팅 구조, 공통 스타일링 방식)를 앞쪽에 배치하고,
-개별 기능 하나에만 해당하는 근거는 뒤쪽에 배치하라.
-analysisEvidence의 각 항목은 {"value":"짧은 식별자","label":"12자 이내 짧은 제목","description":"구체적인 근거 설명"} 형태의 객체로, 실제 파일 경로나 커밋 제목을 근거로 작성하라.
-label은 반드시 12자를 넘기지 마라. 예: "App.jsx 라우팅", "커밋 정렬 기능", "package.json 의존성"처럼 짧게 써라.
-근거가 부족한 항목은 빈 문자열 또는 빈 배열로 출력하라.
-마크다운이나 부가 설명 없이 유효한 JSON만 출력하라.
+const FINAL_MERGE_INSTRUCTION = `아래 세 분석 결과만 근거로 포트폴리오 분석 JSON을 작성하라. 추측 금지, 원본 데이터 재분석 금지.
+커밋 수만으로 기여도·실력을 평가하지 마라. projectStructure는 [구조 분석 결과]를 반드시 반영하라.
+technicalFeatures는 기술 이름 나열 대신 [구조 분석 결과]의 실제 구현 방식(라우팅/상태관리/API연동 등)을 설명하라.
+analyzedRole·participationDetails는 자연스러운 문장으로 풀어써라.
+analysisEvidence는 [커밋 분석 결과]·[구조 분석 결과]에서만 뽑고(최대 10개, 전역적인 근거 우선), 각 항목은 {"value":"","label":"12자 이내","description":""} 형태로, 실제 파일·커밋 근거를 써라.
+근거 부족한 항목은 빈 문자열/배열로. 설명 없이 JSON만 출력하라.
 
 출력 형식:
 {"projectSummary":"","mainFeatures":"","technicalFeatures":"","projectStructure":"","analyzedRole":"","participationDetails":"","analysisLimitation":"","analysisEvidence":[{"value":"","label":"","description":""}]}`;

@@ -17,6 +17,7 @@ export default function Portfolio() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { data, status, error, otherPortfolios } = useSelector(state => state.portfolio);
+  const { user } = useSelector(state => state.user);
 
   useEffect(() => {
     dispatch(fetchPortfolio(id));
@@ -82,6 +83,29 @@ export default function Portfolio() {
         </Text>
         <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
           해당하는 포트폴리오가 없습니다.
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/"}>
+            홈으로 돌아가기
+          </MuiLink>
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/gallery"}>
+            목록으로 돌아가기
+          </MuiLink>
+        </Text>
+      </Container>
+    );
+  }
+
+  if (!data.is_public && data.author_id !== user.id) {
+    return (
+      <Container>
+        <Text component={"p"} variant="h4">
+          포트폴리오 상세
+        </Text>
+        <Text component={"h1"} variant="h4" sx={{ my: 6 }}>
+          작성자가 포트폴리오를 비공개로 설정했습니다
         </Text>
         <Text component={"p"} variant="body1">
           <MuiLink component={Link} to={"/"}>

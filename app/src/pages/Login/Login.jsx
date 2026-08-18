@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -10,7 +10,7 @@ import { Typography } from "@mui/material";
 import styles from "./Login.module.css";
 import { supabase } from "../../utils/supabase";
 
-// 이미지 버튼 / hero import (assets 경로: app/src/assets/)
+// assets (파일명/위치 확인하세요)
 import heroImg from "../../assets/login-hero.png";
 import googleBtn from "../../assets/Google-Button.png";
 import kakaoBtn from "../../assets/Kakao-Button.png";
@@ -23,21 +23,82 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // 서버/일반 에러
   const [error, setError] = useState("");
+
+  // 필드별 유효성 에러
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  useEffect(() => {
+    // 로그인/회원가입 페이지에서는 footer 숨김 및 스크롤 잠금
+    document.body.classList.add("hide-footer");
+    document.body.classList.add("no-scroll");
+    return () => {
+      document.body.classList.remove("hide-footer");
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  // Email Validation 규칙
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const validateEmail = value => {
+    if (!value) {
+      setEmailError("이메일을 입력해 주세요.");
+      return false;
+    }
+    if (!emailRegex.test(value)) {
+      setEmailError("올바른 이메일 형식이 아닙니다.");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  // 비밀번호 입력 여부만 검사 (정규식 제거)
+  const validatePassword = value => {
+    if (!value) {
+      setPasswordError("비밀번호를 입력해 주세요.");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
+
+  // 입력 핸들러: 변경 시 실시간 검사
+  const handleEmailChange = e => {
+    const v = e.target.value;
+    setEmail(v);
+    if (emailError) validateEmail(v);
+  };
+
+  const handlePasswordChange = e => {
+    const v = e.target.value;
+    setPassword(v);
+    if (passwordError) validatePassword(v);
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    // 필드 검증
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    if (!isEmailValid || !isPasswordValid) {
+      return;
+    }
+
+    setLoading(true);
     try {
-      const result = await supabase.auth.signInWithPassword({ email, password });
-      // result shape: { data, error }
-      if (result?.error) {
-        setError(result.error.message || "로그인 중 오류가 발생했습니다.");
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      if (authError) {
+        setError(authError.message || "로그인 중 오류가 발생했습니다.");
         return;
       }
-      // 로그인 성공 시 리다이렉트 (원하면 상태 저장/헤더 갱신 추가)
+      // 로그인 성공 시 리다이렉트 (Header는 onAuthStateChange로 갱신)
       navigate("/", { replace: true });
     } catch (err) {
       setError(err?.message || "로그인 중 오류가 발생했습니다.");
@@ -49,23 +110,22 @@ export default function Login() {
   const handleOAuth = async provider => {
     setError("");
     try {
-      const result = await supabase.auth.signInWithOAuth({ provider });
-      if (result?.error) {
-        setError(result.error.message || "OAuth 로그인 중 오류가 발생했습니다.");
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({ provider });
+      if (oauthError) {
+        setError(oauthError.message || "OAuth 로그인 중 오류가 발생했습니다.");
       }
-      // 대부분 OAuth는 Supabase가 브라우저 리다이렉트를 수행합니다.
     } catch (err) {
       setError(err?.message || "OAuth 로그인 중 오류가 발생했습니다.");
     }
   };
 
   return (
-    <Box component="main" className={styles.container}>
+    <Box component="main" className={styles.container} role="main">
       <div className={styles.content}>
         {/* 왼쪽: 로그인 폼 영역 */}
         <div className={styles.left}>
           <div className={styles.formCard}>
-            <form onSubmit={handleSubmit} className={styles.form}>
+            <form onSubmit={handleSubmit} className={styles.form} noValidate>
               <Typography variant="h5" component="h1" className={styles.title}>
                 로그인
               </Typography>
@@ -76,10 +136,17 @@ export default function Login() {
                 fullWidth
                 className={styles.field}
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={handleEmailChange}
+                onBlur={() => validateEmail(email)}
                 required
                 type="email"
                 autoComplete="email"
+                error={!!emailError}
+                helperText={emailError}
+                inputProps={{
+                  "aria-invalid": !!emailError,
+                  "aria-describedby": emailError ? "email-error" : undefined,
+                }}
               />
 
               <TextField
@@ -88,10 +155,17 @@ export default function Login() {
                 fullWidth
                 className={styles.field}
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
+                onBlur={() => validatePassword(password)}
                 required
                 type="password"
                 autoComplete="current-password"
+                error={!!passwordError}
+                helperText={passwordError}
+                inputProps={{
+                  "aria-invalid": !!passwordError,
+                  "aria-describedby": passwordError ? "password-error" : undefined,
+                }}
               />
 
               <FormControlLabel
@@ -100,6 +174,7 @@ export default function Login() {
                 className={styles.remember}
               />
 
+              {/* 서버/공통 에러 */}
               {error && (
                 <Typography color="error" variant="body2" className={styles.error}>
                   {error}

@@ -4,7 +4,8 @@
 
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
-import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
+import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
+import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
 import {
   createCommitBatchPrompts,
@@ -19,7 +20,7 @@ import {
 // 화면에 반영할 수 있는 최종 분석 결과(JSON)를 만들어 반환한다.
 // CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
+  fetch: withSupabase({ auth: ["user", "publishable", "secret"] }, async (req, ctx) => {
     let repositoryUrl: string | undefined;
     let formData: PortfolioFormContext | undefined;
 
@@ -35,10 +36,27 @@ export default {
       return Response.json({ error: "repositoryUrl이 필요합니다." }, { status: 400 });
     }
 
-    const githubToken = Deno.env.get("GITHUB_TOKEN");
+    // auth: ["user", ...]라서 유효한 JWT가 오면 ctx.userClaims에 즉시(네트워크 호출 없이) 채워진다.
+    // publishable/secret 키로만 온 요청은 userClaims가 없으므로 로그인 필요로 거부한다.
+    const userId = ctx.userClaims?.id;
 
-    // 개발 확인용 콘솔 : 어떤 저장소 URL로 요청이 들어왔는지 확인
-    console.log("[analyze] repositoryUrl:", repositoryUrl);
+    if (!userId) {
+      return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    }
+
+    // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
+    // "계정 + 저장소" 단위라, 이미 분석한 다른 저장소를 새로 분석하는 건 막지 않는다.
+    try {
+      await assertCooldownReady(ctx.supabase, userId, "analyze", repositoryUrl);
+    } catch (error) {
+      if (error instanceof CooldownActiveError) {
+        return Response.json({ error: error.message }, { status: 429 });
+      }
+
+      throw error;
+    }
+
+    const githubToken = Deno.env.get("GITHUB_TOKEN");
 
     if (!githubToken) {
       return Response.json({ error: "GITHUB_TOKEN이 설정되지 않았습니다." }, { status: 500 });
@@ -47,9 +65,6 @@ export default {
     try {
       const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken);
 
-      // 개발 확인용 콘솔 : GitHub에서 실제로 수집된 데이터 형태 확인
-      console.log("[analyze] githubData:", JSON.stringify(githubData, null, 2));
-
       const formContextPrompt = createFormContextPrompt(formData ?? {});
       const commitBatchPrompts = createCommitBatchPrompts(githubData.commits);
       const structurePrompt = createStructurePrompt({
@@ -57,11 +72,6 @@ export default {
         languages: githubData.languages,
         readme: githubData.readme,
       });
-
-      // 개발 확인용 콘솔 : 실제로 Alan AI에 보낼 프롬프트가 900자 예산 안에서 잘 조립됐는지 확인
-      console.log("[analyze] formContextPrompt:", formContextPrompt);
-      console.log("[analyze] commitBatchPrompts:", commitBatchPrompts);
-      console.log("[analyze] structurePrompt:", structurePrompt);
 
       // 폼/커밋(최대 4배치)/구조 분석 요청은 서로 결과가 필요 없는 독립적인 요청이라 동시에 보낸다.
       // Alan AI 호출 1건이 ~30초 걸려서, 순서대로 기다리면 7번 × 30초로 너무 오래 걸린다.
@@ -75,10 +85,6 @@ export default {
       const commitSummaries = commitResults.map(result => result.answer);
       const structureSummary = structureResult.answer;
 
-      console.log("[analyze] formSummary:", formSummary);
-      console.log("[analyze] commitSummaries:", commitSummaries);
-      console.log("[analyze] structureSummary:", structureSummary);
-
       const commitSummaryText = commitSummaries
         .map((summary, index) => `[커밋 분석 ${index + 1}]\n${summary}`)
         .join("\n\n");
@@ -90,9 +96,17 @@ export default {
         structureSummary,
       });
 
-      console.log("[analyze] finalMergePrompt:", finalMergePrompt);
-
-      const finalResult = await callAlanAi(finalMergePrompt);
+      const finalResult = await callAlanAi(finalMergePrompt, {
+        validateJson: parsed =>
+          hasAnyContent(parsed, [
+            "projectSummary",
+            "mainFeatures",
+            "technicalFeatures",
+            "projectStructure",
+            "analyzedRole",
+            "participationDetails",
+          ]),
+      });
       const aiAnalysisResult = parseAlanJson(finalResult.answer);
 
       // 이번 요청에서 실제로 어떤 client_id(이름)가 몇 번 쓰였는지 집계. 하루 100회 한도 소진 여부를 가늠하는 용도.
@@ -104,12 +118,12 @@ export default {
         }, {} as Record<string, number>),
       ).map(([keyName, callCount]) => ({ keyName, callCount }));
 
-      console.log("[analyze] aiAnalysisResult:", aiAnalysisResult);
-      console.log("[analyze] alanUsage:", alanUsage);
-
       // 분석 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
       // 프론트에서 이 값을 기준으로 재분석 쿨타임을 계산한다.
       const analyzedAt = new Date().toISOString();
+
+      // 성공했을 때만 쿨타임을 시작시킨다 (실패한 시도까지 쿨타임을 소모시키지 않기 위해).
+      await markCooldownStart(ctx.supabase, userId, "analyze", repositoryUrl);
 
       return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
     } catch (error) {
