@@ -11,7 +11,12 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { memo, useEffect, useState } from "react";
 import { AwesomeIcon, EditIcon } from "../../lib/icons";
-import { formatAiTimestamp, formatCooldownRemaining, getAiCooldownRemainingMs } from "../../utils/aiCooldown";
+import {
+  DRAFT_COOLDOWN_MS,
+  formatAiTimestamp,
+  formatCooldownRemaining,
+  getAiCooldownRemainingMs,
+} from "../../utils/aiCooldown";
 import DraftSummaryField from "./DraftSummaryField";
 
 function DraftGuideSection({
@@ -35,7 +40,7 @@ function DraftGuideSection({
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(draftGuide.generatedAt);
+  const cooldownRemainingMs = getAiCooldownRemainingMs(draftGuide.generatedAt, DRAFT_COOLDOWN_MS);
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {
@@ -82,7 +87,7 @@ function DraftGuideSection({
               className="portfolio-editor-ai-action-button"
               type="button"
               variant="contained"
-              disabled={isCoolingDown || isGenerating}
+              disabled={/* TEMP: 쿨타임 10분 단축 테스트용으로 잠깐 풀어둠. isCoolingDown || */ isGenerating}
               startIcon={
                 isGenerating ? (
                   <CircularProgress size={16} color="inherit" aria-hidden="true" />
@@ -95,7 +100,7 @@ function DraftGuideSection({
               {isGenerating
                 ? "생성 중..."
                 : isCoolingDown
-                  ? `쿨타임 ${formatCooldownRemaining(cooldownRemainingMs)}`
+                  ? `재생성까지 ${formatCooldownRemaining(cooldownRemainingMs)}`
                   : "초안 생성"}
             </Button>
           </Stack>

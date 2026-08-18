@@ -5,6 +5,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
+import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
 import {
   createCommitBatchPrompts,
@@ -19,7 +20,7 @@ import {
 // 화면에 반영할 수 있는 최종 분석 결과(JSON)를 만들어 반환한다.
 // CORS(OPTIONS 처리, Allow-Origin/Headers/Methods)는 withSupabase가 기본으로 처리해준다.
 export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async req => {
+  fetch: withSupabase({ auth: ["user", "publishable", "secret"] }, async (req, ctx) => {
     let repositoryUrl: string | undefined;
     let formData: PortfolioFormContext | undefined;
 
@@ -33,6 +34,26 @@ export default {
     // repositoryUrl이 없으면 GitHub API까지 가지 않고 여기서 바로 끝낸다.
     if (!repositoryUrl || typeof repositoryUrl !== "string") {
       return Response.json({ error: "repositoryUrl이 필요합니다." }, { status: 400 });
+    }
+
+    // auth: ["user", ...]라서 유효한 JWT가 오면 ctx.userClaims에 즉시(네트워크 호출 없이) 채워진다.
+    // publishable/secret 키로만 온 요청은 userClaims가 없으므로 로그인 필요로 거부한다.
+    const userId = ctx.userClaims?.id;
+
+    if (!userId) {
+      return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    }
+
+    // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
+    // "계정 + 저장소" 단위라, 이미 분석한 다른 저장소를 새로 분석하는 건 막지 않는다.
+    try {
+      await assertCooldownReady(ctx.supabase, userId, "analyze", repositoryUrl);
+    } catch (error) {
+      if (error instanceof CooldownActiveError) {
+        return Response.json({ error: error.message }, { status: 429 });
+      }
+
+      throw error;
     }
 
     const githubToken = Deno.env.get("GITHUB_TOKEN");
@@ -110,6 +131,9 @@ export default {
       // 분석 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
       // 프론트에서 이 값을 기준으로 재분석 쿨타임을 계산한다.
       const analyzedAt = new Date().toISOString();
+
+      // 성공했을 때만 쿨타임을 시작시킨다 (실패한 시도까지 쿨타임을 소모시키지 않기 위해).
+      await markCooldownStart(ctx.supabase, userId, "analyze", repositoryUrl);
 
       return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
     } catch (error) {
