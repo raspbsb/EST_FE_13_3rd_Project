@@ -4,7 +4,7 @@
 
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
-import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
+import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
 import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import { createDraftGuidePrompt, type DraftGuideFormContext } from "../_shared/prompts.ts";
 
@@ -46,7 +46,9 @@ export default {
 
     try {
       const draftGuidePrompt = createDraftGuidePrompt(formData);
-      const result = await callAlanAi(draftGuidePrompt);
+      const result = await callAlanAi(draftGuidePrompt, {
+        validateJson: parsed => hasAnyContent(parsed, ["draftDescription", "shortSummary"]),
+      });
       const draftGuideResult = parseAlanJson(result.answer);
 
       // 초안 생성 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.

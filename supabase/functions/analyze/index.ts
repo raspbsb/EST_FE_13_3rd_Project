@@ -4,7 +4,7 @@
 
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
-import { AlanApiError, callAlanAi, parseAlanJson } from "../_shared/alan.ts";
+import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
 import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
 import {
@@ -96,7 +96,17 @@ export default {
         structureSummary,
       });
 
-      const finalResult = await callAlanAi(finalMergePrompt);
+      const finalResult = await callAlanAi(finalMergePrompt, {
+        validateJson: parsed =>
+          hasAnyContent(parsed, [
+            "projectSummary",
+            "mainFeatures",
+            "technicalFeatures",
+            "projectStructure",
+            "analyzedRole",
+            "participationDetails",
+          ]),
+      });
       const aiAnalysisResult = parseAlanJson(finalResult.answer);
 
       // 이번 요청에서 실제로 어떤 client_id(이름)가 몇 번 쓰였는지 집계. 하루 100회 한도 소진 여부를 가늠하는 용도.
