@@ -87,7 +87,7 @@ function DraftGuideSection({
               className="portfolio-editor-ai-action-button"
               type="button"
               variant="contained"
-              disabled={/* TEMP: 쿨타임 10분 단축 테스트용으로 잠깐 풀어둠. isCoolingDown || */ isGenerating}
+              disabled={isCoolingDown || isGenerating}
               startIcon={
                 isGenerating ? (
                   <CircularProgress size={16} color="inherit" aria-hidden="true" />
