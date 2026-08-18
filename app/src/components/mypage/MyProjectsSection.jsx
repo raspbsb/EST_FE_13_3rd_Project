@@ -88,7 +88,11 @@ export default function MyProjectsSection({ mode }) {
       component="section"
       className={styles.section}
       sx={{
-        pt: 9,
+        pt: {
+          mobile: 4,
+          tablet: 6,
+          desktop: 9,
+        },
       }}
     >
       <Box className={styles.header} sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>

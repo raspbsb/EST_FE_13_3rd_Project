@@ -162,7 +162,7 @@ export default function MyProjects({ mode }) {
 
   return (
     <Box component="section" className={styles.section}>
-      <Text component="h2" variant="h6" className={styles.title}>
+      <Text component="h2" variant="h6" className={styles.title} sx={{ mb: 3 }}>
         {mode === "mypage"
           ? "내 프로젝트"
           : mode === "collection"

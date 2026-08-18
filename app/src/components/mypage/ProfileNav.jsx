@@ -40,14 +40,24 @@ export default function ProfileNav({ notificationState }) {
           aria-label="마이페이지 메뉴"
           sx={{
             "& .MuiTabs-flexContainer": {
-              gap: 2,
+              gap: {
+                tablet: 1,
+                desktop: 2,
+              },
             },
 
             "& .MuiTab-root": {
-              minHeight: 48,
+              minHeight: {
+                tablet: 44,
+                desktop: 48,
+              },
               textTransform: "none",
               typography: "h6",
               py: 0,
+              px: {
+                tablet: 1.5,
+                desktop: 2,
+              },
             },
           }}
         >

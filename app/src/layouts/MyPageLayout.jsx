@@ -46,13 +46,27 @@ export default function MyPageLayout() {
       <Container
         component="main"
         maxWidth={false}
+        disableGutters
         sx={{
           maxWidth: "1272px",
           mx: "auto",
-          py: 6,
 
-          "@media (max-width: 767px)": {
-            pb: 7,
+          px: {
+            mobile: 2,
+            tablet: 3,
+            desktop: 0,
+          },
+
+          py: {
+            mobile: 3,
+            tablet: 4,
+            desktop: 6,
+          },
+
+          pb: {
+            mobile: 10,
+            tablet: 7,
+            desktop: 6,
           },
         }}
       >
