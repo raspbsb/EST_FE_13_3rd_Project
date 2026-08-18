@@ -15,6 +15,8 @@ import styles from "./Signup.module.css";
 import { supabase } from "../../utils/supabase";
 import ProfileAvatar from "../../components/mypage/ProfileAvatar"; // 재사용
 
+import heroImg from "../../assets/login-hero.png";
+
 /**
  * 3-step Signup (updated: use ProfileAvatar for avatar handling)
  */
@@ -199,286 +201,303 @@ export default function Signup() {
   return (
     <Box component="main" className={styles.container}>
       <div className={styles.content}>
-        <div className={styles.formCard}>
-          {/* Title + Stepper inside the FormCard */}
-          <Typography variant="h5" component="h1" sx={{ textAlign: "center", mb: 2 }}>
-            회원가입
-          </Typography>
+        {/* LEFT: 좌측 영역에 formCard를 가운데 정렬 */}
+        <div className={styles.left}>
+          <div className={styles.formCard}>
+            {/* Title + Stepper inside the FormCard */}
+            <Typography variant="h5" component="h1" sx={{ textAlign: "center", mb: 2 }}>
+              회원가입
+            </Typography>
 
-          <div className={styles.stepper} role="tablist" aria-label="회원가입 단계">
-            <div className={`${styles.step} ${step === 1 ? styles.stepActive : ""}`}>
-              <div className={styles.stepCircle}>1</div>
-              <div>정보 입력</div>
+            <div className={styles.stepper} role="tablist" aria-label="회원가입 단계">
+              <div className={`${styles.step} ${step === 1 ? styles.stepActive : ""}`}>
+                <div className={styles.stepCircle}>1</div>
+                <div>정보 입력</div>
+              </div>
+              <div className={`${styles.step} ${step === 2 ? styles.stepActive : ""}`}>
+                <div className={styles.stepCircle}>2</div>
+                <div>약관 동의</div>
+              </div>
+              <div className={`${styles.step} ${step === 3 ? styles.stepActive : ""}`}>
+                <div className={styles.stepCircle}>3</div>
+                <div>추가 정보</div>
+              </div>
             </div>
-            <div className={`${styles.step} ${step === 2 ? styles.stepActive : ""}`}>
-              <div className={styles.stepCircle}>2</div>
-              <div>약관 동의</div>
-            </div>
-            <div className={`${styles.step} ${step === 3 ? styles.stepActive : ""}`}>
-              <div className={styles.stepCircle}>3</div>
-              <div>추가 정보</div>
-            </div>
-          </div>
 
-          {/* STEP 1 */}
-          {step === 1 && (
-            <div className={styles.formColumn}>
-              <TextField
-                label="Email address"
-                variant="outlined"
-                fullWidth
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                onBlur={() => {
-                  if (!email || !emailRegex.test(email)) setEmailError("올바른 이메일 형식이 아닙니다.");
-                  else setEmailError("");
-                }}
-                error={!!emailError}
-                helperText={emailError}
-                required
-              />
+            {/* STEP 1 */}
+            {step === 1 && (
+              <div className={styles.formColumn}>
+                <TextField
+                  label="Email address"
+                  variant="outlined"
+                  fullWidth
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onBlur={() => {
+                    if (!email || !emailRegex.test(email)) setEmailError("올바른 이메일 형식이 아닙니다.");
+                    else setEmailError("");
+                  }}
+                  error={!!emailError}
+                  helperText={emailError}
+                  required
+                />
 
-              <TextField
-                label="Nickname"
-                variant="outlined"
-                fullWidth
-                value={nickname}
-                onChange={e => setNickname(e.target.value)}
-                onBlur={() => {
-                  const len = nickname.trim().length;
-                  if (len < NICK_MIN || len > NICK_MAX)
-                    setNicknameError(`닉네임은 ${NICK_MIN}~${NICK_MAX}자 사이여야 합니다.`);
-                  else setNicknameError("");
-                }}
-                error={!!nicknameError}
-                helperText={nicknameError}
-                required
-              />
+                <TextField
+                  label="Nickname"
+                  variant="outlined"
+                  fullWidth
+                  value={nickname}
+                  onChange={e => setNickname(e.target.value)}
+                  onBlur={() => {
+                    const len = nickname.trim().length;
+                    if (len < NICK_MIN || len > NICK_MAX)
+                      setNicknameError(`닉네임은 ${NICK_MIN}~${NICK_MAX}자 사이여야 합니다.`);
+                    else setNicknameError("");
+                  }}
+                  error={!!nicknameError}
+                  helperText={nicknameError}
+                  required
+                />
 
-              <TextField
-                label="Password"
-                variant="outlined"
-                fullWidth
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                onBlur={() => {
-                  if (!passwordRegex.test(password))
-                    setPasswordError("비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자로 입력해 주세요.");
-                  else setPasswordError("");
-                }}
-                error={!!passwordError}
-                helperText={passwordError}
-                required
-              />
+                <TextField
+                  label="Password"
+                  variant="outlined"
+                  fullWidth
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onBlur={() => {
+                    if (!passwordRegex.test(password))
+                      setPasswordError("비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자로 입력해 주세요.");
+                    else setPasswordError("");
+                  }}
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  required
+                />
 
-              <TextField
-                label="Password (confirm)"
-                variant="outlined"
-                fullWidth
-                type="password"
-                value={passwordConfirm}
-                onChange={e => setPasswordConfirm(e.target.value)}
-                onBlur={() => {
-                  if (password !== passwordConfirm) setPasswordConfirmError("비밀번호 확인이 일치하지 않습니다.");
-                  else setPasswordConfirmError("");
-                }}
-                error={!!passwordConfirmError}
-                helperText={passwordConfirmError}
-                required
-              />
+                <TextField
+                  label="Password (confirm)"
+                  variant="outlined"
+                  fullWidth
+                  type="password"
+                  value={passwordConfirm}
+                  onChange={e => setPasswordConfirm(e.target.value)}
+                  onBlur={() => {
+                    if (password !== passwordConfirm) setPasswordConfirmError("비밀번호 확인이 일치하지 않습니다.");
+                    else setPasswordConfirmError("");
+                  }}
+                  error={!!passwordConfirmError}
+                  helperText={passwordConfirmError}
+                  required
+                />
 
-              <Button variant="contained" color="primary" onClick={goNext}>
-                다음
-              </Button>
-
-              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>
-                이미 계정이 있으신가요? <Link to="/login">로그인</Link>
-              </Typography>
-            </div>
-          )}
-
-          {/* STEP 2 */}
-          {step === 2 && (
-            <div className={styles.formColumn}>
-              <Box className={styles.agreeBox}>
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agreeAll} onChange={e => handleToggleAll(e.target.checked)} />}
-                    label={<strong>전체 동의</strong>}
-                  />
-                </div>
-
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} />}
-                    label="이용약관 동의 (필수)"
-                  />
-                  <Button
-                    onClick={() => setOpenTermsDialog({ open: true, title: "이용약관", content: TERMS_TEXT.terms })}
-                  >
-                    &gt;
-                  </Button>
-                </div>
-
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agreePrivacy} onChange={e => setAgreePrivacy(e.target.checked)} />}
-                    label="개인정보 수집 및 이용 동의 (필수)"
-                  />
-                  <Button
-                    onClick={() =>
-                      setOpenTermsDialog({
-                        open: true,
-                        title: "개인정보 수집 및 이용 동의",
-                        content: TERMS_TEXT.privacy,
-                      })
-                    }
-                  >
-                    &gt;
-                  </Button>
-                </div>
-
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agree14} onChange={e => setAgree14(e.target.checked)} />}
-                    label="만 14세 이상입니다. (필수)"
-                  />
-                  <Button
-                    onClick={() =>
-                      setOpenTermsDialog({
-                        open: true,
-                        title: "만 14세 이상 동의",
-                        content: "만 14세 이상 확인 약관 내용",
-                      })
-                    }
-                  >
-                    &gt;
-                  </Button>
-                </div>
-
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agreeMarketing} onChange={e => setAgreeMarketing(e.target.checked)} />}
-                    label="마케팅 정보 수신 동의 (선택)"
-                  />
-                  <Button
-                    onClick={() =>
-                      setOpenTermsDialog({ open: true, title: "마케팅 수신 동의", content: TERMS_TEXT.marketing })
-                    }
-                  >
-                    &gt;
-                  </Button>
-                </div>
-
-                <div className={styles.agreeRow}>
-                  <FormControlLabel
-                    control={<Checkbox checked={agreePush} onChange={e => setAgreePush(e.target.checked)} />}
-                    label="푸시 알림 수신 동의 (선택)"
-                  />
-                  <Button
-                    onClick={() =>
-                      setOpenTermsDialog({ open: true, title: "푸시 알림 동의", content: TERMS_TEXT.push })
-                    }
-                  >
-                    &gt;
-                  </Button>
-                </div>
-              </Box>
-
-              {formError && <Typography color="error">{formError}</Typography>}
-
-              <div className={styles.actions}>
-                <Button variant="outlined" onClick={goPrev}>
-                  이전
-                </Button>
                 <Button variant="contained" color="primary" onClick={goNext}>
                   다음
                 </Button>
-              </div>
-            </div>
-          )}
 
-          {/* STEP 3 */}
-          {step === 3 && (
-            <div className={styles.formColumn}>
-              <div className={styles.row}>
-                <div className={styles.leftCol}>
-                  <Typography variant="subtitle1">프로필 이미지 (선택)</Typography>
-                  <Box sx={{ mt: 1 }}>
-                    {/* ProfileAvatar 재사용: editable=true -> 내부에서 파일 선택/미리보기/삭제 동작을 제공 */}
-                    <ProfileAvatar avatarPath={null} editable={true} onChange={handleProfileAvatarChange} />
-                  </Box>
-                </div>
-
-                <div className={styles.rightCol}>
-                  <Typography variant="subtitle1">소개 (선택)</Typography>
-                  <TextField multiline rows={5} fullWidth value={bio} onChange={e => setBio(e.target.value)} />
-                  <FormHelperText>{bio.length}/100</FormHelperText>
-                </div>
-              </div>
-
-              <div>
-                <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                  기술 스택 (선택)
+                <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>
+                  이미 계정이 있으신가요? <Link to="/login">로그인</Link>
                 </Typography>
-                <TextField
-                  placeholder="기술을 입력하고 엔터를 눌러 추가하세요."
-                  fullWidth
-                  value={techInput}
-                  onChange={e => setTechInput(e.target.value)}
-                  onKeyDown={handleTechKeyDown}
-                />
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  {techStacks.map(t => (
-                    <Chip key={t} label={t} onDelete={() => removeTech(t)} />
-                  ))}
-                </Stack>
               </div>
+            )}
 
-              <div>
-                <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                  활동 내역 공개 여부
-                </Typography>
-                <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-                  <Box className={styles.radioCard}>
+            {/* STEP 2 */}
+            {step === 2 && (
+              <div className={styles.formColumn}>
+                <Box className={styles.agreeBox}>
+                  <div className={styles.agreeRow}>
                     <FormControlLabel
-                      control={<Checkbox checked={isPublic} onChange={() => setIsPublic(true)} />}
-                      label="전체 공개"
+                      control={<Checkbox checked={agreeAll} onChange={e => handleToggleAll(e.target.checked)} />}
+                      label={<strong>전체 동의</strong>}
                     />
-                    <FormHelperText>모든 사용자가 내 활동 내역을 볼 수 있습니다.</FormHelperText>
-                  </Box>
-                  <Box className={styles.radioCard} sx={{ borderColor: "#dcdcdc" }}>
+                  </div>
+
+                  <div className={styles.agreeRow}>
                     <FormControlLabel
-                      control={<Checkbox checked={!isPublic} onChange={() => setIsPublic(false)} />}
-                      label="비공개"
+                      control={<Checkbox checked={agreeTerms} onChange={e => setAgreeTerms(e.target.checked)} />}
+                      label="이용약관 동의 (필수)"
                     />
-                    <FormHelperText>나만 볼 수 있으며, 추후 변경 가능합니다</FormHelperText>
-                  </Box>
+                    <Button
+                      onClick={() => setOpenTermsDialog({ open: true, title: "이용약관", content: TERMS_TEXT.terms })}
+                    >
+                      &gt;
+                    </Button>
+                  </div>
+
+                  <div className={styles.agreeRow}>
+                    <FormControlLabel
+                      control={<Checkbox checked={agreePrivacy} onChange={e => setAgreePrivacy(e.target.checked)} />}
+                      label="개인정보 수집 및 이용 동의 (필수)"
+                    />
+                    <Button
+                      onClick={() =>
+                        setOpenTermsDialog({
+                          open: true,
+                          title: "개인정보 수집 및 이용 동의",
+                          content: TERMS_TEXT.privacy,
+                        })
+                      }
+                    >
+                      &gt;
+                    </Button>
+                  </div>
+
+                  <div className={styles.agreeRow}>
+                    <FormControlLabel
+                      control={<Checkbox checked={agree14} onChange={e => setAgree14(e.target.checked)} />}
+                      label="만 14세 이상입니다. (필수)"
+                    />
+                    <Button
+                      onClick={() =>
+                        setOpenTermsDialog({
+                          open: true,
+                          title: "만 14세 이상 동의",
+                          content: "만 14세 이상 확인 약관 내용",
+                        })
+                      }
+                    >
+                      &gt;
+                    </Button>
+                  </div>
+
+                  <div className={styles.agreeRow}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox checked={agreeMarketing} onChange={e => setAgreeMarketing(e.target.checked)} />
+                      }
+                      label="마케팅 정보 수신 동의 (선택)"
+                    />
+                    <Button
+                      onClick={() =>
+                        setOpenTermsDialog({ open: true, title: "마케팅 수신 동의", content: TERMS_TEXT.marketing })
+                      }
+                    >
+                      &gt;
+                    </Button>
+                  </div>
+
+                  <div className={styles.agreeRow}>
+                    <FormControlLabel
+                      control={<Checkbox checked={agreePush} onChange={e => setAgreePush(e.target.checked)} />}
+                      label="푸시 알림 수신 동의 (선택)"
+                    />
+                    <Button
+                      onClick={() =>
+                        setOpenTermsDialog({ open: true, title: "푸시 알림 동의", content: TERMS_TEXT.push })
+                      }
+                    >
+                      &gt;
+                    </Button>
+                  </div>
                 </Box>
-              </div>
 
-              {formError && <Typography color="error">{formError}</Typography>}
+                {formError && <Typography color="error">{formError}</Typography>}
 
-              <div className={styles.actions}>
-                <Button variant="outlined" onClick={goPrev}>
-                  이전
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleSignup} disabled={submitting}>
-                  {submitting ? "가입 중..." : "가입"}
-                </Button>
+                <div className={styles.actions}>
+                  <Button variant="outlined" onClick={goPrev}>
+                    이전
+                  </Button>
+                  <Button variant="contained" color="primary" onClick={goNext}>
+                    다음
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <div className={styles.formColumn}>
+                <div className={styles.row}>
+                  <div className={styles.leftCol}>
+                    <Typography variant="subtitle1">프로필 이미지 (선택)</Typography>
+                    <Box sx={{ mt: 1 }}>
+                      {/* ProfileAvatar 재사용: editable=true -> 내부에서 파일 선택/미리보기/삭제 동작을 제공 */}
+                      <ProfileAvatar avatarPath={null} editable={true} onChange={handleProfileAvatarChange} />
+                    </Box>
+                  </div>
+
+                  <div className={styles.rightCol}>
+                    <Typography variant="subtitle1">소개 (선택)</Typography>
+                    <TextField multiline rows={5} fullWidth value={bio} onChange={e => setBio(e.target.value)} />
+                    <FormHelperText>{bio.length}/100</FormHelperText>
+                  </div>
+                </div>
+
+                <div>
+                  <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                    기술 스택 (선택)
+                  </Typography>
+                  <TextField
+                    placeholder="기술을 입력하고 엔터를 눌러 추가하세요."
+                    fullWidth
+                    value={techInput}
+                    onChange={e => setTechInput(e.target.value)}
+                    onKeyDown={handleTechKeyDown}
+                  />
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    {techStacks.map(t => (
+                      <Chip key={t} label={t} onDelete={() => removeTech(t)} />
+                    ))}
+                  </Stack>
+                </div>
+
+                <div>
+                  <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                    활동 내역 공개 여부
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+                    <Box className={styles.radioCard}>
+                      <FormControlLabel
+                        control={<Checkbox checked={isPublic} onChange={() => setIsPublic(true)} />}
+                        label="전체 공개"
+                      />
+                      <FormHelperText>모든 사용자가 내 활동 내역을 볼 수 있습니다.</FormHelperText>
+                    </Box>
+                    <Box className={styles.radioCard} sx={{ borderColor: "#dcdcdc" }}>
+                      <FormControlLabel
+                        control={<Checkbox checked={!isPublic} onChange={() => setIsPublic(false)} />}
+                        label="비공개"
+                      />
+                      <FormHelperText>나만 볼 수 있으며, 추후 변경 가능합니다</FormHelperText>
+                    </Box>
+                  </Box>
+                </div>
+
+                {formError && <Typography color="error">{formError}</Typography>}
+
+                <div className={styles.actions}>
+                  <Button variant="outlined" onClick={goPrev}>
+                    이전
+                  </Button>
+                  <Button variant="contained" color="primary" onClick={handleSignup} disabled={submitting}>
+                    {submitting ? "가입 중..." : "가입"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        <TermsDialog
-          open={openTermsDialog.open}
-          onClose={() => setOpenTermsDialog({ open: false, title: "", content: "" })}
-          title={openTermsDialog.title}
-          content={openTermsDialog.content}
-        />
+        {/* RIGHT: 우측 고정 히어로 이미지 (formCard 높이와 무관하게 고정) */}
+        <div className={styles.right}>
+          <img
+            src={heroImg}
+            alt="회원가입 히어로"
+            className={styles.heroImage}
+            onError={e => {
+              if (e.currentTarget instanceof HTMLImageElement) e.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
       </div>
+
+      <TermsDialog
+        open={openTermsDialog.open}
+        onClose={() => setOpenTermsDialog({ open: false, title: "", content: "" })}
+        title={openTermsDialog.title}
+        content={openTermsDialog.content}
+      />
     </Box>
   );
 }
