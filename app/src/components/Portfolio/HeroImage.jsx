@@ -3,10 +3,12 @@ import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
 import Text from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 
 import { toUrl } from "../../services/toUrl";
+import styles from "./HeroImage.module.css";
 
 export default function HeroImage({}) {
   const [selectedImg, setSelectedImg] = useState(0);
@@ -29,19 +31,31 @@ export default function HeroImage({}) {
   }
 
   return (
-    <>
-      <img src={toUrl("portfolio_images", images[selectedImg]?.image_path)} alt={images[selectedImg]?.alt_text} />
-      <ImageList cols={5} gap={1} sx={{ maxWidth: "100%" }}>
+    <Box component={"div"} className={`${styles["hero-image-section-container"]}`}>
+      <Box component={"div"} className={`${styles["hero-image-selected-wrapper"]}`}>
+        <Box
+          component={"img"}
+          src={toUrl("portfolio_images", images[selectedImg]?.image_path)}
+          alt={images[selectedImg]?.alt_text}
+          className={`${styles["hero-image-selected-image"]}`}
+        />
+      </Box>
+      <ImageList cols={5} gap={8} className={`${styles["hero-image-list"]}`}>
         {images?.map(img => (
-          <ImageListItem key={img.display_order}>
-            <img
+          <ImageListItem
+            key={img.display_order}
+            onClick={() => setSelectedImg(img.display_order - 1)}
+            className={`${styles["hero-image-list-item-wrapper"]} ${selectedImg === img.display_order - 1 ? styles["active"] : ""}`}
+          >
+            <Box
+              component={"img"}
               src={toUrl("portfolio_images", img.image_path)}
               alt={img.alt_text}
-              onClick={() => setSelectedImg(img.display_order - 1)}
+              className={`${styles["hero-image-list-item-image"]}`}
             />
           </ImageListItem>
         ))}
       </ImageList>
-    </>
+    </Box>
   );
 }
