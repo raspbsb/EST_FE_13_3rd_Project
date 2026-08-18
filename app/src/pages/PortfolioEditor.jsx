@@ -1131,6 +1131,12 @@ export default function PortfolioEditor({ data }) {
       ...prev,
       [name]: nextValue,
     }));
+
+    // 설명을 직접 수정하면 "현재 내용"/"AI 추천 초안" 중 어느 쪽이 적용된 상태인지가 더 이상 정확하지 않으므로,
+    // 적용/되돌리기 버튼을 다시 누를 수 있게 초기화한다.
+    if (name === "description") {
+      setDraftGuide(prev => ({ ...prev, appliedDescriptionSource: "" }));
+    }
   }, []);
 
   // 공개/비공개 토글 스위치 변경값을 공통 formData 변경 함수로 전달
