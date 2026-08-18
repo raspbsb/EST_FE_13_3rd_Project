@@ -46,15 +46,8 @@ export default {
 
     try {
       const draftGuidePrompt = createDraftGuidePrompt(formData);
-
-      // 개발 확인용 콘솔 : 실제로 Alan AI에 보낼 프롬프트가 900자 예산 안에서 잘 조립됐는지 확인
-      console.log("[draft] draftGuidePrompt:", draftGuidePrompt);
-
       const result = await callAlanAi(draftGuidePrompt);
       const draftGuideResult = parseAlanJson(result.answer);
-
-      console.log("[draft] draftGuideResult:", draftGuideResult);
-      console.log("[draft] alanUsage:", result.keyName);
 
       // 초안 생성 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
       // 프론트에서 이 값을 기준으로 재생성 쿨타임을 계산한다.

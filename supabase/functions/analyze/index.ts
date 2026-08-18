@@ -58,18 +58,12 @@ export default {
 
     const githubToken = Deno.env.get("GITHUB_TOKEN");
 
-    // 개발 확인용 콘솔 : 어떤 저장소 URL로 요청이 들어왔는지 확인
-    console.log("[analyze] repositoryUrl:", repositoryUrl);
-
     if (!githubToken) {
       return Response.json({ error: "GITHUB_TOKEN이 설정되지 않았습니다." }, { status: 500 });
     }
 
     try {
       const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken);
-
-      // 개발 확인용 콘솔 : GitHub에서 실제로 수집된 데이터 형태 확인
-      console.log("[analyze] githubData:", JSON.stringify(githubData, null, 2));
 
       const formContextPrompt = createFormContextPrompt(formData ?? {});
       const commitBatchPrompts = createCommitBatchPrompts(githubData.commits);
@@ -78,11 +72,6 @@ export default {
         languages: githubData.languages,
         readme: githubData.readme,
       });
-
-      // 개발 확인용 콘솔 : 실제로 Alan AI에 보낼 프롬프트가 900자 예산 안에서 잘 조립됐는지 확인
-      console.log("[analyze] formContextPrompt:", formContextPrompt);
-      console.log("[analyze] commitBatchPrompts:", commitBatchPrompts);
-      console.log("[analyze] structurePrompt:", structurePrompt);
 
       // 폼/커밋(최대 4배치)/구조 분석 요청은 서로 결과가 필요 없는 독립적인 요청이라 동시에 보낸다.
       // Alan AI 호출 1건이 ~30초 걸려서, 순서대로 기다리면 7번 × 30초로 너무 오래 걸린다.
@@ -96,10 +85,6 @@ export default {
       const commitSummaries = commitResults.map(result => result.answer);
       const structureSummary = structureResult.answer;
 
-      console.log("[analyze] formSummary:", formSummary);
-      console.log("[analyze] commitSummaries:", commitSummaries);
-      console.log("[analyze] structureSummary:", structureSummary);
-
       const commitSummaryText = commitSummaries
         .map((summary, index) => `[커밋 분석 ${index + 1}]\n${summary}`)
         .join("\n\n");
@@ -110,8 +95,6 @@ export default {
         commitSummary: commitSummaryText,
         structureSummary,
       });
-
-      console.log("[analyze] finalMergePrompt:", finalMergePrompt);
 
       const finalResult = await callAlanAi(finalMergePrompt);
       const aiAnalysisResult = parseAlanJson(finalResult.answer);
@@ -124,9 +107,6 @@ export default {
           return acc;
         }, {} as Record<string, number>),
       ).map(([keyName, callCount]) => ({ keyName, callCount }));
-
-      console.log("[analyze] aiAnalysisResult:", aiAnalysisResult);
-      console.log("[analyze] alanUsage:", alanUsage);
 
       // 분석 완료 시각은 클라이언트 시계가 아니라 서버 시계 기준으로 내려준다.
       // 프론트에서 이 값을 기준으로 재분석 쿨타임을 계산한다.
