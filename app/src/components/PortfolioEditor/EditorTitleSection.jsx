@@ -81,7 +81,7 @@ function EditorTitleSection({
   return (
     <Stack className="portfolio-editor-title" spacing={2} sx={{ mt: { xs: 4, tablet: 6 }, mb: 4 }}>
       <Box>
-        <Text component="h1" variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+        <Text component="h1" variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
           포트폴리오 {isEdit ? "수정" : "등록"}
         </Text>
         <Text className="portfolio-editor-title__description" color="text.secondary">

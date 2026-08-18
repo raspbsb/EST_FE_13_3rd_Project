@@ -75,7 +75,7 @@ function DraftGuideSection({
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <EditIcon aria-hidden="true" />
 
-            <Text id="draft-guide-title" component="h2" variant="h5" fontWeight={700}>
+            <Text id="draft-guide-title" component="h2" variant="h5" sx={{ fontWeight: 700 }}>
               프로젝트 설명 초안 가이드 생성
             </Text>
           </Stack>
@@ -181,8 +181,7 @@ function DraftGuideSection({
             component="h3"
             variant="subtitle1"
             color="primary"
-            fontWeight={700}
-            sx={{ mb: 1 }}
+            sx={{ fontWeight: 700, mb: 1 }}
           >
             AI 추천 한 줄 요약 (미리보기)
           </Text>

@@ -64,11 +64,11 @@ function ImageAttachmentSection({
   return (
     <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
       <Stack className="portfolio-editor-image-section__header" direction="row">
-        <Text component="h2" variant="h5" fontWeight={700}>
+        <Text component="h2" variant="h5" sx={{ fontWeight: 700 }}>
           이미지 첨부
         </Text>
 
-        <Text className="portfolio-editor-image-section__limit" color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__limit" color="text.secondary" sx={{ fontSize: 12 }}>
           최대 5
         </Text>
       </Stack>
@@ -113,7 +113,7 @@ function ImageAttachmentSection({
         <Stack className="portfolio-editor-image-section__dropzone-content" spacing={1}>
           <CloudUploadIcon className="portfolio-editor-image-section__dropzone-icon" aria-hidden="true" />
 
-          <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
+          <Text className="portfolio-editor-image-section__dropzone-title" sx={{ fontWeight: 700 }}>
             {isImageLimitReached ? "최대 5장 업로드됨" : "파일을 끌어서 놓거나 클릭하여 업로드"}
           </Text>
 
@@ -121,7 +121,7 @@ function ImageAttachmentSection({
             id="portfolio-image-upload-help"
             className="portfolio-editor-image-section__dropzone-help"
             color="text.secondary"
-            fontSize={12}
+            sx={{ fontSize: 12 }}
           >
             PNG, JPG, WebP (최대 10MB)
           </Text>
@@ -130,7 +130,7 @@ function ImageAttachmentSection({
         </Stack>
       </ButtonBase>
 
-      <Text className="portfolio-editor-image-section__preview-title" fontWeight={700}>
+      <Text className="portfolio-editor-image-section__preview-title" sx={{ fontWeight: 700 }}>
         이미지 미리보기
       </Text>
 
@@ -181,13 +181,17 @@ function ImageAttachmentSection({
       </Stack>
 
       <Stack className="portfolio-editor-image-section__footer" direction="row">
-        <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
+        <Text
+          className="portfolio-editor-image-section__upload-count"
+          color="primary"
+          sx={{ fontWeight: 700, fontSize: 12 }}
+        >
           <Box id="portfolio-image-upload-count" component="span">
             {images.length}/5장 업로드됨
           </Box>
         </Text>
 
-        <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__file-size" color="text.secondary" sx={{ fontSize: 12 }}>
           {formatFileSize(totalImageSize)}
         </Text>
       </Stack>

@@ -78,7 +78,7 @@ function ProjectBasicInfoSection({
   return (
     <Box component="section" sx={sectionCardSx}>
       <Box sx={{ mb: 3 }}>
-        <Text component="h2" variant="h5" fontWeight={700} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Text component="h2" variant="h5" sx={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 1 }}>
           <ErrorCircleIcon fontSize="small" />
           프로젝트 기본 정보
         </Text>

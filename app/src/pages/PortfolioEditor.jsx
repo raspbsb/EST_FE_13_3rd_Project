@@ -1306,7 +1306,7 @@ export default function PortfolioEditor({ data }) {
 
       <Container
         className={styles.page}
-        component="main"
+        component="div"
         maxWidth={false}
         disableGutters
         sx={{
