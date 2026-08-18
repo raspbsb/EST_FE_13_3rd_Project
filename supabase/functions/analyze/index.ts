@@ -91,16 +91,15 @@ export default {
     // 수정(edit) 페이지는 project_id로 구분하고, 아직 project_id가 없는 등록(신규) 페이지는 저장소 URL로 구분한다.
     const cooldownScope = portfolioId ? `portfolio:${portfolioId}` : repositoryUrl;
 
-    // TEMP: 테스트 중 잠깐 꺼둠. 끝나면 반드시 다시 켤 것.
-    // try {
-    //   await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
-    // } catch (error) {
-    //   if (error instanceof CooldownActiveError) {
-    //     return Response.json({ error: error.message }, { status: 429 });
-    //   }
+    try {
+      await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
+    } catch (error) {
+      if (error instanceof CooldownActiveError) {
+        return Response.json({ error: error.message }, { status: 429 });
+      }
 
-    //   throw error;
-    // }
+      throw error;
+    }
 
     const githubToken = Deno.env.get("GITHUB_TOKEN");
 

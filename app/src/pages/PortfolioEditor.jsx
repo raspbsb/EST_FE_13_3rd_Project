@@ -574,13 +574,12 @@ export default function PortfolioEditor({ data }) {
       }
 
       // 포트폴리오 작성자와 현재 로그인 사용자가 다르면 수정 권한이 없는 것으로 처리한다.
-      // TEMP: 테스트 중 잠깐 풀어둠. 끝나면 반드시 다시 켤 것.
-      // if (data.author_id !== user.id) {
-      //   redirectAfterEditorAlert({
-      //     message: "수정 권한이 없는 포트폴리오입니다.",
-      //   });
-      //   return;
-      // }
+      if (data.author_id !== user.id) {
+        redirectAfterEditorAlert({
+          message: "수정 권한이 없는 포트폴리오입니다.",
+        });
+        return;
+      }
 
       const aiCreated = data.portfolio_ai_created ?? {};
 
