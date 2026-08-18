@@ -60,6 +60,9 @@ function buildPortfolioQuery({
       },
     );
 
+  // 공개한 포트폴리오만 가져오기
+  query = query.eq("is_public", true);
+
   // 검색 문자열 필터 추가  * 현재 코드로는 대소문자를 구분함
   query = query.ilike("title", `%${searchTerm.trim()}%`);
 
@@ -93,7 +96,8 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
     .select(
       "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
     )
-    .order("created_at", { ascending: true })
+    .eq("is_public", true)
+    .order("likes_count", { ascending: false })
     .limit(4);
   return result;
 });

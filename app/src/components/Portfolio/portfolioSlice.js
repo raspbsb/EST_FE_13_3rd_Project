@@ -32,8 +32,9 @@ export const fetchOtherPortfolios = createAsyncThunk("portfolio/fetchOthers", as
       },
     )
     .eq("author_id", authorId)
+    .eq("is_public", true)
     .neq("project_id", id)
-    .order("created_at", { ascending: false })
+    .order("likes_count", { ascending: false })
     .limit(2);
   return result;
 });
