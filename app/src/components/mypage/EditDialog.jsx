@@ -103,7 +103,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
   const handlePublicChange = e => {
     setForm(prev => ({
       ...prev,
-      is_public: e.target.checked,
+      is_public: !e.target.checked,
     }));
   };
 
@@ -292,8 +292,8 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 }}
               >
                 <FormControlLabel
-                  control={<Switch checked={form.is_public} onChange={handlePublicChange} />}
-                  label="활동 내역 비공개 설정"
+                  control={<Switch checked={!form.is_public} onChange={handlePublicChange} />}
+                  label="비공개"
                 />
                 <LockIcon color="primary" />
               </Box>

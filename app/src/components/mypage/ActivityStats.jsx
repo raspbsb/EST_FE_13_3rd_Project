@@ -5,6 +5,8 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
+import { LockIcon } from "../../lib/icons";
+
 export default function ActivityStats({ mode, profile }) {
   const [stats, setStats] = useState({
     projects: 0,
@@ -167,23 +169,26 @@ export default function ActivityStats({ mode, profile }) {
                     tablet: "34px",
                     desktop: "34px",
                   },
+                  fontWeight: 700,
                 }}
               >
-                {loading ? "-" : item.count}
+                {mode === "public" && !profile?.is_public ? <LockIcon /> : loading ? "-" : item.count}
               </Text>
-              <Text
-                component="span"
-                variant="h5"
-                sx={{
-                  fontSize: {
-                    mobile: "14px",
-                    tablet: "24px",
-                    desktop: "24px",
-                  },
-                }}
-              >
-                개
-              </Text>
+              {profile?.is_public && (
+                <Text
+                  component="span"
+                  variant="h5"
+                  sx={{
+                    fontSize: {
+                      mobile: "14px",
+                      tablet: "24px",
+                      desktop: "24px",
+                    },
+                  }}
+                >
+                  개
+                </Text>
+              )}
             </Box>
           </Grid>
         ))}
