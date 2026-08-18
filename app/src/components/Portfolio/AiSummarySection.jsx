@@ -54,35 +54,36 @@ export default function AiSummarySection({}) {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        <Box component={"dl"} sx={{ pt: 1 }}>
+        <Grid container component={"dl"} columns={2} columnSpacing={3} sx={{ pt: 1 }}>
           <AiSummaryItem label="프로젝트 요약">{aiCreated?.project_summary}</AiSummaryItem>
           <AiSummaryItem label="주요 기능">{aiCreated?.main_features}</AiSummaryItem>
           <AiSummaryItem label="기술적 특징">{aiCreated?.technical_features}</AiSummaryItem>
           <AiSummaryItem label="프로젝트 구조">{aiCreated?.project_structure}</AiSummaryItem>
           <AiSummaryItem label="담당 역할">{aiCreated?.analyzed_role}</AiSummaryItem>
           <AiSummaryItem label="참여 내역">{aiCreated?.participation_details}</AiSummaryItem>
-        </Box>
+        </Grid>
 
         {aiCreated?.analysis_evidence && (
-          <Grid
-            container
-            columns={2}
-            columnSpacing={3}
-            sx={{ pt: 1, borderStyle: "solid", borderWidth: "1px 0px 0px", borderColor: "primary.dark" }}
-          >
-            <Grid size={2}>
-              <Text component={"h3"} variant="h5" color="primary" sx={{ fontWeight: "600" }}>
+          <>
+            <Box component={"div"}>
+              <Text component={"h3"} variant="h5" color="primary" sx={{ pt: 2, pb: 1, pl: 1, fontWeight: "600" }}>
                 분석 근거
               </Text>
-            </Grid>
-            {aiCreated?.analysis_evidence?.map((evidence, idx) => (
-              <Grid key={idx} size={{ mobile: 2, tablet: 1, desktop: 1 }}>
-                <AiSummaryItem label={evidence.label} caption={evidence.value}>
+            </Box>
+            <Grid
+              container
+              component={"dl"}
+              columns={2}
+              columnSpacing={3}
+              sx={{ pt: 1, borderStyle: "solid", borderWidth: "1px 0px 0px", borderColor: "primary.dark" }}
+            >
+              {aiCreated?.analysis_evidence?.map((evidence, idx) => (
+                <AiSummaryItem key={idx} label={evidence.label} caption={evidence.value}>
                   {evidence.description}
                 </AiSummaryItem>
-              </Grid>
-            ))}
-          </Grid>
+              ))}
+            </Grid>
+          </>
         )}
       </AccordionDetails>
     </Accordion>
