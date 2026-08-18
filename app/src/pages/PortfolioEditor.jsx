@@ -800,6 +800,9 @@ export default function PortfolioEditor({ data }) {
       const { data, error } = await supabase.functions.invoke("analyze", {
         body: {
           repositoryUrl: formData.repository_url,
+          // 수정 페이지는 project_id로 쿨타임을 구분한다(같은 저장소를 다른 포트폴리오에서 써도 서로 안 막히게).
+          // 등록(신규) 페이지는 아직 project_id가 없어서 저장소 URL 기준을 그대로 쓴다.
+          portfolioId: isEdit ? id : undefined,
           formData: {
             title: formData.title,
             description: formData.description,

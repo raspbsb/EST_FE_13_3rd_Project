@@ -22,11 +22,12 @@ import {
 export default {
   fetch: withSupabase({ auth: ["user", "publishable", "secret"] }, async (req, ctx) => {
     let repositoryUrl: string | undefined;
+    let portfolioId: string | undefined;
     let formData: PortfolioFormContext | undefined;
 
     // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
     try {
-      ({ repositoryUrl, formData } = await req.json());
+      ({ repositoryUrl, portfolioId, formData } = await req.json());
     } catch {
       return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
     }
@@ -45,9 +46,12 @@ export default {
     }
 
     // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
-    // "계정 + 저장소" 단위라, 이미 분석한 다른 저장소를 새로 분석하는 건 막지 않는다.
+    // "계정 + 포트폴리오" 단위라, 같은 저장소라도 다른 포트폴리오에서 분석하는 건 막지 않는다.
+    // 수정(edit) 페이지는 project_id로 구분하고, 아직 project_id가 없는 등록(신규) 페이지는 저장소 URL로 구분한다.
+    const cooldownScope = portfolioId ? `portfolio:${portfolioId}` : repositoryUrl;
+
     try {
-      await assertCooldownReady(ctx.supabase, userId, "analyze", repositoryUrl);
+      await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
     } catch (error) {
       if (error instanceof CooldownActiveError) {
         return Response.json({ error: error.message }, { status: 429 });
@@ -123,7 +127,7 @@ export default {
       const analyzedAt = new Date().toISOString();
 
       // 성공했을 때만 쿨타임을 시작시킨다 (실패한 시도까지 쿨타임을 소모시키지 않기 위해).
-      await markCooldownStart(ctx.supabase, userId, "analyze", repositoryUrl);
+      await markCooldownStart(ctx.supabase, userId, "analyze", cooldownScope);
 
       return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
     } catch (error) {
