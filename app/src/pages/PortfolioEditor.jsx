@@ -586,8 +586,6 @@ export default function PortfolioEditor({ data }) {
 
       const aiCreated = data.portfolio_ai_created ?? {};
 
-      console.log(aiCreated);
-
       setFormData(createEditorFormData(data));
       setAiAnalysisResult(createEditorAiAnalysisResult(aiCreated));
 
@@ -680,8 +678,6 @@ export default function PortfolioEditor({ data }) {
         draftGuide,
       });
 
-      console.log(payload);
-
       try {
         // 등록 서비스는 인증 확인, portfolios 저장, 정규화 테이블 저장, 이미지 업로드를 순서대로 처리한다.
         const { projectId, needsLogin } = isEdit
@@ -693,8 +689,6 @@ export default function PortfolioEditor({ data }) {
           redirectToLogin();
           return;
         }
-
-        console.log(payload);
 
         // 현재 작성 중이던 내용이 임시저장본에서 불러온 상태였다면, 저장이 끝난 그 임시저장본만 정리한다.
         if (appliedDraftId) {
@@ -823,12 +817,6 @@ export default function PortfolioEditor({ data }) {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      // 개발 확인용 콘솔 : analyze Edge Function이 실제로 수집한 GitHub 데이터와 Alan AI 최종 분석 결과 확인
-      console.log("[PortfolioEditor] analyze githubData:", data.githubData);
-      console.log("[PortfolioEditor] analyze aiAnalysisResult:", data.aiAnalysisResult);
-      // 이번 분석 1회에 Alan API 키(이름)가 몇 번씩 쓰였는지 확인 (하루 100회/키 한도 소진 여부 가늠용)
-      console.log("[PortfolioEditor] analyze alanUsage:", data.alanUsage);
-
       setAiAnalysisResult(prev => ({
         ...prev,
         ...data.aiAnalysisResult,
@@ -872,9 +860,6 @@ export default function PortfolioEditor({ data }) {
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-
-      console.log("[PortfolioEditor] draft draftGuideResult:", data.draftGuideResult);
-      console.log("[PortfolioEditor] draft alanUsage:", data.alanUsage);
 
       setDraftGuide(prev => ({
         ...prev,
@@ -1134,11 +1119,7 @@ export default function PortfolioEditor({ data }) {
     // 이벤트 타겟의 name, value, type, checked 상태를 구조분해할당
     const { name, value, type, checked } = e.target;
 
-    // 개발용 콘솔 : 끝나면 지울것
     const nextValue = type === "checkbox" ? checked : value;
-    // console.log({
-    //   [name]: nextValue,
-    // });
 
     // 이전걸 풀어헤친다음 그 중 formData에 해당하는 것만 값 변경
     setFormData(prev => ({
@@ -1298,22 +1279,12 @@ export default function PortfolioEditor({ data }) {
     });
   }, []);
 
-  // 실험용 콘솔 : 공개여부, 끝나면 지울것
-  // useEffect(() => {
-  //   console.log(isPortfolioPublic);
-  // }, [isPortfolioPublic]);
-
   if (isAuthChecking) {
     return null;
   }
 
   return (
     <>
-      {
-        // 실험용 콘솔 : 전체 페이지 렌더링 여부, 끝나면 지울것
-        // console.log("PortfolioEditor 렌더")
-      }
-
       {/* 메타데이터 */}
       <SeoMeta
         title={`${isEdit ? "포트폴리오 수정" : "새 포트폴리오 작성"} | ${SITE_NAME}`}
