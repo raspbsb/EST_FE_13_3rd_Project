@@ -228,7 +228,7 @@ const gallerySlice = createSlice({
 
       state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
 
-      state.featured.data = formattedData;
+      state.featured.data = data ?? [];
 
       if (error) {
         console.warn(error);
