@@ -339,7 +339,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
               >
                 <FormControlLabel
                   control={<Switch checked={!form.is_public} onChange={handlePublicChange} />}
-                  label="비공개"
+                  label="활동내역 비공개"
                 />
                 <LockIcon color="primary" />
               </Box>
