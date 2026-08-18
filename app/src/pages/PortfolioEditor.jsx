@@ -21,7 +21,6 @@ import EditorActionBar from "../components/PortfolioEditor/EditorActionBar";
 import EditorTitleSection from "../components/PortfolioEditor/EditorTitleSection";
 import GithubAiAnalysisSection from "../components/PortfolioEditor/GithubAiAnalysisSection";
 import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmentSection";
-import PortfolioPreviewDialog from "../components/PortfolioEditor/PortfolioPreviewDialog";
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
@@ -356,7 +355,6 @@ export default function PortfolioEditor({ data }) {
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
     isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
     isGeneratingDraft: false, // 초안 생성 요청 처리 중인지 (draft Edge Function 응답 대기)
-    isPreviewOpen: false, // 미리보기 모달/패널 열림 여부
     selectedImageId: null, // 현재 선택된 이미지 id
   });
 
@@ -702,22 +700,6 @@ export default function PortfolioEditor({ data }) {
     },
     [formData, aiAnalysisResult, draftGuide, isEdit, id, navigate, redirectToLogin, appliedDraftId, notify],
   );
-
-  // 미리보기 모달을 여는 함수
-  const handleOpenPreview = useCallback(() => {
-    setEditorUi(prev => ({
-      ...prev,
-      isPreviewOpen: true,
-    }));
-  }, []);
-
-  // 미리보기 모달을 닫는 함수
-  const handleClosePreview = useCallback(() => {
-    setEditorUi(prev => ({
-      ...prev,
-      isPreviewOpen: false,
-    }));
-  }, []);
 
   // GitHub 연동 없이 저장소 분석을 진행할 수 없으므로, 연동 여부를 먼저 확인하고 분기하는 함수
   // 연동 안 됐으면 현재 작성 내용을 임시저장해두고 연동 페이지로 보낸 뒤, 돌아오면 자동 복원되도록 표시한다.
@@ -1403,19 +1385,11 @@ export default function PortfolioEditor({ data }) {
               isPortfolioPublic={formData.is_public}
               onVisibilityChange={handlePortfolioVisibilityChange}
               onSaveDraft={handleSaveDraft}
-              onPreviewOpen={handleOpenPreview}
               handleFormChange={handleFormChange}
             />
           </Stack>
         </Box>
       </Container>
-      <PortfolioPreviewDialog
-        open={editorUi.isPreviewOpen}
-        onClose={handleClosePreview}
-        formData={formData}
-        aiAnalysisResult={aiAnalysisResult}
-        draftGuide={draftGuide}
-      />
 
       <Snackbar
         open={snackbar.open}
