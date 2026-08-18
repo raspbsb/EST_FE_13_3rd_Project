@@ -365,15 +365,25 @@ export default function PortfolioEditor({ data }) {
 
   // alert() 대신 쓰는 스낵바 알림 상태
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  // MUI Snackbar의 autoHideDuration만으로는 안 사라지는 경우가 있어, 직접 타이머로 닫는다.
+  const snackbarTimeoutRef = useRef(null);
 
   // 스낵바를 띄우는 함수. severity: "success" | "error" | "warning" | "info"
   const notify = useCallback((message, severity = "info") => {
+    if (snackbarTimeoutRef.current) clearTimeout(snackbarTimeoutRef.current);
+
     setSnackbar({ open: true, message, severity });
+
+    snackbarTimeoutRef.current = setTimeout(() => {
+      setSnackbar(prev => ({ ...prev, open: false }));
+    }, 4000);
   }, []);
 
-  // 스낵바 자동 닫힘/닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
+  // 스낵바 닫기 버튼 클릭 처리. 바깥 클릭으로는 안 닫히게 한다.
   const handleCloseSnackbar = useCallback((_, reason) => {
     if (reason === "clickaway") return;
+
+    if (snackbarTimeoutRef.current) clearTimeout(snackbarTimeoutRef.current);
 
     setSnackbar(prev => ({ ...prev, open: false }));
   }, []);
