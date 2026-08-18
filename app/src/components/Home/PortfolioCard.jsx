@@ -4,7 +4,7 @@ import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardMedia from "@mui/material/CardMedia";
 import Box from "@mui/material/Box";
-import Text from "@mui/material/Typography";
+import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import { supabase } from "../../utils/supabase";
 
@@ -36,8 +36,6 @@ const DEFAULT_IMAGE =
   "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22600%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22%23F1F5F9%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2218%22%20fill%3D%22%2394A3B8%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E";
 
 export default function PortfolioCard({ portfolio }) {
-  console.log("포트폴리오 제목:", portfolio?.title);
-  console.log("포트폴리오 이미지 배열:", portfolio?.portfolio_images);
   const navigate = useNavigate();
 
   const id = portfolio?.project_id || portfolio?.id || portfolio?.portfolio_id || portfolio?._id;
@@ -45,7 +43,13 @@ export default function PortfolioCard({ portfolio }) {
   const content = portfolio?.ai_summary || portfolio?.content || portfolio?.description || "요약 내용이 없습니다.";
 
   const images = Array.isArray(portfolio?.portfolio_images) ? portfolio.portfolio_images : [];
-  const sortedImages = [...images].sort((a, b) => (Number(a?.display_order) || 0) - (Number(b?.display_order) || 0));
+
+  const sortedImages = [...images].sort((a, b) => {
+    const orderA = Number.isFinite(Number(a?.display_order)) ? Number(a.display_order) : Infinity;
+    const orderB = Number.isFinite(Number(b?.display_order)) ? Number(b.display_order) : Infinity;
+    return orderA - orderB;
+  });
+
   const thumbnailObj = sortedImages[0];
 
   const rawPath =
@@ -62,7 +66,6 @@ export default function PortfolioCard({ portfolio }) {
     if (path.startsWith("http://") || path.startsWith("https://")) return path;
 
     const cleanPath = path.replace(/^portfolio_images\//, "");
-
     const { data } = supabase.storage.from("portfolio_images").getPublicUrl(cleanPath);
     return data?.publicUrl || DEFAULT_IMAGE;
   };
@@ -123,7 +126,7 @@ export default function PortfolioCard({ portfolio }) {
             pointerEvents: "none",
           }}
         >
-          <Text
+          <Typography
             variant="subtitle2"
             sx={{
               fontWeight: 700,
@@ -134,9 +137,9 @@ export default function PortfolioCard({ portfolio }) {
             }}
           >
             AI 요약
-          </Text>
+          </Typography>
 
-          <Text
+          <Typography
             variant="h6"
             sx={{
               fontWeight: 600,
@@ -147,9 +150,9 @@ export default function PortfolioCard({ portfolio }) {
             }}
           >
             {title}
-          </Text>
+          </Typography>
 
-          <Text
+          <Typography
             variant="body2"
             sx={{
               fontSize: { mobile: "0.7rem", tablet: "0.8rem", desktop: "0.875rem" },
@@ -163,7 +166,7 @@ export default function PortfolioCard({ portfolio }) {
             }}
           >
             {content}
-          </Text>
+          </Typography>
         </Box>
       </StyledCardActionArea>
     </StyledCard>

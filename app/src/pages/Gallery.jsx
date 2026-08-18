@@ -30,20 +30,39 @@ const normalizeOption = opt => {
 
 const formatCardData = item => {
   if (!item) return {};
+
   const base = item.portfolio || item;
 
-  let img = base.image_url || base.imageUrl || base.thumbnail_url || base.cover_image;
+  const id = base.project_id || base.portfolio_id || base.id;
 
-  const likeCount = Array.isArray(base.portfolio_likes) ? base.portfolio_likes.length : 0;
+  let rawImg = base.image_path || base.image_url || base.imageUrl || base.thumbnail_url || base.cover_image;
 
-  if (!img && Array.isArray(base.portfolio_images) && base.portfolio_images.length > 0) {
-    img = base.portfolio_images[0]?.image_url || base.portfolio_images[0]?.url;
+  if (!rawImg && Array.isArray(base.portfolio_images) && base.portfolio_images.length > 0) {
+    const sortedImages = [...base.portfolio_images].sort(
+      (a, b) => (Number(a?.display_order) || 0) - (Number(b?.display_order) || 0),
+    );
+    const firstImg = sortedImages[0];
+    rawImg = firstImg?.image_path || firstImg?.image_url || firstImg?.url;
   }
+
+  let finalImgUrl = rawImg || "";
+  if (
+    finalImgUrl &&
+    !finalImgUrl.startsWith("http://") &&
+    !finalImgUrl.startsWith("https://") &&
+    !finalImgUrl.startsWith("data:")
+  ) {
+  }
+
+  const likeCount = Array.isArray(base.portfolio_likes) ? base.portfolio_likes.length : base.like_count || 0;
 
   return {
     ...base,
-    image_url: img || "",
-    imageUrl: img || "",
+    id,
+    project_id: id,
+    image_url: finalImgUrl,
+    imageUrl: finalImgUrl,
+    image_path: finalImgUrl,
     like_count: likeCount,
   };
 };
@@ -54,6 +73,7 @@ export default function Gallery() {
   const [searchTerm, setSearchTerm] = useState("");
   const [techStack, setTechStack] = useState("all");
   const [sortBy, setSortBy] = useState("created_at");
+
   const { data, status, count, featured } = useSelector(
     state =>
       state.gallery || {
@@ -68,19 +88,25 @@ export default function Gallery() {
   const featuredStatus = featured?.status || "idle";
 
   const normalizedTechOptions = (techStackOptions || []).map(normalizeOption);
+
   useEffect(() => {
     dispatch(fetchFeaturedPortfolios());
   }, [dispatch]);
+
   useEffect(() => {
-    dispatch(
-      fetchPortfolios({
-        searchTerm,
-        techStack: techStack === "all" ? [] : [techStack],
-        sortBy,
-        ascending: false,
-      }),
-    );
+    const timer = setTimeout(() => {
+      dispatch(
+        fetchPortfolios({
+          searchTerm,
+          techStack: techStack === "all" ? [] : [techStack],
+          sortBy,
+          ascending: false,
+        }),
+      );
+    }, 300);
+    return () => clearTimeout(timer);
   }, [dispatch, searchTerm, techStack, sortBy]);
+
   const handleShowMore = () => {
     dispatch(
       fetchMorePortfolios({
