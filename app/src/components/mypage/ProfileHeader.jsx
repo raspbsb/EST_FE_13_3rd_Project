@@ -1,10 +1,12 @@
 import { supabase } from "../../utils/supabase";
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../../store/userSlice";
+
 import ProfileAvatar from "./ProfileAvatar";
 import EditDialog from "./EditDialog";
 import TagChip from "../TagChip";
+import MessageComposeDialog from "./MessageComposeDialog";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -13,14 +15,17 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import Button from "@mui/material/Button";
 
 import { EditIcon, EmailIcon, LinkIcon } from "../../lib/icons";
 
 export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
   const dispatch = useDispatch();
+  const { user } = useSelector(state => state.user);
 
-  //Edit Dialog 상태 관리
+  //Dialog 상태 관리
   const [openEdit, setOpenEdit] = useState(false);
+  const [openMessageCompose, setOpenMessageCompose] = useState(false);
 
   // 프로필 이미지 DB와 연동
   const handleAvatarChange = async file => {
@@ -199,12 +204,24 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
               <EditIcon />
             </IconButton>
           )}
-          {/* Dialog 컴포넌트*/}
+          {/* public 프로필 일 때 메세지 전송 버튼 */}
+          {mode === "public" && user?.id !== profile?.user_id && (
+            <Button variant="contained" size="small" onClick={() => setOpenMessageCompose(true)}>
+              메시지 보내기
+            </Button>
+          )}
+          {/* 프로필 수정 Dialog */}
           <EditDialog
             open={openEdit}
             onClose={() => setOpenEdit(false)}
             profile={profile}
             onProfileUpdate={onProfileUpdate}
+          />
+          {/* 메세지 작성 dialog */}
+          <MessageComposeDialog
+            open={openMessageCompose}
+            onClose={() => setOpenMessageCompose(false)}
+            receiver={profile}
           />
         </Box>
         <Text
