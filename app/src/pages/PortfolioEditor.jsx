@@ -505,6 +505,10 @@ export default function PortfolioEditor({ data }) {
     // 등록 페이지는 project_id가 없으므로 검사X
     if (!isEdit) return;
 
+    // 로그인 확인(isAuthChecking)이 끝나기 전에 이 검사가 먼저 끝나버리면, 화면이 아직 null을 렌더링 중이라
+    // notify()로 띄운 Snackbar가 보이지도 못한 채 갤러리로 이동해버린다. 로그인 확인 이후에만 실행한다.
+    if (isAuthChecking) return;
+
     const checkPortfolioExists = async () => {
       // 포트폴리오 테이블에서 파라미터 id 동일한 pid를 하나만 가져옴
       const { data, error } = await supabase
@@ -593,7 +597,7 @@ export default function PortfolioEditor({ data }) {
     };
 
     checkPortfolioExists();
-  }, [isEdit, id, redirectAfterEditorAlert, redirectToLogin]);
+  }, [isEdit, id, isAuthChecking, redirectAfterEditorAlert, redirectToLogin]);
 
   // 첫 렌더링할때 로컬스토리지 로드해서 임시저장 데이터 있는지 확인
   useEffect(() => {
