@@ -4,7 +4,7 @@ import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardMedia from "@mui/material/CardMedia";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import Text from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 import { supabase } from "../../utils/supabase";
 
@@ -24,6 +24,7 @@ const StyledCardActionArea = styled(CardActionArea)({
   display: "flex",
   flexDirection: "column",
   alignItems: "stretch",
+  justifyContent: "space-between",
   "&:hover .portfolio-thumbnail": {
     transform: "scale(1.04)",
   },
@@ -40,7 +41,9 @@ export default function PortfolioCard({ portfolio }) {
 
   const id = portfolio?.project_id || portfolio?.id || portfolio?.portfolio_id || portfolio?._id;
   const title = portfolio?.title || "제목 없음";
-  const content = portfolio?.ai_summary || portfolio?.content || portfolio?.description || "요약 내용이 없습니다.";
+
+  const content =
+    portfolio?.text || portfolio?.ai_summary || portfolio?.content || portfolio?.description || "요약 내용이 없습니다.";
 
   const images = Array.isArray(portfolio?.portfolio_images) ? portfolio.portfolio_images : [];
 
@@ -83,90 +86,100 @@ export default function PortfolioCard({ portfolio }) {
   return (
     <StyledCard
       sx={{
-        height: { mobile: "173px", tablet: "280px", desktop: "360px" },
-        aspectRatio: { mobile: "1 / 1", tablet: "unset" },
+        height: { mobile: "210px", tablet: "300px", desktop: "380px" },
       }}
     >
       <StyledCardActionArea onClick={handleCardClick}>
-        <CardMedia
-          component="img"
-          image={image}
-          alt={title}
-          className="portfolio-thumbnail"
-          onError={e => {
-            e.target.onerror = null;
-            e.target.src = DEFAULT_IMAGE;
-          }}
-          sx={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          }}
-        />
-        <Box
-          className="portfolio-overlay"
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.78)",
-            color: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: { mobile: 1.5, desktop: 3 },
-            boxSizing: "border-box",
-            textAlign: "center",
-            opacity: 0,
-            transition: "opacity 0.25s ease-in-out",
-            pointerEvents: "none",
-          }}
-        >
-          <Typography
-            variant="subtitle2"
+        <Box sx={{ position: "relative", width: "100%", flex: 1, overflow: "hidden" }}>
+          <CardMedia
+            component="img"
+            image={image}
+            alt={title}
+            className="portfolio-thumbnail"
+            onError={e => {
+              e.target.onerror = null;
+              e.target.src = DEFAULT_IMAGE;
+            }}
             sx={{
-              fontWeight: 700,
-              fontSize: { mobile: "0.7rem", tablet: "0.875rem", desktop: "1rem" },
-              mb: { mobile: 0.25, desktop: 1 },
-              color: "#3B82F6",
-              letterSpacing: "0.5px",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          />
+
+          <Box
+            className="portfolio-overlay"
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.78)",
+              color: "#ffffff",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: { mobile: 1.5, desktop: 2.5 },
+              boxSizing: "border-box",
+              textAlign: "center",
+              opacity: 0,
+              transition: "opacity 0.25s ease-in-out",
+              pointerEvents: "none",
             }}
           >
-            AI 요약
-          </Typography>
+            <Text
+              variant="subtitle2"
+              sx={{
+                fontWeight: 700,
+                fontSize: { mobile: "0.7rem", tablet: "0.8rem", desktop: "0.875rem" },
+                mb: 0.5,
+                color: "#3B82F6",
+                letterSpacing: "0.5px",
+              }}
+            >
+              AI 요약
+            </Text>
 
-          <Typography
+            <Text
+              variant="body2"
+              sx={{
+                fontSize: { mobile: "0.75rem", tablet: "0.8rem", desktop: "0.875rem" },
+                color: "#E5E7EB",
+                lineHeight: 1.4,
+                wordBreak: "keep-all",
+                display: "-webkit-box",
+                WebkitLineClamp: { mobile: 3, tablet: 4, desktop: 5 },
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {content}
+            </Text>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            padding: { mobile: "10px 12px", desktop: "14px 16px" },
+            backgroundColor: "#FFFFFF",
+            borderTop: "1px solid #F3F4F6",
+          }}
+        >
+          <Text
             variant="h6"
             sx={{
-              fontWeight: 600,
-              fontSize: { mobile: "0.8rem", tablet: "0.95rem", desktop: "1.1rem" },
-              mb: { mobile: 0.25, desktop: 1 },
-              wordBreak: "keep-all",
-              lineHeight: 1.2,
+              fontWeight: 700,
+              fontSize: { mobile: "0.85rem", tablet: "0.95rem", desktop: "1.05rem" },
+              color: "#111827",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {title}
-          </Typography>
-
-          <Typography
-            variant="body2"
-            sx={{
-              fontSize: { mobile: "0.7rem", tablet: "0.8rem", desktop: "0.875rem" },
-              color: "#D1D5DB",
-              lineHeight: 1.3,
-              wordBreak: "keep-all",
-              display: "-webkit-box",
-              WebkitLineClamp: { mobile: 2, tablet: 3, desktop: 4 },
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {content}
-          </Typography>
+          </Text>
         </Box>
       </StyledCardActionArea>
     </StyledCard>
