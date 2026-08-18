@@ -4,12 +4,21 @@ import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import styles from "./AiSummaryItem.module.css";
 
-function AiSummaryItem({ label = "", children }) {
+function AiSummaryItem({ label = "", caption = "", children }) {
   return (
     <>
-      <Text component={"dt"} variant="h6" color="primary">
-        {label}
-      </Text>
+      <Box component={"dt"} className={`${styles["ai-summary-item-title"]}`}>
+        {label && (
+          <Text component={"p"} variant="h6" color="primary">
+            {label}
+          </Text>
+        )}
+        {caption && (
+          <Text component={"p"} variant="caption" color="textSecondary" noWrap>
+            {caption}
+          </Text>
+        )}
+      </Box>
 
       <Box component={"dd"} className={`${styles["ai-summary-item"]}`}>
         <Text variant="body1">{children}</Text>

@@ -41,8 +41,15 @@ const theme = createTheme({
       defaultProps: {
         maxWidth: "desktopContainer",
         sx: {
-          minHeight: (window.innerHeight * 4) / 5,
+          minHeight: "80vh",
           py: { mobile: 3, tablet: 4, desktop: 6 },
+        },
+      },
+    },
+    MuiImageList: {
+      styleOverrides: {
+        root: {
+          overflowY: "hidden",
         },
       },
     },
