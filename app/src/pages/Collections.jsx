@@ -66,8 +66,6 @@ export default function Collections() {
       return;
     }
 
-    console.log("컬렉션:", data);
-
     const formattedCollections = data.map(collection => {
       // 가장 최근에 북마크한 순서
       const sortedBookmarks = [...collection.bookmarks].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -124,8 +122,6 @@ export default function Collections() {
       return;
     }
 
-    console.log("컬렉션 생성 성공");
-
     // 목록 다시 조회
     await fetchCollections();
   };
@@ -145,8 +141,6 @@ export default function Collections() {
       return;
     }
 
-    console.log("컬렉션 이름 수정 성공");
-
     await fetchCollections();
   };
 
@@ -158,8 +152,6 @@ export default function Collections() {
       console.error("컬렉션 삭제 실패:", error);
       return;
     }
-
-    console.log("컬렉션 삭제 성공");
 
     await fetchCollections();
   };

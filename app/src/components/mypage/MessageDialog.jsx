@@ -40,8 +40,6 @@ export default function MessageDialog({ open, onClose, message, onMessageRead, o
       return;
     }
 
-    console.log("메시지 읽음 처리 성공");
-
     onMessageRead?.(message.id);
 
     onClose();
@@ -63,8 +61,6 @@ export default function MessageDialog({ open, onClose, message, onMessageRead, o
       if (error) {
         throw error;
       }
-
-      console.log("메시지 삭제 성공:", message.id);
 
       // ContactSection의 목록에서도 제거
       onMessageDelete?.(message.id);
