@@ -68,7 +68,6 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
         // Redux user.profile 업데이트
         dispatch(updateProfile(data));
 
-        console.log("프로필 이미지 삭제 성공");
         return;
       }
       // --------------프로필 이미지 업로드------------------
@@ -118,8 +117,6 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
       // 화면에 업데이트
       onProfileUpdate(data);
       dispatch(updateProfile(data));
-
-      console.log("프로필 이미지 업로드 성공:", filePath);
     } catch (error) {
       console.error("프로필 이미지 처리 실패:", error);
     }
