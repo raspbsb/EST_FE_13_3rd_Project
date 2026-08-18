@@ -1,6 +1,8 @@
 /**
  * GitHub 저장소 분석 결과, 수정 제한 안내, 분석 근거 섹션
- * @param {{ sectionCardSx: object, aiAnalysisResult: object, isAnalyzing: boolean }} props - sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체, isAnalyzing: 저장소 분석 요청 처리 중 여부
+ * @param {{ sectionCardSx: object, aiAnalysisResult: object, isAnalyzing: boolean, onCompleteAiAnalysis: function }} props
+ *   sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체,
+ *   isAnalyzing: 저장소 분석 요청 처리 중 여부, onCompleteAiAnalysis: 저장소 분석 버튼 클릭 핸들러
  * @returns {JSX.Element} GitHub AI 분석 결과 카드 목록, 수정 제한 안내, 분석 근거 섹션
  */
 import Alert from "@mui/material/Alert";
@@ -14,7 +16,12 @@ import Tabs from "@mui/material/Tabs";
 import Text from "@mui/material/Typography";
 import { AwesomeIcon } from "../../lib/icons";
 import AnalysisResultCard from "./AnalysisResultCard";
-import { formatAiTimestamp, formatCooldownRemaining, getAiCooldownRemainingMs } from "../../utils/aiCooldown";
+import {
+  ANALYZE_COOLDOWN_MS,
+  formatAiTimestamp,
+  formatCooldownRemaining,
+  getAiCooldownRemainingMs,
+} from "../../utils/aiCooldown";
 import { memo, useEffect, useState } from "react";
 
 // 분석이 끝났는데 AI 응답에 분석 근거가 하나도 없을 때 보여줄 안내 문구
@@ -34,7 +41,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(aiAnalysisResult.analyzedAt);
+  const cooldownRemainingMs = getAiCooldownRemainingMs(aiAnalysisResult.analyzedAt, ANALYZE_COOLDOWN_MS);
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {
@@ -138,7 +145,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
             {isAnalyzing
               ? "분석 중..."
               : isCoolingDown
-                ? `쿨타임 ${formatCooldownRemaining(cooldownRemainingMs)}`
+                ? `재분석까지 ${formatCooldownRemaining(cooldownRemainingMs)}`
                 : "저장소 분석"}
           </Button>
         </Stack>

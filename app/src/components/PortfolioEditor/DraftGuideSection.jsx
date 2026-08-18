@@ -1,6 +1,9 @@
 /**
  * 프로젝트 설명, AI 추천 초안, 한 줄 요약 확인 섹션
- * @param {{ sectionCardSx: object, formInputSx: object, draftGuide: object }} props - sectionCardSx: 섹션 외곽 박스 sx, formInputSx: OutlinedInput 공통 sx, draftGuide: AI 초안 생성 상태 객체
+ * @param {{ sectionCardSx: object, formInputSx: object, draftGuide: object, summary: string, isGenerating: boolean, onGenerateDraftGuide: function, onApplyCurrentDescription: function, onApplyDraftDescription: function, onApplyDraftSummary: function }} props
+ *   sectionCardSx: 섹션 외곽 박스 sx, formInputSx: OutlinedInput 공통 sx, draftGuide: AI 초안 생성 상태 객체, summary: 현재 한 줄 요약 값,
+ *   isGenerating: 초안 생성 요청 처리 중 여부, onGenerateDraftGuide: 초안 생성 버튼 클릭 핸들러,
+ *   onApplyCurrentDescription/onApplyDraftDescription: 설명 되돌리기/적용 핸들러, onApplyDraftSummary: 한 줄 요약 적용 핸들러
  * @returns {JSX.Element} 현재 설명 비교 카드, AI 추천 초안 카드, AI 추천 한 줄 요약 입력 영역
  */
 import Box from "@mui/material/Box";
@@ -11,7 +14,12 @@ import Stack from "@mui/material/Stack";
 import Text from "@mui/material/Typography";
 import { memo, useEffect, useState } from "react";
 import { AwesomeIcon, EditIcon } from "../../lib/icons";
-import { formatAiTimestamp, formatCooldownRemaining, getAiCooldownRemainingMs } from "../../utils/aiCooldown";
+import {
+  DRAFT_COOLDOWN_MS,
+  formatAiTimestamp,
+  formatCooldownRemaining,
+  getAiCooldownRemainingMs,
+} from "../../utils/aiCooldown";
 import DraftSummaryField from "./DraftSummaryField";
 
 function DraftGuideSection({
@@ -35,7 +43,7 @@ function DraftGuideSection({
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(draftGuide.generatedAt);
+  const cooldownRemainingMs = getAiCooldownRemainingMs(draftGuide.generatedAt, DRAFT_COOLDOWN_MS);
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {
@@ -95,7 +103,7 @@ function DraftGuideSection({
               {isGenerating
                 ? "생성 중..."
                 : isCoolingDown
-                  ? `쿨타임 ${formatCooldownRemaining(cooldownRemainingMs)}`
+                  ? `재생성까지 ${formatCooldownRemaining(cooldownRemainingMs)}`
                   : "초안 생성"}
             </Button>
           </Stack>
