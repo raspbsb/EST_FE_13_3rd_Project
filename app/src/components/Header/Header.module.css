@@ -198,3 +198,9 @@
     font-size: 1.25rem;
   }
 }
+@media (max-width: 600px) {
+  .inner {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
