@@ -765,7 +765,9 @@ export default function PortfolioEditor({ data }) {
       }
 
       try {
-        await linkGithubIdentity({ redirectTo: window.location.href });
+        // window.location.href를 그대로 쓰면 이전 시도의 에러/토큰이 남은 쿼리·해시까지 같이 목적지로 넘어가서
+        // 재시도 시 URL이 오염될 수 있어, 쿼리/해시를 뺀 깨끗한 경로만 redirectTo로 사용한다.
+        await linkGithubIdentity({ redirectTo: `${window.location.origin}${window.location.pathname}` });
       } catch (error) {
         notify(error.message, "error");
       }
