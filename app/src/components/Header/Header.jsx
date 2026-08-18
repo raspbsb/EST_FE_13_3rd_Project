@@ -165,19 +165,22 @@ export default function Header() {
                 anchorEl={anchorEl}
                 open={menuOpen}
                 onClose={handleCloseMenu}
-                MenuListProps={{
-                  onMouseLeave: handleCloseMenu,
-                  "aria-labelledby": "profile-avatar",
-                }}
+                disableScrollLock
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    mt: 1,
-                    minWidth: 220,
-                    borderRadius: 1,
-                    overflow: "hidden",
+                slotProps={{
+                  list: {
+                    onMouseLeave: handleCloseMenu,
+                    "aria-labelledby": "profile-avatar",
+                  },
+                  paper: {
+                    elevation: 4,
+                    sx: {
+                      mt: 1,
+                      minWidth: 220,
+                      borderRadius: 1,
+                      overflow: "hidden",
+                    },
                   },
                 }}
               >

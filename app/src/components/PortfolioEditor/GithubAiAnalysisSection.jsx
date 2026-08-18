@@ -188,8 +188,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
           className="portfolio-editor-analysis-evidence__title"
           component="h3"
           variant="h6"
-          fontWeight={700}
-          sx={{ mb: 1 }}
+          sx={{ fontWeight: 700, mb: 1 }}
         >
           분석 근거
         </Text>

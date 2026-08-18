@@ -3,13 +3,14 @@ import Button from "@mui/material/Button";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { memo, useCallback, useEffect, useState } from "react";
 
-function DraftSummaryField({ formInputSx, summary, isDraftGenerated, isSummaryApplied, onApplyDraftSummary }) {
+function DraftSummaryField({ formInputSx, summary, isSummaryApplied, onApplyDraftSummary }) {
   // 적용 전까지 사용자가 자유롭게 수정하는 한 줄 요약 임시 입력값
   const [localSummary, setLocalSummary] = useState(summary);
   // 현재 입력값이 마지막으로 적용된 summary와 다른지 확인해 적용 버튼 상태를 결정한다.
   const isSummaryChanged = localSummary !== summary;
-  // 초안 생성 전이거나 이미 적용된 값이면 적용 버튼을 비활성화한다.
-  const isApplyDisabled = !isDraftGenerated || (isSummaryApplied && !isSummaryChanged);
+  // 이 요약란은 AI 초안 생성 여부와 무관하게 사용자가 직접 입력해서 적용할 수 있어야 한다.
+  // 이미 적용된 값 그대로면(변경 없음) 적용 버튼만 비활성화한다.
+  const isApplyDisabled = isSummaryApplied && !isSummaryChanged;
 
   useEffect(() => {
     setLocalSummary(summary);

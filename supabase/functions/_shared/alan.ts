@@ -11,9 +11,9 @@ const ALAN_REQUEST_TIMEOUT_MS = 30000;
 // 어떤 client_id가 실제로 쓰였는지 로그/응답에는 이름만 노출하고, client_id 원본 값은 노출하지 않는다.
 const ALAN_API_KEY_NAMES = ["배정호", "유태구", "맹예진", "강채희", "오예은"];
 
-// 배정호 키가 하루 한도 소진으로 매번 느리게 실패하는 게 관측돼서, 맨 앞이 아니라 맨 뒤로 미룬다.
-// (env의 ALAN_API_KEYS 순서는 그대로 두고, 시도 순서만 여기서 재배치)
-const ALAN_KEY_TRY_ORDER = [1, 2, 3, 4, 0];
+// 배정호/유태구/맹예진/강채희 키가 하루 한도 소진(HTTP 401)으로 계속 실패하는 게 관측돼서,
+// 지금 유일하게 살아있는 오예은 키를 맨 앞으로 옮긴다. (env의 ALAN_API_KEYS 순서는 그대로 두고, 시도 순서만 재배치)
+const ALAN_KEY_TRY_ORDER = [4, 1, 2, 3, 0];
 
 // Alan AI 호출/응답 관련 에러
 export class AlanApiError extends Error {}
