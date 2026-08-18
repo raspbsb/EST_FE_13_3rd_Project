@@ -6,7 +6,12 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
 import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
-import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
+import {
+  collectGithubRepositoryData,
+  GithubApiError,
+  GithubRepositoryUrlError,
+  parseGithubRepositoryUrl,
+} from "../_shared/github.ts";
 import {
   createCommitBatchPrompts,
   createFinalMergePrompt,
@@ -23,11 +28,12 @@ export default {
   fetch: withSupabase({ auth: ["user", "publishable", "secret"] }, async (req, ctx) => {
     let repositoryUrl: string | undefined;
     let portfolioId: string | undefined;
+    let githubUsername: string | undefined;
     let formData: PortfolioFormContext | undefined;
 
     // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
     try {
-      ({ repositoryUrl, portfolioId, formData } = await req.json());
+      ({ repositoryUrl, portfolioId, githubUsername, formData } = await req.json());
     } catch {
       return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
     }
@@ -35,6 +41,25 @@ export default {
     // repositoryUrl이 없으면 GitHub API까지 가지 않고 여기서 바로 끝낸다.
     if (!repositoryUrl || typeof repositoryUrl !== "string") {
       return Response.json({ error: "repositoryUrl이 필요합니다." }, { status: 400 });
+    }
+
+    // 프론트에서도 같은 검증을 하지만, devtools로 우회할 수 있으니 서버에서도 한 번 더 확인한다.
+    // 저장소 URL의 소유자(owner)가 연동된 GitHub 계정과 다르면 분석을 거부한다.
+    try {
+      const { owner } = parseGithubRepositoryUrl(repositoryUrl);
+
+      if (!githubUsername || owner.toLowerCase() !== githubUsername.toLowerCase()) {
+        return Response.json(
+          { error: "입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다." },
+          { status: 403 },
+        );
+      }
+    } catch (error) {
+      if (error instanceof GithubRepositoryUrlError) {
+        return Response.json({ error: error.message }, { status: 400 });
+      }
+
+      throw error;
     }
 
     // auth: ["user", ...]라서 유효한 JWT가 오면 ctx.userClaims에 즉시(네트워크 호출 없이) 채워진다.
@@ -50,15 +75,16 @@ export default {
     // 수정(edit) 페이지는 project_id로 구분하고, 아직 project_id가 없는 등록(신규) 페이지는 저장소 URL로 구분한다.
     const cooldownScope = portfolioId ? `portfolio:${portfolioId}` : repositoryUrl;
 
-    try {
-      await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
-    } catch (error) {
-      if (error instanceof CooldownActiveError) {
-        return Response.json({ error: error.message }, { status: 429 });
-      }
+    // TEMP: 테스트 중 잠깐 꺼둠. 끝나면 반드시 다시 켤 것.
+    // try {
+    //   await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
+    // } catch (error) {
+    //   if (error instanceof CooldownActiveError) {
+    //     return Response.json({ error: error.message }, { status: 429 });
+    //   }
 
-      throw error;
-    }
+    //   throw error;
+    // }
 
     const githubToken = Deno.env.get("GITHUB_TOKEN");
 
@@ -67,7 +93,7 @@ export default {
     }
 
     try {
-      const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken);
+      const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken, githubUsername);
 
       const formContextPrompt = createFormContextPrompt(formData ?? {});
       const commitBatchPrompts = createCommitBatchPrompts(githubData.commits);

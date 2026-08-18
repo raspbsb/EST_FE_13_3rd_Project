@@ -112,8 +112,13 @@ const isMeaningfulCommitTitle = (title: string) => {
 };
 
 // 커밋 목록을 가져와 제목 1줄만 남기고, 병합/중복 커밋을 제외해 분석에 쓸 수 있는 형태로 정리한다.
-const fetchCommits = async (owner: string, repo: string, token: string) => {
-  const response = await requestGithubApi(`/repos/${owner}/${repo}/commits?per_page=${COMMIT_FETCH_COUNT}`, token);
+// githubUsername이 있으면 그 사람이 작성한 커밋만(?author=) 가져온다.
+const fetchCommits = async (owner: string, repo: string, token: string, githubUsername?: string | null) => {
+  const authorQuery = githubUsername ? `&author=${encodeURIComponent(githubUsername)}` : "";
+  const response = await requestGithubApi(
+    `/repos/${owner}/${repo}/commits?per_page=${COMMIT_FETCH_COUNT}${authorQuery}`,
+    token,
+  );
 
   if (!response) return [];
 
@@ -189,14 +194,18 @@ const fetchContributors = async (owner: string, repo: string, token: string) => 
 
 // GitHub 저장소 URL 하나로 분석에 필요한 데이터를 한 번에 수집한다.
 // 프롬프트 조립(900자 예산 배분 등)은 이 함수의 반환값을 받는 쪽에서 처리한다.
-export const collectGithubRepositoryData = async (repositoryUrl: string, token: string) => {
+export const collectGithubRepositoryData = async (
+  repositoryUrl: string,
+  token: string,
+  githubUsername?: string | null,
+) => {
   const { owner, repo } = parseGithubRepositoryUrl(repositoryUrl);
   const repository = await fetchRepositoryMetadata(owner, repo, token);
 
   const [readme, languages, commits, fileTree, contributors] = await Promise.all([
     fetchReadmeText(owner, repo, token),
     fetchLanguages(owner, repo, token),
-    fetchCommits(owner, repo, token),
+    fetchCommits(owner, repo, token, githubUsername),
     fetchFileTree(owner, repo, repository.defaultBranch, token),
     fetchContributors(owner, repo, token),
   ]);

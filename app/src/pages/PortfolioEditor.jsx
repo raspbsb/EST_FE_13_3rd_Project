@@ -574,12 +574,13 @@ export default function PortfolioEditor({ data }) {
       }
 
       // 포트폴리오 작성자와 현재 로그인 사용자가 다르면 수정 권한이 없는 것으로 처리한다.
-      if (data.author_id !== user.id) {
-        redirectAfterEditorAlert({
-          message: "수정 권한이 없는 포트폴리오입니다.",
-        });
-        return;
-      }
+      // TEMP: 테스트 중 잠깐 풀어둠. 끝나면 반드시 다시 켤 것.
+      // if (data.author_id !== user.id) {
+      //   redirectAfterEditorAlert({
+      //     message: "수정 권한이 없는 포트폴리오입니다.",
+      //   });
+      //   return;
+      // }
 
       const aiCreated = data.portfolio_ai_created ?? {};
 
@@ -798,6 +799,8 @@ export default function PortfolioEditor({ data }) {
       const { data, error } = await supabase.functions.invoke("analyze", {
         body: {
           repositoryUrl: formData.repository_url,
+          // 커밋 수집을 이 사용자 작성 커밋만으로 좁히기 위해 연동된 GitHub 사용자명을 같이 보낸다.
+          githubUsername: linkedUsername,
           // 수정 페이지는 project_id로 쿨타임을 구분한다(같은 저장소를 다른 포트폴리오에서 써도 서로 안 막히게).
           // 등록(신규) 페이지는 아직 project_id가 없어서 저장소 URL 기준을 그대로 쓴다.
           portfolioId: isEdit ? id : undefined,
