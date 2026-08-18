@@ -15,7 +15,7 @@
 /* content: center column, form card centered */
 .content {
   width: 100%;
-  max-width: 720px;
+  max-width: 640px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

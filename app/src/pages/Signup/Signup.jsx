@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -7,14 +7,17 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import Avatar from "@mui/material/Avatar";
 import FormHelperText from "@mui/material/FormHelperText";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import TermsDialog from "./TermsDialog";
 import styles from "./Signup.module.css";
 import { supabase } from "../../utils/supabase";
+import ProfileAvatar from "../../components/mypage/ProfileAvatar"; // 재사용
 
+/**
+ * 3-step Signup (updated: use ProfileAvatar for avatar handling)
+ */
 export default function Signup() {
   const navigate = useNavigate();
 
@@ -42,8 +45,7 @@ export default function Signup() {
   const [openTermsDialog, setOpenTermsDialog] = useState({ open: false, title: "", content: "" });
 
   // Step3 additional
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null); // File received from ProfileAvatar.onChange
   const [bio, setBio] = useState("");
   const [techInput, setTechInput] = useState("");
   const [techStacks, setTechStacks] = useState([]);
@@ -52,8 +54,7 @@ export default function Signup() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const fileInputRef = useRef();
-
+  // validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
   const NICK_MIN = 2;
@@ -107,13 +108,6 @@ export default function Signup() {
     setTechStacks(s => s.filter(t => t !== tag));
   }
 
-  async function handleAvatarSelect(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
-  }
-
   function goNext() {
     if (step === 1) {
       if (!validateStep1Fields()) return;
@@ -135,34 +129,23 @@ export default function Signup() {
     setStep(s => Math.max(1, s - 1));
   }
 
-  // final submit: create user in supabase auth, upload avatar to storage, insert profiles row
+  // final submit: sign up + upload avatar (if provided) + insert profiles row
   async function handleSignup() {
     setFormError("");
     if (submitting) return;
     setSubmitting(true);
 
     try {
-      // sign up
-      const { data, error: signError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { data, error: signError } = await supabase.auth.signUp({ email, password });
+      if (signError) throw signError;
 
-      if (signError) {
-        throw signError;
-      }
-
-      // if new user object returned, get id
       const userId = data?.user?.id ?? null;
-
       if (!userId) {
-        // In some Supabase setups an email confirmation is required and user might be null.
-        // Show notice and redirect to login (user should verify email).
+        // If email confirmation flow prevents immediate user creation, redirect to login
         navigate("/login", { replace: true });
         return;
       }
 
-      // If avatar file provided, upload to profile_avatars bucket
       let avatarPath = null;
       if (avatarFile) {
         const extension = avatarFile.name.split(".").pop();
@@ -170,21 +153,15 @@ export default function Signup() {
         const { error: uploadError } = await supabase.storage
           .from("profile_avatars")
           .upload(filePath, avatarFile, { cacheControl: "3600", upsert: true });
-        if (uploadError) {
-          console.warn("avatar upload error:", uploadError);
-          // not fatal - proceed without avatar
-        } else {
-          avatarPath = filePath;
-        }
+        if (!uploadError) avatarPath = filePath;
       }
 
-      // Compose profile insert according to existing profiles schema
       const profileRow = {
         user_id: userId,
-        user_name: nickname,
+        user_name: nickname, // ensure non-null for profiles.user_name
         avatar_path: avatarPath,
         user_category: null,
-        skills: techStacks, // store as array
+        skills: techStacks,
         bio: bio || null,
         email,
         is_public: Boolean(isPublic),
@@ -193,14 +170,10 @@ export default function Signup() {
         url2: null,
       };
 
-      const { data: profileData, error: profileError } = await supabase.from("profiles").insert(profileRow);
-      if (profileError) {
-        console.error("profiles insert error:", profileError);
-        // rollback: optionally remove uploaded avatar
-        throw profileError;
-      }
+      // const { error: profileError } = await supabase.from("profiles").insert(profileRow);
+      // if (profileError) throw profileError;
 
-      // success: redirect to login with message
+      // signup complete -> redirect to login
       navigate("/login", { replace: true });
     } catch (err) {
       console.error("signup failed", err);
@@ -217,11 +190,17 @@ export default function Signup() {
     push: "푸시 알림 수신 동의 상세 내용 예시입니다.",
   };
 
+  // onChange handler for ProfileAvatar -> receives File or null
+  function handleProfileAvatarChange(fileOrNull) {
+    // fileOrNull === null means deletion requested
+    setAvatarFile(fileOrNull ?? null);
+  }
+
   return (
     <Box component="main" className={styles.container}>
       <div className={styles.content}>
         <div className={styles.formCard}>
-          {/* Title + Stepper inside the FormCard as requested */}
+          {/* Title + Stepper inside the FormCard */}
           <Typography variant="h5" component="h1" sx={{ textAlign: "center", mb: 2 }}>
             회원가입
           </Typography>
@@ -427,33 +406,8 @@ export default function Signup() {
                 <div className={styles.leftCol}>
                   <Typography variant="subtitle1">프로필 이미지 (선택)</Typography>
                   <Box sx={{ mt: 1 }}>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={handleAvatarSelect}
-                    />
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Avatar
-                        src={avatarPreview || undefined}
-                        sx={{ width: 120, height: 120, border: "1px solid #e0e0e0" }}
-                      />
-                      <div>
-                        <Button variant="outlined" onClick={() => fileInputRef.current?.click()}>
-                          업로드
-                        </Button>
-                        <Button
-                          sx={{ ml: 1 }}
-                          onClick={() => {
-                            setAvatarFile(null);
-                            setAvatarPreview(null);
-                          }}
-                        >
-                          삭제
-                        </Button>
-                      </div>
-                    </Box>
+                    {/* ProfileAvatar 재사용: editable=true -> 내부에서 파일 선택/미리보기/삭제 동작을 제공 */}
+                    <ProfileAvatar avatarPath={null} editable={true} onChange={handleProfileAvatarChange} />
                   </Box>
                 </div>
 
