@@ -10,7 +10,7 @@ import Portfolio from "./pages/Portfolio";
 import PortfolioEditor from "./pages/PortfolioEditor";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login/Login.jsx";
-import Signup from "./pages/Signup";
+import Signup from "./pages/Signup/Signup.jsx";
 import NotFound from "./pages/NotFound";
 import MyProjects from "./pages/MyProjects";
 import Collections from "./pages/Collections";
