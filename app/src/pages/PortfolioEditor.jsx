@@ -359,7 +359,6 @@ export default function PortfolioEditor({ data }) {
 
   // 화면 동작 관리용 상태 객체
   const [editorUi, setEditorUi] = useState({
-    activeTab: "edit", // 현재 탭: 작성 / 미리보기
     isSubmitting: false, // 저장 버튼 누른 뒤 처리 중인지
     isAnalyzing: false, // 저장소 분석 요청 처리 중인지 (analyze Edge Function 응답 대기)
     isGeneratingDraft: false, // 초안 생성 요청 처리 중인지 (draft Edge Function 응답 대기)

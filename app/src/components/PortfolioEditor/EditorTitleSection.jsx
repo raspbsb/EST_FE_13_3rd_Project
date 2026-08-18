@@ -1,6 +1,8 @@
 /**
  * 포트폴리오 등록/수정 페이지 상단 제목, 임시저장 안내 영역
- * @param {{ isEdit: boolean, temporaryDrafts: Array<{ id: unknown, title?: string, savedAt?: string }>, onApplyDraft: function }} props
+ * @param {{ isEdit: boolean, temporaryDrafts: Array<{ id: unknown, title?: string, savedAt?: string, locked?: boolean }>, onApplyDraft: function, onDeleteDraft: function, onToggleDraftLock: function, maxLockedDraftCount: number, onRequestConfirm: function }} props
+ *   onDeleteDraft: 저장본 삭제 핸들러, onToggleDraftLock: 저장본 잠금/해제 토글, maxLockedDraftCount: 잠글 수 있는 최대 개수,
+ *   onRequestConfirm: 확인 다이얼로그를 띄우고 Promise<boolean>으로 결과를 받는 함수(PortfolioEditor.jsx의 requestConfirm)
  * @returns {JSX.Element} 등록/수정 제목, 안내 문구, 임시저장 불러오기 박스
  */
 import Box from "@mui/material/Box";

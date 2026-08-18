@@ -1,6 +1,8 @@
 /**
  * GitHub 저장소 분석 결과, 수정 제한 안내, 분석 근거 섹션
- * @param {{ sectionCardSx: object, aiAnalysisResult: object, isAnalyzing: boolean }} props - sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체, isAnalyzing: 저장소 분석 요청 처리 중 여부
+ * @param {{ sectionCardSx: object, aiAnalysisResult: object, isAnalyzing: boolean, onCompleteAiAnalysis: function }} props
+ *   sectionCardSx: 분석 결과 섹션 외곽 박스 sx, aiAnalysisResult: AI 분석 결과 상태 객체,
+ *   isAnalyzing: 저장소 분석 요청 처리 중 여부, onCompleteAiAnalysis: 저장소 분석 버튼 클릭 핸들러
  * @returns {JSX.Element} GitHub AI 분석 결과 카드 목록, 수정 제한 안내, 분석 근거 섹션
  */
 import Alert from "@mui/material/Alert";
