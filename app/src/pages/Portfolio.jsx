@@ -98,7 +98,7 @@ export default function Portfolio() {
     );
   }
 
-  if (!data.is_public && data.author_id !== user.id) {
+  if (!data?.is_public && data?.author_id !== user?.id) {
     return (
       <Container>
         <Text component={"p"} variant="h4">
