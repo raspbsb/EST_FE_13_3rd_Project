@@ -41,13 +41,12 @@ export default function Login() {
     };
   }, []);
 
-  // Validation 규칙 (요청하신 정규식)
+  // Email Validation 규칙
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
 
   const validateEmail = value => {
     if (!value) {
-      setEmailError("올바른 이메일 형식이 아닙니다.");
+      setEmailError("이메일을 입력해 주세요.");
       return false;
     }
     if (!emailRegex.test(value)) {
@@ -58,13 +57,10 @@ export default function Login() {
     return true;
   };
 
+  // 비밀번호 입력 여부만 검사 (정규식 제거)
   const validatePassword = value => {
     if (!value) {
-      setPasswordError("비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자로 입력해 주세요.");
-      return false;
-    }
-    if (!passwordRegex.test(value)) {
-      setPasswordError("비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자로 입력해 주세요.");
+      setPasswordError("비밀번호를 입력해 주세요.");
       return false;
     }
     setPasswordError("");
