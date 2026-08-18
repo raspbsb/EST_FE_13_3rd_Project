@@ -7,4 +7,4 @@ Disallow: /mypage
 Disallow: /portfolios/new
 Disallow: /portfolios/*/edit
 
-Sitemap: 배포 주소/sitemap.xml
+Sitemap: https://your-domain.com/sitemap.xml
