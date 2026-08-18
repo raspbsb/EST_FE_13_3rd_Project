@@ -151,6 +151,14 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
         </Stack>
       </Stack>
 
+      {isAnalyzing ? (
+        <Alert className="portfolio-editor-ai-section__progress-notice" severity="info" sx={{ mb: 1 }}>
+          <Text className="portfolio-editor-ai-section__progress-notice-text">
+            저장소 분석에는 최대 2~3분 정도 걸릴 수 있습니다.
+          </Text>
+        </Alert>
+      ) : null}
+
       <Alert className="portfolio-editor-ai-section__notice" severity="info">
         <Text className="portfolio-editor-ai-section__notice-text">
           AI로 생성된 내용 중 일부는 임의로 수정할 수 없습니다.
