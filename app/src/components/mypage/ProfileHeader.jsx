@@ -207,7 +207,7 @@ export default function ProfileHeader({ mode, profile, onProfileUpdate }) {
           {/* public 프로필 일 때 메세지 전송 버튼 */}
           {mode === "public" && user?.id !== profile?.user_id && (
             <Button variant="contained" size="small" onClick={() => setOpenMessageCompose(true)}>
-              메시지 보내기
+              메시지
             </Button>
           )}
           {/* 프로필 수정 Dialog */}

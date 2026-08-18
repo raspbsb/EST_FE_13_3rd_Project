@@ -127,8 +127,7 @@ export default function MyProjects({ mode }) {
         profiles!portfolios_author_id_fkey (
           user_name,
           avatar_path
-        ),
-
+        )
       `,
         )
         .eq("author_id", targetUserId)
