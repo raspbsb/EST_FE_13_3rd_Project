@@ -46,7 +46,7 @@ export default function ProjectCard({ project }) {
           <div className="project-card-thumbnail-placeholder">이미지 없음</div>
         )}
 
-        {project.project_type === "Team" && <span className="project-card-type">Team</span>}
+        {project.project_type === "team" && <span className="project-card-type">Team</span>}
       </div>
 
       {/* 카드 내용 */}
