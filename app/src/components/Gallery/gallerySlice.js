@@ -54,7 +54,7 @@ function buildPortfolioQuery({
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories!inner(*), portfolio_tech_stacks!inner(*), portfolio_likes(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories!inner(*), portfolio_tech_stacks!inner(*)",
       {
         count: "exact",
       },
@@ -91,7 +91,7 @@ export const fetchFeaturedPortfolios = createAsyncThunk("gallery/featured", asyn
     .schema("public")
     .from("portfolios")
     .select(
-      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*), portfolio_likes(*)",
+      "*, profiles!portfolios_author_id_fkey(*), portfolio_images(*), portfolio_categories(*), portfolio_tech_stacks(*)",
     )
     .order("created_at", { ascending: true })
     .limit(4);
@@ -180,11 +180,6 @@ const gallerySlice = createSlice({
     builder.addCase(fetchFeaturedPortfolios.fulfilled, (state, action) => {
       const { data, error } = action.payload;
 
-      const formattedData = (data ?? []).map(project => ({
-        ...project,
-        like_count: project.portfolio_likes?.length ?? 0,
-      }));
-
       state.featured.error = error;
       state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
       state.featured.data = data ?? [];
@@ -203,10 +198,7 @@ const gallerySlice = createSlice({
     builder.addCase(fetchPortfolios.fulfilled, (state, action) => {
       const { data, error, count } = action.payload;
 
-      const formattedData = (data ?? []).map(project => ({
-        ...project,
-        like_count: project.portfolio_likes?.length ?? 0,
-      }));
+      const formattedData = data ?? [];
 
       state.error = error;
       state.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
@@ -224,10 +216,7 @@ const gallerySlice = createSlice({
       const { data, error, count } = action.payload;
 
       if (!error && count > 0) {
-        const formattedData = (data ?? []).map(project => ({
-          ...project,
-          like_count: project.portfolio_likes?.length ?? 0,
-        }));
+        const formattedData = data ?? [];
 
         state.data.push(...formattedData);
       }

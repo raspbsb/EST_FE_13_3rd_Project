@@ -52,10 +52,7 @@ export default function MyProjectsSection({ mode }) {
             profiles!portfolios_author_id_fkey (
               user_name,
               avatar_path
-            ),
-            portfolio_likes (
-            project_id
-           ) 
+            )
           `,
         )
         .eq("author_id", targetUserId)
@@ -73,12 +70,7 @@ export default function MyProjectsSection({ mode }) {
         console.error("프로젝트 조회 실패", error);
         setProjects([]);
       } else {
-        const formattedProjects = (data ?? []).map(project => ({
-          ...project,
-          like_count: project.portfolio_likes?.length ?? 0,
-        }));
-
-        setProjects(formattedProjects);
+        setProjects(data ?? []);
       }
 
       setLoading(false);

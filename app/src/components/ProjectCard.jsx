@@ -90,7 +90,7 @@ export default function ProjectCard({ project }) {
           <div className="project-card-stats">
             <span className="project-card-like">
               <FavoriteBorderIcon />
-              {project.like_count ?? 0}
+              {project.likes_count ?? 0}
             </span>
 
             <span className="project-card-view">

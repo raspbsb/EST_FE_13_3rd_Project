@@ -34,8 +34,6 @@ const formatCardData = item => {
 
   let img = base.image_url || base.imageUrl || base.thumbnail_url || base.cover_image;
 
-  const likeCount = Array.isArray(base.portfolio_likes) ? base.portfolio_likes.length : 0;
-
   if (!img && Array.isArray(base.portfolio_images) && base.portfolio_images.length > 0) {
     img = base.portfolio_images[0]?.image_url || base.portfolio_images[0]?.url;
   }
@@ -44,7 +42,6 @@ const formatCardData = item => {
     ...base,
     image_url: img || "",
     imageUrl: img || "",
-    like_count: likeCount,
   };
 };
 

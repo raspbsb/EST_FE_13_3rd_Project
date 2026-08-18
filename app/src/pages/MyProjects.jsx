@@ -81,8 +81,7 @@ export default function MyProjects({ mode }) {
             profiles!portfolios_author_id_fkey (
               user_name,
               avatar_path
-            ),
-            portfolio_likes (count)
+            )
           )
         `,
           )
@@ -94,13 +93,7 @@ export default function MyProjects({ mode }) {
           console.error("북마크 프로젝트 조회 실패:", error);
           setProjects([]);
         } else {
-          const bookmarkProjects = data
-            .map(bookmark => bookmark.portfolios)
-            .filter(Boolean)
-            .map(project => ({
-              ...project,
-              like_count: project.portfolio_likes?.[0]?.count ?? 0,
-            }));
+          const bookmarkProjects = data.map(bookmark => bookmark.portfolios).filter(Boolean);
 
           setProjects(bookmarkProjects);
         }
@@ -135,7 +128,7 @@ export default function MyProjects({ mode }) {
           user_name,
           avatar_path
         ),
-        portfolio_likes (count)
+
       `,
         )
         .eq("author_id", targetUserId)
@@ -152,12 +145,7 @@ export default function MyProjects({ mode }) {
         console.error("프로젝트 조회 실패:", error);
         setProjects([]);
       } else {
-        const formattedProjects = (data ?? []).map(project => ({
-          ...project,
-          like_count: project.portfolio_likes?.[0]?.count ?? 0,
-        }));
-
-        setProjects(formattedProjects);
+        setProjects(data ?? []);
       }
 
       setLoading(false);
