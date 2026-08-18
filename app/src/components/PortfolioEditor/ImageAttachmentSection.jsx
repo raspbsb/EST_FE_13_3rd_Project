@@ -9,7 +9,7 @@ import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { CancelIcon, CloudUploadIcon } from "../../lib/icons";
 import ImageActionButton from "./ImageActionButton";
 import SortableImageItem from "./SortableImageItem";
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 
 function ImageAttachmentSection({
   sectionCardSx,
@@ -21,6 +21,8 @@ function ImageAttachmentSection({
   onMoveImage,
 }) {
   const fileInputRef = useRef(null);
+  // 드래그로 파일을 끌고 오는 중인지 표시해 드롭존 테두리를 강조한다.
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // 대표 이미지는 큰 미리보기로 표시하고, 나머지 이미지만 드래그 정렬 대상으로 사용한다.
   const sortedImages = [...images].sort((a, b) => a.order - b.order);
@@ -85,13 +87,27 @@ function ImageAttachmentSection({
       />
 
       <ButtonBase
-        className="portfolio-editor-image-section__dropzone"
+        className={`portfolio-editor-image-section__dropzone${
+          isDraggingOver ? " portfolio-editor-image-section__dropzone--active" : ""
+        }`}
         disabled={isImageLimitReached}
         aria-label={isImageLimitReached ? "이미지는 최대 5장까지 업로드할 수 있습니다" : "이미지 파일 업로드"}
         aria-describedby="portfolio-image-upload-help portfolio-image-upload-count"
         onClick={() => {
           if (isImageLimitReached) return;
           fileInputRef.current?.click();
+        }}
+        onDragOver={e => {
+          if (isImageLimitReached) return;
+          e.preventDefault();
+          setIsDraggingOver(true);
+        }}
+        onDragLeave={() => setIsDraggingOver(false)}
+        onDrop={e => {
+          e.preventDefault();
+          setIsDraggingOver(false);
+          if (isImageLimitReached) return;
+          onAddImages(Array.from(e.dataTransfer.files));
         }}
       >
         <Stack className="portfolio-editor-image-section__dropzone-content" spacing={1}>

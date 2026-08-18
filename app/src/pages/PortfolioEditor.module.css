@@ -430,6 +430,10 @@
   border-radius: 8px;
   background-color: var(--portfolio-surface);
 }
+.page :global(.portfolio-editor-image-section__dropzone--active.MuiButtonBase-root) {
+  border-color: var(--portfolio-primary, #0d6efd);
+  background-color: rgba(13, 110, 253, 0.06);
+}
 .page :global(.portfolio-editor-image-section__dropzone .MuiSvgIcon-root) {
   color: var(--portfolio-text-primary);
 }
