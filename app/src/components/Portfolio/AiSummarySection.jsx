@@ -3,6 +3,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 
 import Text from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -24,7 +25,7 @@ export default function AiSummarySection({}) {
       component={"section"}
       id="ai-analysis"
       sx={{
-        px: 3,
+        px: { mobile: 1, tablet: 2, desktop: 3 },
         pb: 2,
         borderStyle: "solid",
         borderWidth: "1px",
@@ -43,7 +44,7 @@ export default function AiSummarySection({}) {
         expandIcon={<DropDownIcon color="primary" />}
       >
         <Box>
-          <Text component={"h2"} variant="h4" sx={{ fontWeight: "700" }} color="primary">
+          <Text component={"h2"} variant="h4" color="primary" sx={{ fontWeight: "700" }}>
             <AiIcon sx={{ mr: 1 }} />
             AI 분석결과
           </Text>
@@ -61,11 +62,28 @@ export default function AiSummarySection({}) {
           <AiSummaryItem label="담당 역할">{aiCreated?.analyzed_role}</AiSummaryItem>
           <AiSummaryItem label="참여 내역">{aiCreated?.participation_details}</AiSummaryItem>
         </Box>
-        {/*
-          <Box>
-            <Text>분석 근거</Text>
-          </Box>
-          */}
+
+        {aiCreated?.analysis_evidence && (
+          <Grid
+            container
+            columns={2}
+            columnSpacing={3}
+            sx={{ pt: 1, borderStyle: "solid", borderWidth: "1px 0px 0px", borderColor: "primary.dark" }}
+          >
+            <Grid size={2}>
+              <Text component={"h3"} variant="h5" color="primary" sx={{ fontWeight: "600" }}>
+                분석 근거
+              </Text>
+            </Grid>
+            {aiCreated?.analysis_evidence?.map((evidence, idx) => (
+              <Grid key={idx} size={{ mobile: 2, tablet: 1, desktop: 1 }}>
+                <AiSummaryItem label={evidence.label} caption={evidence.value}>
+                  {evidence.description}
+                </AiSummaryItem>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </AccordionDetails>
     </Accordion>
   );
