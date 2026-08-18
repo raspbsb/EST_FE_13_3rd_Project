@@ -24,8 +24,7 @@ import ImageAttachmentSection from "../components/PortfolioEditor/ImageAttachmen
 import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicInfoSection";
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
-// GitHub Provider가 Supabase에서 활성화되면 handleCompleteAiAnalysis의 연동 확인 주석과 함께 다시 사용할 것.
-// import { getIsGithubLinked, getLinkedGithubUsername, linkGithubIdentity } from "../services/authService";
+import { getIsGithubLinked, getLinkedGithubUsername, linkGithubIdentity } from "../services/authService";
 import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
@@ -183,12 +182,11 @@ const createOptionFromLabel = ({ label, options }) => {
 };
 
 // GitHub 저장소 URL(https://github.com/{사용자명}/{저장소명})에서 사용자명만 뽑아낸다.
-// GitHub 연동 필수화(현재 비활성)가 켜지면 handleCompleteAiAnalysis에서 사용할 것 — 그 전까지는 주석 유지(미사용 lint 방지).
-// const extractGithubUsernameFromUrl = repositoryUrl => {
-//   const match = String(repositoryUrl ?? "").match(/^https:\/\/github\.com\/([^/\s]+)\/[^/\s]+\/?$/);
-//
-//   return match ? match[1] : null;
-// };
+const extractGithubUsernameFromUrl = repositoryUrl => {
+  const match = String(repositoryUrl ?? "").match(/^https:\/\/github\.com\/([^/\s]+)\/[^/\s]+\/?$/);
+
+  return match ? match[1] : null;
+};
 
 // Storage에 저장된 image_path를 화면 미리보기용 public URL로 변환
 // DB에는 상대 경로만 저장되어 있고, img 태그에는 접근 가능한 URL이 필요함
@@ -725,73 +723,71 @@ export default function PortfolioEditor({ data }) {
       return;
     }
 
-    // TODO: GitHub 연동(Supabase Auth Provider) 활성화되면 아래 주석 풀어서 다시 연결할 것.
-    // 지금은 Supabase 프로젝트에 GitHub Provider 자체가 비활성화돼 있어서 linkIdentity가 항상 실패한다.
     // 분석 실행 조건(최종본): ① 유효한 GitHub 저장소 URL ② GitHub 계정 연동 ③ 입력한 저장소 URL의 소유자(사용자명)가
     // 연동된 GitHub 계정의 사용자명과 일치. ①은 이미 validateAiFormFieldErrors + analyze 쪽 URL 파싱으로 걸러지고 있어서
     // 여기서는 ②③만 추가로 확인한다.
-    // let isGithubLinked = false;
-    //
-    // try {
-    //   isGithubLinked = await getIsGithubLinked();
-    // } catch (error) {
-    //   alert(error.message);
-    //   return;
-    // }
-    //
-    // if (!isGithubLinked) {
-    //   const shouldLink = confirm(
-    //     "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
-    //   );
-    //
-    //   if (!shouldLink) return;
-    //
-    //   // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
-    //   if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
-    //     const pendingDraft = {
-    //       id: crypto.randomUUID(),
-    //       title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
-    //       savedAt: new Date().toISOString(),
-    //       formData: createDraftFormData(formData),
-    //       aiAnalysisResult,
-    //       draftGuide,
-    //     };
-    //
-    //     setTemporaryDrafts(prev => {
-    //       const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
-    //
-    //       saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
-    //
-    //       return nextDrafts;
-    //     });
-    //
-    //     saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
-    //   }
-    //
-    //   try {
-    //     await linkGithubIdentity({ redirectTo: window.location.href });
-    //   } catch (error) {
-    //     alert(error.message);
-    //   }
-    //
-    //   return;
-    // }
-    //
-    // // 연동은 돼 있지만, 입력한 저장소가 본인 소유가 아니면(사용자명 불일치) 분석을 막는다.
-    // const repoUsername = extractGithubUsernameFromUrl(formData.repository_url);
-    // let linkedUsername = null;
-    //
-    // try {
-    //   linkedUsername = await getLinkedGithubUsername();
-    // } catch (error) {
-    //   alert(error.message);
-    //   return;
-    // }
-    //
-    // if (!repoUsername || !linkedUsername || repoUsername.toLowerCase() !== linkedUsername.toLowerCase()) {
-    //   notify("입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다.", "warning");
-    //   return;
-    // }
+    let isGithubLinked = false;
+
+    try {
+      isGithubLinked = await getIsGithubLinked();
+    } catch (error) {
+      notify(error.message, "error");
+      return;
+    }
+
+    if (!isGithubLinked) {
+      const shouldLink = await requestConfirm(
+        "GitHub 저장소 분석을 사용하려면 GitHub 계정 연동이 필요합니다.\n지금 작성 중인 내용은 임시저장되고, 돌아오면 자동으로 복원됩니다.\nGitHub 연동 페이지로 이동할까요?",
+      );
+
+      if (!shouldLink) return;
+
+      // 현재 작성 중인 내용이 있으면 임시저장하고, 복귀 시 자동 복원할 대상으로 표시한다.
+      if (hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide })) {
+        const pendingDraft = {
+          id: crypto.randomUUID(),
+          title: formData.title.trim() || UNTITLED_PORTFOLIO_DRAFT_TITLE,
+          savedAt: new Date().toISOString(),
+          formData: createDraftFormData(formData),
+          aiAnalysisResult,
+          draftGuide,
+        };
+
+        setTemporaryDrafts(prev => {
+          const nextDrafts = [pendingDraft, ...prev].slice(0, MAX_PORTFOLIO_DRAFT_COUNT);
+
+          saveLocalStorageItem(PORTFOLIO_EDITOR_DRAFT_KEY, nextDrafts);
+
+          return nextDrafts;
+        });
+
+        saveLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY, pendingDraft.id);
+      }
+
+      try {
+        await linkGithubIdentity({ redirectTo: window.location.href });
+      } catch (error) {
+        notify(error.message, "error");
+      }
+
+      return;
+    }
+
+    // 연동은 돼 있지만, 입력한 저장소가 본인 소유가 아니면(사용자명 불일치) 분석을 막는다.
+    const repoUsername = extractGithubUsernameFromUrl(formData.repository_url);
+    let linkedUsername = null;
+
+    try {
+      linkedUsername = await getLinkedGithubUsername();
+    } catch (error) {
+      notify(error.message, "error");
+      return;
+    }
+
+    if (!repoUsername || !linkedUsername || repoUsername.toLowerCase() !== linkedUsername.toLowerCase()) {
+      notify("입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다.", "warning");
+      return;
+    }
 
     // 버튼/분석 카드 영역만 로딩 상태로 표시하고, 나머지 폼은 계속 조작할 수 있게 둔다.
     setEditorUi(prev => ({ ...prev, isAnalyzing: true }));
@@ -829,8 +825,7 @@ export default function PortfolioEditor({ data }) {
     } finally {
       setEditorUi(prev => ({ ...prev, isAnalyzing: false }));
     }
-    // GitHub 연동 분기 주석을 풀면 aiAnalysisResult, draftGuide도 다시 deps에 넣을 것.
-  }, [formData, notify]);
+  }, [formData, notify, requestConfirm, aiAnalysisResult, draftGuide, isEdit, id]);
 
   // 초안 생성 버튼 클릭 시 draft Edge Function을 호출해 AI 추천 설명 초안/한 줄 요약을 받아오는 함수
   const handleGenerateDraftGuide = useCallback(async () => {
