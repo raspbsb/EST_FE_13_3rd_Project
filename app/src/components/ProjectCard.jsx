@@ -51,15 +51,13 @@ export default function ProjectCard({ project }) {
 
       {/* 카드 내용 */}
       <div className="project-card-content">
-        {/* 기술 스택 + 난이도 */}
+        {/* 기술 스택 */}
         <div className="project-card-top">
           <div className="project-card-skills">
             {project.portfolio_tech_stacks?.map(({ tech_stack }) => (
               <TagChip key={tech_stack} label={tech_stack} />
             ))}
           </div>
-
-          <span className="project-card-project-level">{project.difficulty || "중"}</span>
         </div>
 
         {/* 제목 + 날짜 */}
