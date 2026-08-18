@@ -400,6 +400,57 @@ export default function PortfolioEditor({ data }) {
     confirmResolverRef.current = null;
   }, []);
 
+  // 임시저장/제출할 만한 내용이 있는지 여부. popstate 핸들러(클로저)에서 항상 최신값을 읽을 수 있도록 ref로도 들고 있는다.
+  const hasUnsavedContent = hasPortfolioDraftContent({ formData, aiAnalysisResult, draftGuide });
+  const hasUnsavedContentRef = useRef(hasUnsavedContent);
+  hasUnsavedContentRef.current = hasUnsavedContent;
+
+  // 작성 중인 내용이 있으면 새로고침/탭 닫기 시 브라우저 기본 확인창을 띄운다.
+  useEffect(() => {
+    const handleBeforeUnload = e => {
+      if (!hasUnsavedContentRef.current) return;
+
+      e.preventDefault();
+      e.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
+  // 작성 중인 내용이 있으면 브라우저 뒤로가기/앞으로가기도 막고 확인창을 띄운다.
+  // BrowserRouter는 데이터 라우터 전용인 useBlocker를 못 써서 history API를 직접 다룬다.
+  // 마운트 시 현재 URL과 동일한 더미 history entry를 하나 쌓아두고, popstate가 오면(=뒤로가기 시도) 실제로 나가기 전에 가로챈다.
+  useEffect(() => {
+    const currentUrl = window.location.href;
+
+    window.history.pushState(null, "", currentUrl);
+
+    const handlePopState = async () => {
+      if (!hasUnsavedContentRef.current) {
+        window.removeEventListener("popstate", handlePopState);
+        window.history.go(-1);
+        return;
+      }
+
+      const shouldLeave = await requestConfirm("작성 중인 내용이 저장되지 않을 수 있습니다.\n페이지를 벗어날까요?");
+
+      if (shouldLeave) {
+        window.removeEventListener("popstate", handlePopState);
+        window.history.go(-1);
+        return;
+      }
+
+      // 취소하면 더미 entry를 다시 쌓아서, 다음 뒤로가기 시도도 계속 가로챌 수 있게 한다.
+      window.history.pushState(null, "", currentUrl);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [requestConfirm]);
+
   // 경고 후 갤러리 페이지로 이동 (없는 pid일 때 사용). 알림을 잠깐 보여준 뒤 이동한다.
   const redirectAfterEditorAlert = useCallback(
     ({ message, path = "/gallery" }) => {
