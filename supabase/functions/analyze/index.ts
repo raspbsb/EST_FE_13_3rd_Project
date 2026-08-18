@@ -43,6 +43,30 @@ export default {
       return Response.json({ error: "repositoryUrl이 필요합니다." }, { status: 400 });
     }
 
+    // auth: ["user", ...]라서 유효한 JWT가 오면 ctx.userClaims에 즉시(네트워크 호출 없이) 채워진다.
+    // publishable/secret 키로만 온 요청은 userClaims가 없으므로 로그인 필요로 거부한다.
+    const userId = ctx.userClaims?.id;
+
+    if (!userId) {
+      return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    }
+
+    // 프론트 라우트 가드를 devtools로 우회해서 남의 portfolioId로 직접 요청해도,
+    // 이 포트폴리오의 작성자가 아니면 여기서 막는다.
+    if (portfolioId) {
+      const { data: portfolio, error: portfolioError } = await ctx.supabase
+        .from("portfolios")
+        .select("author_id")
+        .eq("project_id", portfolioId)
+        .maybeSingle();
+
+      if (portfolioError) throw portfolioError;
+
+      if (!portfolio || portfolio.author_id !== userId) {
+        return Response.json({ error: "수정 권한이 없는 포트폴리오입니다." }, { status: 403 });
+      }
+    }
+
     // 프론트에서도 같은 검증을 하지만, devtools로 우회할 수 있으니 서버에서도 한 번 더 확인한다.
     // 저장소 URL의 소유자(owner)가 연동된 GitHub 계정과 다르면 분석을 거부한다.
     try {
@@ -60,14 +84,6 @@ export default {
       }
 
       throw error;
-    }
-
-    // auth: ["user", ...]라서 유효한 JWT가 오면 ctx.userClaims에 즉시(네트워크 호출 없이) 채워진다.
-    // publishable/secret 키로만 온 요청은 userClaims가 없으므로 로그인 필요로 거부한다.
-    const userId = ctx.userClaims?.id;
-
-    if (!userId) {
-      return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
     }
 
     // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
