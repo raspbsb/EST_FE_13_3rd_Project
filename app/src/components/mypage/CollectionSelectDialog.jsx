@@ -11,7 +11,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Radio from "@mui/material/Radio";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import Text from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 
 export default function CollectionSelectDialog({
   open,
@@ -57,7 +58,20 @@ export default function CollectionSelectDialog({
               textAlign: "center",
             }}
           >
-            <Typography color="text.secondary">생성된 컬렉션이 없습니다.</Typography>
+            <Text color="text.primary">생성된 컬렉션이 없습니다.</Text>
+            <Link
+              href="/mypage/collections"
+              underline="hover"
+              sx={{
+                display: "inline-block",
+                mt: 1,
+                fontSize: 14,
+                fontWeight: 600,
+              }}
+              onClick={onClose}
+            >
+              컬렉션 추가하기
+            </Link>
           </Box>
         ) : (
           <List disablePadding>
