@@ -190,7 +190,6 @@ function DraftGuideSection({
           <DraftSummaryField
             formInputSx={formInputSx}
             summary={summary}
-            isDraftGenerated={isDraftGenerated}
             isSummaryApplied={isSummaryApplied}
             onApplyDraftSummary={onApplyDraftSummary}
           />
