@@ -37,13 +37,109 @@ const StyledFeatureCard = styled(Card)(({ theme }) => ({
   boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.05)",
   height: "100%",
 }));
+const RowFeatureSection = ({ cardWidth = "100%" }) => (
+  <Box sx={{ display: "flex", gap: "24px", width: "100%", justifyContent: "center" }}>
+    <Box sx={{ flex: 1, maxWidth: cardWidth }}>
+      <StyledFeatureCard>
+        <CardContent sx={{ p: 2.5 }}>
+          <FeatureIconWrapper>
+            <AutoAwesomeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+          </FeatureIconWrapper>
+          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+            AI-Powered Summary
+          </Text>
+          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+            AI 기반의 등록 기능 및 자동 태깅 포트폴리오
+          </Text>
+        </CardContent>
+      </StyledFeatureCard>
+    </Box>
+
+    <Box sx={{ flex: 1, maxWidth: cardWidth }}>
+      <StyledFeatureCard>
+        <CardContent sx={{ p: 2.5 }}>
+          <FeatureIconWrapper>
+            <CodeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+          </FeatureIconWrapper>
+          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+            Codebase Insights
+          </Text>
+          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+            코드베이스 인사이트 분석 및 기술 스택 자동 태깅
+          </Text>
+        </CardContent>
+      </StyledFeatureCard>
+    </Box>
+
+    <Box sx={{ flex: 1, maxWidth: cardWidth }}>
+      <StyledFeatureCard>
+        <CardContent sx={{ p: 2.5 }}>
+          <FeatureIconWrapper>
+            <PeopleIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+          </FeatureIconWrapper>
+          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+            Recruiter Direct Connect
+          </Text>
+          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+            채용 담당자와 직접 연결하여 포트폴리오 공유
+          </Text>
+        </CardContent>
+      </StyledFeatureCard>
+    </Box>
+  </Box>
+);
+
+const ColumnFeatureSection = () => (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+    <StyledFeatureCard>
+      <CardContent sx={{ p: 2.5 }}>
+        <FeatureIconWrapper>
+          <AutoAwesomeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+        </FeatureIconWrapper>
+        <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+          AI-Powered Summary
+        </Text>
+        <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+          AI 기반의 등록 기능 및 자동 태깅 포트폴리오
+        </Text>
+      </CardContent>
+    </StyledFeatureCard>
+
+    <StyledFeatureCard>
+      <CardContent sx={{ p: 2.5 }}>
+        <FeatureIconWrapper>
+          <CodeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+        </FeatureIconWrapper>
+        <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+          Codebase Insights
+        </Text>
+        <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+          코드베이스 인사이트 분석 및 기술 스택 자동 태깅
+        </Text>
+      </CardContent>
+    </StyledFeatureCard>
+
+    <StyledFeatureCard>
+      <CardContent sx={{ p: 2.5 }}>
+        <FeatureIconWrapper>
+          <PeopleIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
+        </FeatureIconWrapper>
+        <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
+          Recruiter Direct Connect
+        </Text>
+        <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
+          채용 담당자와 직접 연결하여 포트폴리오 공유
+        </Text>
+      </CardContent>
+    </StyledFeatureCard>
+  </Box>
+);
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
-
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
@@ -63,7 +159,7 @@ export default function Home() {
           .order("created_at", { ascending: false })
           .limit(12);
 
-        const cleanedQuery = searchTerm.toLowerCase().trim();
+        const cleanedQuery = searchTerm.toLowerCase().trim().replace(/[,%_]/g, "");
         if (cleanedQuery) {
           query = query.or(
             `title.ilike.%${cleanedQuery}%,ai_summary.ilike.%${cleanedQuery}%,description.ilike.%${cleanedQuery}%`,
@@ -79,7 +175,6 @@ export default function Home() {
         setLoading(false);
       }
     };
-
     const timer = setTimeout(() => {
       fetchPortfolios();
     }, 300);
@@ -89,11 +184,11 @@ export default function Home() {
 
   const getInfinitePortfolios = () => {
     if (portfolios.length === 0) return [];
-    let list = [...portfolios];
-    while (list.length < 12) {
-      list = [...list, ...portfolios];
+    const repeated = [];
+    while (repeated.length < 12) {
+      repeated.push(...portfolios);
     }
-    return list;
+    return repeated.slice(0, 12);
   };
 
   const infinitePortfolios = getInfinitePortfolios();
@@ -109,104 +204,6 @@ export default function Home() {
       container.scrollLeft = maxScrollLeft - 6;
     }
   };
-
-  const RowFeatureSection = ({ cardWidth = "100%" }) => (
-    <Box sx={{ display: "flex", gap: "24px", width: "100%", justifyContent: "center" }}>
-      <Box sx={{ flex: 1, maxWidth: cardWidth }}>
-        <StyledFeatureCard>
-          <CardContent sx={{ p: 2.5 }}>
-            <FeatureIconWrapper>
-              <AutoAwesomeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-            </FeatureIconWrapper>
-            <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-              AI-Powered Summary
-            </Text>
-            <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-              AI 기반의 등록 기능 및 자동 태깅 포트폴리오
-            </Text>
-          </CardContent>
-        </StyledFeatureCard>
-      </Box>
-
-      <Box sx={{ flex: 1, maxWidth: cardWidth }}>
-        <StyledFeatureCard>
-          <CardContent sx={{ p: 2.5 }}>
-            <FeatureIconWrapper>
-              <CodeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-            </FeatureIconWrapper>
-            <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-              Codebase Insights
-            </Text>
-            <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-              코드베이스 인사이트 분석 및 기술 스택 자동 태깅
-            </Text>
-          </CardContent>
-        </StyledFeatureCard>
-      </Box>
-
-      <Box sx={{ flex: 1, maxWidth: cardWidth }}>
-        <StyledFeatureCard>
-          <CardContent sx={{ p: 2.5 }}>
-            <FeatureIconWrapper>
-              <PeopleIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-            </FeatureIconWrapper>
-            <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-              Recruiter Direct Connect
-            </Text>
-            <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-              채용 담당자와 직접 연결하여 포트폴리오 공유
-            </Text>
-          </CardContent>
-        </StyledFeatureCard>
-      </Box>
-    </Box>
-  );
-
-  const ColumnFeatureSection = () => (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
-      <StyledFeatureCard>
-        <CardContent sx={{ p: 2.5 }}>
-          <FeatureIconWrapper>
-            <AutoAwesomeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-          </FeatureIconWrapper>
-          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-            AI-Powered Summary
-          </Text>
-          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-            AI 기반의 등록 기능 및 자동 태깅 포트폴리오
-          </Text>
-        </CardContent>
-      </StyledFeatureCard>
-
-      <StyledFeatureCard>
-        <CardContent sx={{ p: 2.5 }}>
-          <FeatureIconWrapper>
-            <CodeIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-          </FeatureIconWrapper>
-          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-            Codebase Insights
-          </Text>
-          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-            코드베이스 인사이트 분석 및 기술 스택 자동 태깅
-          </Text>
-        </CardContent>
-      </StyledFeatureCard>
-
-      <StyledFeatureCard>
-        <CardContent sx={{ p: 2.5 }}>
-          <FeatureIconWrapper>
-            <PeopleIcon sx={{ color: "#3B82F6", fontSize: "20px" }} />
-          </FeatureIconWrapper>
-          <Text variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5, color: "#0F172A" }}>
-            Recruiter Direct Connect
-          </Text>
-          <Text variant="body2" sx={{ color: "#64748B", fontSize: "0.85rem", lineHeight: 1.45 }}>
-            채용 담당자와 직접 연결하여 포트폴리오 공유
-          </Text>
-        </CardContent>
-      </StyledFeatureCard>
-    </Box>
-  );
 
   return (
     <Box
@@ -225,6 +222,7 @@ export default function Home() {
         <meta property="og:title" content="PORTFOLIOS - 개발자 포트폴리오 탐색" />
         <meta property="og:description" content="개발자들의 포트폴리오를 탐색하고 AI 요약 인사이트를 확인해보세요." />
         <meta property="og:type" content="website" />
+        <link rel="canonical" href={typeof window !== "undefined" ? window.location.href : ""} />
       </Helmet>
 
       <Box
@@ -373,21 +371,21 @@ export default function Home() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: "24px", alignItems: "center" }}>
                 <Box
                   sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "16px",
-                    width: "362px",
-                    justifyContent: "space-between",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: "12px",
+                    width: "100%",
+                    maxWidth: 400,
                     mx: "auto",
                   }}
                 >
                   {portfolios.slice(0, 4).map((item, index) => (
-                    <Box key={`mob-${item?.id ?? "card"}-${index}`} sx={{ width: "173px", flexShrink: 0 }}>
+                    <Box key={`mob-${item?.id ?? "card"}-${index}`} sx={{ width: "100%" }}>
                       <PortfolioCard portfolio={item} />
                     </Box>
                   ))}
                 </Box>
-                <Box sx={{ width: "362px", mx: "auto" }}>
+                <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
                   <ColumnFeatureSection />
                 </Box>
               </Box>
