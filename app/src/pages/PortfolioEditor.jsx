@@ -25,7 +25,7 @@ import ProjectBasicInfoSection from "../components/PortfolioEditor/ProjectBasicI
 import ProjectMetaSection from "../components/PortfolioEditor/ProjectMetaSection";
 import SeoMeta, { SITE_NAME } from "../components/SeoMeta";
 // GitHub Provider가 Supabase에서 활성화되면 handleCompleteAiAnalysis의 연동 확인 주석과 함께 다시 사용할 것.
-// import { getIsGithubLinked, linkGithubIdentity } from "../services/authService";
+// import { getIsGithubLinked, getLinkedGithubUsername, linkGithubIdentity } from "../services/authService";
 import { createPortfolio, getAuthenticatedUser, updatePortfolio } from "../services/portfolioService";
 import { categoryOptions, techStackOptions } from "../constants/portfolioOptions";
 
@@ -181,6 +181,14 @@ const createOptionFromLabel = ({ label, options }) => {
     label: label ?? "",
   };
 };
+
+// GitHub 저장소 URL(https://github.com/{사용자명}/{저장소명})에서 사용자명만 뽑아낸다.
+// GitHub 연동 필수화(현재 비활성)가 켜지면 handleCompleteAiAnalysis에서 사용할 것 — 그 전까지는 주석 유지(미사용 lint 방지).
+// const extractGithubUsernameFromUrl = repositoryUrl => {
+//   const match = String(repositoryUrl ?? "").match(/^https:\/\/github\.com\/([^/\s]+)\/[^/\s]+\/?$/);
+//
+//   return match ? match[1] : null;
+// };
 
 // Storage에 저장된 image_path를 화면 미리보기용 public URL로 변환
 // DB에는 상대 경로만 저장되어 있고, img 태그에는 접근 가능한 URL이 필요함
@@ -726,6 +734,9 @@ export default function PortfolioEditor({ data }) {
 
     // TODO: GitHub 연동(Supabase Auth Provider) 활성화되면 아래 주석 풀어서 다시 연결할 것.
     // 지금은 Supabase 프로젝트에 GitHub Provider 자체가 비활성화돼 있어서 linkIdentity가 항상 실패한다.
+    // 분석 실행 조건(최종본): ① 유효한 GitHub 저장소 URL ② GitHub 계정 연동 ③ 입력한 저장소 URL의 소유자(사용자명)가
+    // 연동된 GitHub 계정의 사용자명과 일치. ①은 이미 validateAiFormFieldErrors + analyze 쪽 URL 파싱으로 걸러지고 있어서
+    // 여기서는 ②③만 추가로 확인한다.
     // let isGithubLinked = false;
     //
     // try {
@@ -770,6 +781,22 @@ export default function PortfolioEditor({ data }) {
     //     alert(error.message);
     //   }
     //
+    //   return;
+    // }
+    //
+    // // 연동은 돼 있지만, 입력한 저장소가 본인 소유가 아니면(사용자명 불일치) 분석을 막는다.
+    // const repoUsername = extractGithubUsernameFromUrl(formData.repository_url);
+    // let linkedUsername = null;
+    //
+    // try {
+    //   linkedUsername = await getLinkedGithubUsername();
+    // } catch (error) {
+    //   alert(error.message);
+    //   return;
+    // }
+    //
+    // if (!repoUsername || !linkedUsername || repoUsername.toLowerCase() !== linkedUsername.toLowerCase()) {
+    //   notify("입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다.", "warning");
     //   return;
     // }
 
