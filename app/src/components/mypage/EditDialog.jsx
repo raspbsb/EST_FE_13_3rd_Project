@@ -25,6 +25,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import FormLabel from "@mui/material/FormLabel";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const filterTechStackOptions = createFilterOptions();
 
@@ -34,6 +36,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
 
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.user);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
 
   //Edit dialog form 관리
   const [form, setForm] = useState({
@@ -166,8 +174,6 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         throw error;
       }
 
-      console.log("프로필 수정 완료:", data);
-
       // local profile 업데이트
       onProfileUpdate(data);
       // local profile 업데이트
@@ -176,7 +182,11 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
       onClose();
     } catch (error) {
       console.error("프로필 수정 실패:", error);
-      alert("프로필 수정에 실패했습니다.");
+      setSnackbar({
+        open: true,
+        message: "프로필 수정에 실패했습니다.",
+        severity: "error",
+      });
     }
   };
 
@@ -343,6 +353,34 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
           적용하기
         </Button>
       </DialogActions>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() =>
+          setSnackbar(prev => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          onClose={() =>
+            setSnackbar(prev => ({
+              ...prev,
+              open: false,
+            }))
+          }
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }
