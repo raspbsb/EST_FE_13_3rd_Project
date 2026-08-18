@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import useNotifications from "../hooks/useNotifications";
 
 import Container from "@mui/material/Container";
+import Text from "@mui/material/Typography";
+import Link from "@mui/material/Link";
 import { Stack } from "@mui/material";
 
 import ProfileHeader from "../components/mypage/ProfileHeader";
@@ -36,7 +38,23 @@ export default function MyPageLayout() {
   }
 
   if (!profile) {
-    return <div>프로필 정보를 불러올 수 없습니다.</div>;
+    return (
+      <div>
+        <Text color="text.primary">프로필 정보를 불러올 수 없습니다.</Text>
+        <Link
+          href="/login"
+          underline="hover"
+          sx={{
+            display: "flex",
+            mt: 1,
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          로그인 하기
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -46,13 +64,27 @@ export default function MyPageLayout() {
       <Container
         component="main"
         maxWidth={false}
+        disableGutters
         sx={{
           maxWidth: "1272px",
           mx: "auto",
-          py: 6,
 
-          "@media (max-width: 767px)": {
-            pb: 7,
+          px: {
+            mobile: 2,
+            tablet: 3,
+            desktop: 0,
+          },
+
+          py: {
+            mobile: 3,
+            tablet: 4,
+            desktop: 6,
+          },
+
+          pb: {
+            mobile: 10,
+            tablet: 7,
+            desktop: 6,
           },
         }}
       >
