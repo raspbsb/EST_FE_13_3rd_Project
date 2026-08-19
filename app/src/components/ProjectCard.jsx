@@ -41,7 +41,7 @@ export default function ProjectCard({ project }) {
       {/* 썸네일 */}
       <div className="project-card-thumbnail">
         {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={thumbnail?.alt_text || project.title} />
+          <img src={thumbnailUrl} alt={thumbnail?.alt_text || project.title} loading="lazy" width="640" height="360" />
         ) : (
           <div className="project-card-thumbnail-placeholder">이미지 없음</div>
         )}
