@@ -15,10 +15,10 @@ dd.hero-specs-item div {
   border-color: var(--mui-palette-divider);
   border-radius: 12px;
   background-color: var(--mui-palette-background-default);
-  overflow-x: scroll;
-  scrollbar-width: none;
 }
 dd.hero-specs-item.no-box div {
   padding: 4px 0px;
   border-width: 0px;
+  border-radius: 0px;
+  overflow-x: visible;
 }
