@@ -51,6 +51,8 @@ export default function HeroHeading({}) {
         <Text component={"p"}>
           작업기간:{" "}
           {data?.started_at === null && data?.ended_at === null ? (
+            "-"
+          ) : (
             <>
               <time dateTime={data?.started_at}>
                 {data?.started_at ? new Date(data.started_at).toISOString().slice(0, 10) : ""}
@@ -60,8 +62,6 @@ export default function HeroHeading({}) {
                 {data?.ended_at ? new Date(data.ended_at).toISOString().slice(0, 10) : ""}
               </time>
             </>
-          ) : (
-            "-"
           )}
         </Text>
       </Box>

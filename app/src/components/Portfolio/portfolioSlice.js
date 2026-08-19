@@ -77,17 +77,15 @@ const portfolioSlice = createSlice({
       state.status = error ? "failed" : data ? "succeeded" : "notFound";
       state.data = data;
       state.likes = data?.portfolio_likes?.length;
-      if (error) console.warn(error);
     });
     builder.addCase(fetchPortfolio.rejected, (state, action) => {
       state.status = "failed";
       state.error = action.error;
-      console.error(state.error);
     });
 
     builder.addCase(fetchLikes.fulfilled, (state, action) => {
       const { data, error } = action.payload;
-      error ? console.warn(error) : (state.likes = data.likes_count);
+      if (!error) state.likes = data.likes_count;
     });
 
     builder.addCase(fetchOtherPortfolios.pending, (state, action) => {
@@ -99,12 +97,10 @@ const portfolioSlice = createSlice({
       state.otherPortfolios.status = error ? "failed" : count > 0 ? "succeeded" : "notFound";
       state.otherPortfolios.data = data ?? [];
       state.otherPortfolios.count = count ?? 0;
-      if (error) console.warn(error);
     });
     builder.addCase(fetchOtherPortfolios.rejected, (state, action) => {
       state.otherPortfolios.status = "failed";
       state.otherPortfolios.error = action.error;
-      console.error(state.otherPortfolios.error);
     });
   },
 });

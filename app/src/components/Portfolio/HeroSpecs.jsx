@@ -1,5 +1,7 @@
 import { useSelector } from "react-redux";
 
+import ScrollContainer from "react-indiana-drag-scroll";
+
 import Text from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
@@ -25,41 +27,69 @@ export default function HeroSpecs({}) {
       sx={{ alignItems: "center", minWidth: "0px", maxWidth: "100%" }}
     >
       <HeroSpecsItem label="카테고리" noBox>
-        <Stack
+        <ScrollContainer
           component={"ul"}
-          direction="row"
-          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+          vertical={false}
+          hideScrollbars
+          style={{ display: "flex", gap: "8px", minWidth: "0px", width: "100%" }}
         >
           {categories?.map((c, idx) => (
             <TagChip key={idx} component={"li"} label={c.category} />
           ))}
-        </Stack>
+        </ScrollContainer>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="기술 스택" noBox>
-        <Stack
+        <ScrollContainer
           component={"ul"}
-          direction="row"
-          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+          vertical={false}
+          hideScrollbars
+          style={{ display: "flex", gap: "8px", minWidth: "0px", width: "100%" }}
         >
           {techStacks?.map((ts, idx) => (
             <TagChip key={idx} component={"li"} label={ts.tech_stack} />
           ))}
-        </Stack>
+        </ScrollContainer>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap>
-          {data?.deploy_url ?? ""}
-        </MuiLink>
+        {data?.deploy_url ? (
+          <MuiLink
+            href={data?.deploy_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="body1"
+            color="textPrimary"
+            noWrap
+          >
+            {data?.deploy_url}
+          </MuiLink>
+        ) : (
+          <Text variant="body1" color="textDisabled">
+            -
+          </Text>
+        )}
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap>
-          {data?.repository_url ?? ""}
-        </MuiLink>
+        {data?.repository_url ? (
+          <MuiLink
+            href={data?.repository_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="body1"
+            color="textPrimary"
+            noWrap
+          >
+            {data?.repository_url}
+          </MuiLink>
+        ) : (
+          <Text variant="body1" color="textDisabled">
+            -
+          </Text>
+        )}
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" half>
