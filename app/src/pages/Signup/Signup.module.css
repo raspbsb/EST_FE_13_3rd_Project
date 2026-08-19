@@ -50,7 +50,7 @@
 /* formCard: 로그인과 동일한 크기 유지, 내부스크롤 처리 */
 .formCard {
   width: 100%;
-  max-width: 620px;
+  max-width: 580px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;

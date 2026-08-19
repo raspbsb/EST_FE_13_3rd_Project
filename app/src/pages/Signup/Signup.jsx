@@ -186,10 +186,67 @@ export default function Signup() {
   }
 
   const TERMS_TEXT = {
-    terms: "이용약관 상세 내용 예시입니다.\n여기에 실제 약관 텍스트를 넣으세요.",
-    privacy: "개인정보 수집 및 이용 동의 상세 내용 예시입니다.",
-    marketing: "마케팅 동의 상세 내용 예시입니다.",
-    push: "푸시 알림 수신 동의 상세 내용 예시입니다.",
+    terms: `[서비스명] 서비스 이용약관
+
+제1조 (목적)
+본 약관은 [서비스명](이하 "회사")이 제공하는 서비스의 이용조건 및 절차, 회원과 회사 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
+
+제2조 (회원가입 및 계정)
+1. 이용자는 회사가 정한 가입 양식에 따라 회원정보를 기입한 후 본 약관에 동의함으로써 회원가입을 신청합니다.
+2. 회원은 본인의 계정 정보(이메일, 비밀번호 등)에 대한 관리 책임이 있으며, 이를 타인에게 양도하거나 대여할 수 없습니다.
+
+제3조 (서비스의 제공 및 변경)
+1. 회사는 이용자에게 안정적인 서비스를 제공하기 위해 최선을 다합니다.
+2. 컴퓨터 등 정보통신설비의 보수점검, 교체 및 고장 등의 사유가 발생한 경우 서비스 제공이 일시적으로 중단될 수 있습니다.
+
+제4조 (이용자의 의무)
+이용자는 타인의 정보 도용, 회사의 업무 방해, 제3자의 저작권 침해 등 부당한 행위를 하여서는 안 됩니다.
+
+제5조 (계약 해지 및 이용 제한)
+회원은 언제든지 회원탈퇴를 신청할 수 있으며, 약관을 위반한 경우 서비스 이용이 제한될 수 있습니다.`,
+    privacy: `개인정보 수집 및 이용 동의
+
+1. 수집하는 개인정보 항목
+- 필수항목: 이메일 주소, 비밀번호, 닉네임
+- 자동수집항목: IP 주소, 쿠키, 방문 일시, 서비스 이용 기록
+
+2. 개인정보의 수집 및 이용 목적
+- 회원 가입 의사 확인 및 본인 식별·인증
+- 회원 자격 유지·관리 및 부정 이용 방지
+- 고지사항 전달 및 고객 문의 응대
+
+3. 개인정보의 보유 및 이용 기간
+- 원칙적으로 회원 탈퇴 시 지체 없이 파기합니다.
+- 단, 관계 법령의 규정에 의하여 보존할 필요가 있는 경우 법령에서 정한 기간 동안 보관합니다.
+
+4. 동의 거부 권리 및 불이익
+이용자는 개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다. 단, 필수항목 동의 거부 시 회원가입 및 서비스 이용이 제한됩니다.`,
+    marketing: `마케팅 정보 수신 동의 (선택)
+
+1. 수집 및 이용 목적
+- 신규 기능 및 서비스 안내
+- 이벤트, 프로모션 정보 제공 및 맞춤형 혜택 안내
+- 서비스 참여 기회 제공 및 통계 분석
+
+2. 수집 항목
+- 이메일 주소, 닉네임
+
+3. 보유 및 이용 기간
+- 회원 탈퇴 시 또는 마케팅 동의 철회 시까지
+
+4. 동의 거부 권리
+선택 항목에 동의하지 않으셔도 기본 서비스 이용이 가능하며, 언제든지 마이페이지에서 동의를 철회할 수 있습니다.`,
+    push: `푸시 알림 수신 동의 (선택)
+
+1. 알림 목적
+- 서비스 주요 활동(댓글, 좋아요, 알림 메시지 등) 실시간 안내
+- 이벤트 및 혜택 관련 정보 즉시 발송
+
+2. 수신 채널
+- 웹 브라우저 푸시 알림 및 모바일 앱 알림
+
+3. 동의 철회
+설정 페이지 또는 브라우저/기기 알림 설정에서 언제든지 알림 수신을 켜거나 끌 수 있습니다.`,
   };
 
   // onChange handler for ProfileAvatar -> receives File or null
@@ -231,7 +288,7 @@ export default function Signup() {
                   label="Email address"
                   variant="outlined"
                   fullWidth
-                  value={email}
+                  value={email || ""}
                   onChange={e => setEmail(e.target.value)}
                   onBlur={() => {
                     if (!email || !emailRegex.test(email)) setEmailError("올바른 이메일 형식이 아닙니다.");
@@ -246,7 +303,7 @@ export default function Signup() {
                   label="Nickname"
                   variant="outlined"
                   fullWidth
-                  value={nickname}
+                  value={nickname || ""}
                   onChange={e => setNickname(e.target.value)}
                   onBlur={() => {
                     const len = nickname.trim().length;
@@ -264,7 +321,7 @@ export default function Signup() {
                   variant="outlined"
                   fullWidth
                   type="password"
-                  value={password}
+                  value={password || ""}
                   onChange={e => setPassword(e.target.value)}
                   onBlur={() => {
                     if (!passwordRegex.test(password))
@@ -281,7 +338,7 @@ export default function Signup() {
                   variant="outlined"
                   fullWidth
                   type="password"
-                  value={passwordConfirm}
+                  value={passwordConfirm || ""}
                   onChange={e => setPasswordConfirm(e.target.value)}
                   onBlur={() => {
                     if (password !== passwordConfirm) setPasswordConfirmError("비밀번호 확인이 일치하지 않습니다.");
@@ -422,7 +479,7 @@ export default function Signup() {
 
                   <div className={styles.rightCol}>
                     <Typography variant="subtitle1">소개 (선택)</Typography>
-                    <TextField multiline rows={5} fullWidth value={bio} onChange={e => setBio(e.target.value)} />
+                    <TextField multiline rows={5} fullWidth value={bio || ""} onChange={e => setBio(e.target.value)} />
                     <FormHelperText>{bio.length}/100</FormHelperText>
                   </div>
                 </div>
@@ -434,7 +491,7 @@ export default function Signup() {
                   <TextField
                     placeholder="기술을 입력하고 엔터를 눌러 추가하세요."
                     fullWidth
-                    value={techInput}
+                    value={techInput || ""}
                     onChange={e => setTechInput(e.target.value)}
                     onKeyDown={handleTechKeyDown}
                   />

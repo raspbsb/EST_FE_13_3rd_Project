@@ -135,7 +135,7 @@ export default function Login() {
                 variant="outlined"
                 fullWidth
                 className={styles.field}
-                value={email}
+                value={email || ""}
                 onChange={handleEmailChange}
                 onBlur={() => validateEmail(email)}
                 required
@@ -156,7 +156,7 @@ export default function Login() {
                 variant="outlined"
                 fullWidth
                 className={styles.field}
-                value={password}
+                value={password || ""}
                 onChange={handlePasswordChange}
                 onBlur={() => validatePassword(password)}
                 required
