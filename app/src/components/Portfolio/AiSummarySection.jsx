@@ -9,12 +9,14 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 
 import { AiIcon, DropDownIcon } from "../../lib/icons";
+import { useAiSummary } from "./AiSummaryContext";
 import AiSummaryItem from "./AiSummaryItem";
 
 export default function AiSummarySection({}) {
   const theme = useTheme();
   const { data } = useSelector(state => state.portfolio);
   const aiCreated = data?.portfolio_ai_created;
+  const { isOpen, setIsOpen, sectionRef } = useAiSummary();
 
   if (!aiCreated) {
     return <></>;
@@ -22,6 +24,9 @@ export default function AiSummarySection({}) {
 
   return (
     <Accordion
+      ref={sectionRef}
+      expanded={isOpen}
+      onChange={(_, expanded) => setIsOpen(expanded)}
       component={"section"}
       id="ai-analysis"
       sx={{
