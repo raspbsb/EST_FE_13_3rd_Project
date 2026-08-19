@@ -3,6 +3,12 @@
 *::after {
   box-sizing: border-box;
 }
+html {
+  /* MUI Menu/Popover/Dialog가 열릴 때 body 스크롤을 잠그면서 스크롤바가 사라지면,
+     그만큼 화면 폭이 넓어져서 left: 50%로 중앙 정렬된 헤더 네비게이션이 옆으로 밀린다.
+     스크롤바 자리를 항상 예약해둬서 스크롤 잠금 여부와 상관없이 폭이 안 변하게 막는다. */
+  scrollbar-gutter: stable;
+}
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
