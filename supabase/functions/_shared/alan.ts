@@ -5,7 +5,8 @@
 const ALAN_API_BASE = "https://kdt-api-function.azurewebsites.net";
 // Alan AI가 응답을 너무 오래 끌면(관측상 무한정 대기) Edge Function 자체 실행 시간 제한(546)에 걸리므로,
 // client_id 하나당 이 시간을 넘기면 포기하고 다음 client_id로 넘어간다.
-const ALAN_REQUEST_TIMEOUT_MS = 30000;
+// 정상 응답도 ~30초 가까이 걸리는 경우가 있어 너무 짧게 잡으면 살아있는 키도 오탐으로 끊길 수 있다 — 20~25초 선에서 절충.
+const ALAN_REQUEST_TIMEOUT_MS = 25000;
 
 // ALAN_API_KEYS에 등록한 client_id 순서와 동일한 순서로 맞춘 이름 목록.
 // 어떤 client_id가 실제로 쓰였는지 로그/응답에는 이름만 노출하고, client_id 원본 값은 노출하지 않는다.
