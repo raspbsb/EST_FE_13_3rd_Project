@@ -31,7 +31,7 @@ export default function AuthorInfoPortfolios({}) {
           </Text>
         )}
       </Box>
-      <Grid component={"ul"} container columns={{ mobile: 1, tablet: 2, desktop: 2 }}>
+      <Grid component={"ul"} container columns={{ mobile: 1, tablet: 2, desktop: 2 }} sx={{ position: "relative" }}>
         {otherPortfolios.status === "succeeded" ? (
           <>
             <Grid component={"li"} size={1}>
@@ -42,7 +42,11 @@ export default function AuthorInfoPortfolios({}) {
             </Grid>
           </>
         ) : (
-          <Grid component={"li"} size={{ mobile: 1, tablet: 2, desktop: 2 }}>
+          <Grid
+            component={"li"}
+            size={{ mobile: 1, tablet: 2, desktop: 2 }}
+            sx={{ position: "absolute", top: "120px" }}
+          >
             <Text component={"p"} color="textDisabled" variant="h6" align="center">
               다른 프로젝트가 없습니다.
             </Text>

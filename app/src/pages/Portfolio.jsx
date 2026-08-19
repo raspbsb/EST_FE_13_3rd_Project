@@ -10,6 +10,7 @@ import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import { AiSummaryProvider } from "../components/Portfolio/AiSummaryContext";
 import { resetPortfolio, fetchPortfolio, fetchOtherPortfolios } from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
@@ -98,7 +99,7 @@ export default function Portfolio() {
     );
   }
 
-  if (!data.is_public && data.author_id !== user.id) {
+  if (!data?.is_public && data?.author_id !== user?.id) {
     return (
       <Container>
         <Text component={"p"} variant="h4">
@@ -122,16 +123,18 @@ export default function Portfolio() {
   }
 
   return (
-    <Container>
-      <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
-        <HeroSection />
-        <DescriptionSection />
-        <AiSummarySection />
-        <AuthorInfoSection />
-      </Stack>
-    </Container>
+    <AiSummaryProvider>
+      <Container>
+        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
+          <Text component={"p"} variant="h4">
+            포트폴리오 상세
+          </Text>
+          <HeroSection />
+          <DescriptionSection />
+          <AiSummarySection />
+          <AuthorInfoSection />
+        </Stack>
+      </Container>
+    </AiSummaryProvider>
   );
 }
