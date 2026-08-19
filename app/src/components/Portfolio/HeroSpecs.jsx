@@ -1,5 +1,7 @@
 import { useSelector } from "react-redux";
 
+import ScrollContainer from "react-indiana-drag-scroll";
+
 import Text from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
@@ -25,27 +27,29 @@ export default function HeroSpecs({}) {
       sx={{ alignItems: "center", minWidth: "0px", maxWidth: "100%" }}
     >
       <HeroSpecsItem label="카테고리" noBox>
-        <Stack
+        <ScrollContainer
           component={"ul"}
-          direction="row"
-          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+          vertical={false}
+          hideScrollbars
+          style={{ display: "flex", gap: "8px", minWidth: "0px", width: "100%" }}
         >
           {categories?.map((c, idx) => (
             <TagChip key={idx} component={"li"} label={c.category} />
           ))}
-        </Stack>
+        </ScrollContainer>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="기술 스택" noBox>
-        <Stack
+        <ScrollContainer
           component={"ul"}
-          direction="row"
-          sx={{ gap: 1, overflow: "scroll", scrollbarWidth: "none", minWidth: "0px" }}
+          vertical={false}
+          hideScrollbars
+          style={{ display: "flex", gap: "8px", minWidth: "0px", width: "100%" }}
         >
           {techStacks?.map((ts, idx) => (
             <TagChip key={idx} component={"li"} label={ts.tech_stack} />
           ))}
-        </Stack>
+        </ScrollContainer>
       </HeroSpecsItem>
 
       <HeroSpecsItem label="배포 링크">
