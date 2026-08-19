@@ -296,8 +296,11 @@ export default function Signup() {
                   다음
                 </Button>
 
-                <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>
-                  이미 계정이 있으신가요? <Link to="/login">로그인</Link>
+                <Typography variant="body2" className={styles.loginText}>
+                  이미 계정이 있으신가요?{" "}
+                  <Link to="/login" className={styles.loginLink}>
+                    로그인
+                  </Link>
                 </Typography>
               </div>
             )}
