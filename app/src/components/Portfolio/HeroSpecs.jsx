@@ -50,16 +50,42 @@ export default function HeroSpecs({}) {
 
       <HeroSpecsItem label="배포 링크">
         <LinkIcon />
-        <MuiLink href={data?.deploy_url ?? ""} variant="body1" color="textPrimary" noWrap>
-          {data?.deploy_url ?? ""}
-        </MuiLink>
+        {data?.deploy_url ? (
+          <MuiLink
+            href={data?.deploy_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="body1"
+            color="textPrimary"
+            noWrap
+          >
+            {data?.deploy_url}
+          </MuiLink>
+        ) : (
+          <Text variant="body1" color="textDisabled">
+            -
+          </Text>
+        )}
       </HeroSpecsItem>
 
       <HeroSpecsItem label="Repo 주소">
         <CodeIcon />
-        <MuiLink href={data?.repository_url ?? ""} variant="body1" color="textPrimary" noWrap>
-          {data?.repository_url ?? ""}
-        </MuiLink>
+        {data?.repository_url ? (
+          <MuiLink
+            href={data?.repository_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="body1"
+            color="textPrimary"
+            noWrap
+          >
+            {data?.repository_url}
+          </MuiLink>
+        ) : (
+          <Text variant="body1" color="textDisabled">
+            -
+          </Text>
+        )}
       </HeroSpecsItem>
 
       <HeroSpecsItem label="담당 역할" half>
