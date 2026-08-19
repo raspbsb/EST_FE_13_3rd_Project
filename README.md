@@ -17,13 +17,13 @@ Portfolio+는 흩어진 개인 프로젝트를 단순 링크 모음이 아닌 **
 
 아래 역할은 저장소의 커밋 및 PR 이력에서 확인되는 작업 범위를 기준으로 정리했습니다. 실명 또는 개인 GitHub 주소가 이력만으로 확정되지 않는 경우 계정명/플레이스홀더로 표기했습니다.
 
-| 팀원 | 역할 | 주요 담당 | GitHub |
-|---|---|---|---|
-| Raspbsb | 포트폴리오 에디터·AI | 라우팅, Supabase 연동, 프로젝트 등록/수정, 이미지 관리, GitHub/AI Edge Function, SEO | [GitHub](https://github.com/raspbsb) |
-| 유태구 (rozer4heros) | 포트폴리오 상세·Home | 프로젝트 상세 화면, Hero/AI/작성자 섹션, 반응형 UI, Home | [GitHub 링크 입력] |
-| 맹예진 (rkskek8484-cell) | MyPage·Public Profile | 프로필/활동 통계, 컬렉션·북마크, 메시지·알림 UI, 모바일 프로필 내비게이션 | [GitHub 링크 입력] |
-| dhdpdms0712-oss | 인증 화면 | 로그인·회원가입 화면 및 반응형 스타일, 헤더 보완 | [GitHub 링크 입력] |
-| chae | Gallery | 갤러리 UI, 목록 조회·검색·필터·반응형 카드 처리 | [GitHub 링크 입력] |
+| 팀원   | 역할                  | 주요 담당                                                                            | GitHub                               |
+| ------ | --------------------- | ------------------------------------------------------------------------------------ | ------------------------------------ |
+| 배정호 | 포트폴리오 에디터·AI  | 라우팅, Supabase 연동, 프로젝트 등록/수정, 이미지 관리, GitHub/AI Edge Function, SEO | [https://github.com/raspbsb]         |
+| 유태구 | 포트폴리오 상세·Home  | 프로젝트 상세 화면, Hero/AI/작성자 섹션, 반응형 UI, Home                             | [https://github.com/rozer4heros]     |
+| 맹예진 | MyPage·Public Profile | 프로필/활동 통계, 컬렉션·북마크, 메시지·알림 UI, 모바일 프로필 내비게이션            | [https://github.com/rkskek8484-cell] |
+| 오예은 | 인증 화면             | 로그인·회원가입 화면 및 반응형 스타일, 헤더 보완                                     | [https://github.com/dhdpdms0712-oss] |
+| 강채희 | Gallery               | 갤러리 UI, 목록 조회·검색·필터·반응형 카드 처리                                      | [https://github.com/chae3110]        |
 
 ## 3. 주요 기능
 
@@ -100,24 +100,22 @@ Portfolio+는 흩어진 개인 프로젝트를 단순 링크 모음이 아닌 **
 └── *                                Not Found
 ```
 
-`/test/collections/:userId`는 현재 `App.jsx`에 남아 있는 테스트용 컬렉션 경로입니다.
-
 ## 5. 기술 스택
 
-| 기술 | 용도 |
-|---|---|
-| React 19 | 컴포넌트 기반 SPA UI |
-| Vite | 개발 서버 및 프로덕션 번들링 |
-| React Router DOM 7 | BrowserRouter 기반 페이지 라우팅 |
-| Redux Toolkit / React Redux | 사용자·갤러리·포트폴리오 전역 상태 |
-| Material UI / Emotion | UI 컴포넌트, 테마, breakpoint 기반 반응형 UI |
-| Sass / CSS Modules | 컴포넌트 스타일링 |
-| Supabase | Auth, PostgreSQL Data API, Storage, RPC, Edge Functions |
-| Supabase Edge Functions / Deno | GitHub 데이터 수집과 AI 분석·초안 생성 서버 로직 |
-| GitHub REST API | 저장소 메타데이터, README, 언어, 커밋, 파일 트리, 기여자 수집 |
-| Alan AI API | 프로젝트 분석 및 소개 초안 JSON 생성 |
-| @dnd-kit | 에디터 이미지 드래그 앤 드롭 정렬 |
-| React Helmet Async | SEO 메타·canonical·OG 태그 |
+| 기술                           | 용도                                                          |
+| ------------------------------ | ------------------------------------------------------------- |
+| React 19                       | 컴포넌트 기반 SPA UI                                          |
+| Vite                           | 개발 서버 및 프로덕션 번들링                                  |
+| React Router DOM 7             | BrowserRouter 기반 페이지 라우팅                              |
+| Redux Toolkit / React Redux    | 사용자·갤러리·포트폴리오 전역 상태                            |
+| Material UI / Emotion          | UI 컴포넌트, 테마, breakpoint 기반 반응형 UI                  |
+| Sass / CSS Modules             | 컴포넌트 스타일링                                             |
+| Supabase                       | Auth, PostgreSQL Data API, Storage, RPC, Edge Functions       |
+| Supabase Edge Functions / Deno | GitHub 데이터 수집과 AI 분석·초안 생성 서버 로직              |
+| GitHub REST API                | 저장소 메타데이터, README, 언어, 커밋, 파일 트리, 기여자 수집 |
+| Alan AI API                    | 프로젝트 분석 및 소개 초안 JSON 생성                          |
+| @dnd-kit                       | 에디터 이미지 드래그 앤 드롭 정렬                             |
+| React Helmet Async             | SEO 메타·canonical·OG 태그                                    |
 
 ## 6. 시스템 구조 / 데이터 흐름
 
@@ -175,19 +173,19 @@ flowchart LR
 
 저장소에 DB migration/DDL이 없으므로, 아래는 실제 Supabase 쿼리·관계 선택문에서 확인되는 테이블과 **코드 관찰 관계**입니다. PK/FK 제약 조건의 정확한 선언은 확인 필요입니다.
 
-| 테이블 | 코드에서 확인된 역할 |
-|---|---|
-| `profiles` | 사용자 이름, 아바타, 직군, 스킬 배열, 소개, 링크, 활동 공개 여부, 프로필 조회 수 |
-| `portfolios` | 프로젝트 본문, 작성자(`author_id`), 기간, 링크, 참여 정보, 공개 여부, 조회/좋아요 수 |
-| `portfolio_images` | 프로젝트 이미지 경로, 표시 순서, 썸네일 여부, 대체 텍스트 |
-| `portfolio_categories` | 프로젝트-카테고리 연결 |
-| `portfolio_tech_stacks` | 프로젝트-기술 스택 연결 |
-| `portfolio_ai_created` | GitHub 분석, 분석 근거, AI 초안, AI 짧은 요약 |
-| `portfolio_likes` | 사용자별 프로젝트 좋아요 |
-| `collections` | 사용자 소유 북마크 컬렉션 |
-| `bookmarks` | 사용자·프로젝트·컬렉션 연결 |
-| `messages` | 발신자, 수신자, 내용, 읽음 여부 |
-| `ai_action_cooldowns` | 사용자·액션·저장소 URL별 마지막 AI 요청 시각 |
+| 테이블                  | 코드에서 확인된 역할                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `profiles`              | 사용자 이름, 아바타, 직군, 스킬 배열, 소개, 링크, 활동 공개 여부, 프로필 조회 수     |
+| `portfolios`            | 프로젝트 본문, 작성자(`author_id`), 기간, 링크, 참여 정보, 공개 여부, 조회/좋아요 수 |
+| `portfolio_images`      | 프로젝트 이미지 경로, 표시 순서, 썸네일 여부, 대체 텍스트                            |
+| `portfolio_categories`  | 프로젝트-카테고리 연결                                                               |
+| `portfolio_tech_stacks` | 프로젝트-기술 스택 연결                                                              |
+| `portfolio_ai_created`  | GitHub 분석, 분석 근거, AI 초안, AI 짧은 요약                                        |
+| `portfolio_likes`       | 사용자별 프로젝트 좋아요                                                             |
+| `collections`           | 사용자 소유 북마크 컬렉션                                                            |
+| `bookmarks`             | 사용자·프로젝트·컬렉션 연결                                                          |
+| `messages`              | 발신자, 수신자, 내용, 읽음 여부                                                      |
+| `ai_action_cooldowns`   | 사용자·액션·저장소 URL별 마지막 AI 요청 시각                                         |
 
 ```mermaid
 erDiagram
@@ -221,15 +219,15 @@ erDiagram
 
 ## 11. 개발 일정 (Milestone)
 
-| 기간 | 단계 | 주요 내용 |
-|---|---|---|
-| 7/15 ~ 7/18 | 레퍼런스 조사 | Behance, Dribbble, GitHub, Pinterest, Cosmos, Awwwards 등 서비스 및 UI/UX 레퍼런스 조사 |
-| 7/18 ~ 7/24 | 세부 기획 및 스토리보드 제작 | 서비스 방향 구체화, 사용자 흐름 설계, 기능 정의, 주요 페이지 스토리보드 제작 |
-| 7/24 ~ 7/31 | Figma 디자인 작업 | Desktop 중심 UI 디자인 및 컴포넌트/레이아웃 설계, 반응형 디자인 |
-| 7/31 ~ 8/19 | 프로젝트 구현 | React + Supabase 기반 개발, 인증, Gallery, Portfolio, AI, MyPage, Public Profile 등 주요 기능 구현 |
-| 8/19 | 발표 리허설 | 프로젝트 전체 기능 시연 및 발표 리허설 |
-| 8/19 ~ 8/21 | 성능 최적화 및 리팩토링 | Lighthouse 기반 성능/SEO 개선, 이미지 lazy loading, 코드 정리, RLS 적용, 보안 및 최종 버그 점검 |
-| 8/21 | 최종 발표 | 프로젝트 최종 결과 발표 및 시연 |
+| 기간        | 단계                         | 주요 내용                                                                                          |
+| ----------- | ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| 7/15 ~ 7/18 | 레퍼런스 조사                | Behance, Dribbble, GitHub, Pinterest, Cosmos, Awwwards 등 서비스 및 UI/UX 레퍼런스 조사            |
+| 7/18 ~ 7/24 | 세부 기획 및 스토리보드 제작 | 서비스 방향 구체화, 사용자 흐름 설계, 기능 정의, 주요 페이지 스토리보드 제작                       |
+| 7/24 ~ 7/31 | Figma 디자인 작업            | Desktop 중심 UI 디자인 및 컴포넌트/레이아웃 설계, 반응형 디자인                                    |
+| 7/31 ~ 8/19 | 프로젝트 구현                | React + Supabase 기반 개발, 인증, Gallery, Portfolio, AI, MyPage, Public Profile 등 주요 기능 구현 |
+| 8/19        | 발표 리허설                  | 프로젝트 전체 기능 시연 및 발표 리허설                                                             |
+| 8/19 ~ 8/21 | 성능 최적화 및 리팩토링      | Lighthouse 기반 성능/SEO 개선, 이미지 lazy loading, 코드 정리, RLS 적용, 보안 및 최종 버그 점검    |
+| 8/21        | 최종 발표                    | 프로젝트 최종 결과 발표 및 시연                                                                    |
 
 ## 12. 실행 방법
 
@@ -265,13 +263,13 @@ npm run functions:serve
 
 값은 저장소에 포함하지 않습니다. `.env.example` 파일은 현재 확인되지 않았습니다.
 
-| 위치 | 변수 | 용도 |
-|---|---|---|
-| `app/.env.local` | `VITE_SUPABASE_URL` | Vite 클라이언트의 Supabase URL |
-| `app/.env.local` | `VITE_SUPABASE_PUBLISHABLE_KEY` | Vite 클라이언트의 Supabase publishable key |
-| `app/.env.local` | `VITE_SITE_URL` | canonical/OG URL의 사이트 기준 주소(미설정 시 placeholder 사용) |
-| `supabase/.env.local` | `GITHUB_TOKEN` | Edge Function의 GitHub REST API 요청 |
-| `supabase/.env.local` | `ALAN_API_KEYS` | 쉼표로 구분한 Alan AI API key 목록 |
+| 위치                  | 변수                            | 용도                                                            |
+| --------------------- | ------------------------------- | --------------------------------------------------------------- |
+| `app/.env.local`      | `VITE_SUPABASE_URL`             | Vite 클라이언트의 Supabase URL                                  |
+| `app/.env.local`      | `VITE_SUPABASE_PUBLISHABLE_KEY` | Vite 클라이언트의 Supabase publishable key                      |
+| `app/.env.local`      | `VITE_SITE_URL`                 | canonical/OG URL의 사이트 기준 주소(미설정 시 placeholder 사용) |
+| `supabase/.env.local` | `GITHUB_TOKEN`                  | Edge Function의 GitHub REST API 요청                            |
+| `supabase/.env.local` | `ALAN_API_KEYS`                 | 쉼표로 구분한 Alan AI API key 목록                              |
 
 ## 14. 배포
 
