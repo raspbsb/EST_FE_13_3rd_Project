@@ -41,7 +41,12 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(aiAnalysisResult.analyzedAt, ANALYZE_COOLDOWN_MS);
+  // 서버가 응답에 실어 보낸 실제 쿨타임 길이를 우선 쓰고, 아직 한 번도 분석한 적 없어 서버 값이 없을 때만
+  // 프론트 기본값(ANALYZE_COOLDOWN_MS)으로 표시한다.
+  const cooldownRemainingMs = getAiCooldownRemainingMs(
+    aiAnalysisResult.analyzedAt,
+    aiAnalysisResult.cooldownMs ?? ANALYZE_COOLDOWN_MS,
+  );
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {

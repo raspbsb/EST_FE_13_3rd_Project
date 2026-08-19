@@ -1,6 +1,8 @@
 // GitHub 저장소 분석 / 초안 생성 버튼에 공통으로 쓰는 쿨타임 유틸 모듈
 
-// 분석/초안 생성 완료 후 재실행까지 기다려야 하는 시간. 서버(_shared/cooldown.ts)의 값과 반드시 맞춰야 한다.
+// 분석/초안 생성 완료 후 재실행까지 기다려야 하는 시간의 기본값(fallback).
+// 실제 쿨타임 길이는 analyze/draft 응답의 cooldownMs로 서버가 내려주고, 화면은 그 값을 우선 사용한다.
+// 이 상수는 DB에서 불러온 기존 분석/초안 결과처럼 아직 서버 cooldownMs를 받은 적 없는 경우에만 fallback으로 쓰인다.
 export const ANALYZE_COOLDOWN_MS = 30 * 60 * 1000;
 export const DRAFT_COOLDOWN_MS = 10 * 60 * 1000;
 
