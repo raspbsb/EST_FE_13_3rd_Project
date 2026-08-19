@@ -26,7 +26,6 @@ const stringToColumnName = (sortBy = "created_at") => {
 
     // 예외 처리
     default:
-      console.warn('Invalid value for function "stringToColumnName()": ', sortBy);
       return "created_at";
   }
 };
@@ -95,7 +94,6 @@ function buildPortfolioQuery({
 
   // fetch 범위
   if (rangeFrom > rangeTo) {
-    console.error("rangeFrom은 rangeTo보다 클 수 없습니다!");
     query = query.range(rangeFrom, rangeFrom);
   } else {
     query = query.range(rangeFrom, rangeTo);
@@ -229,17 +227,11 @@ const gallerySlice = createSlice({
       state.featured.status = error ? "failed" : data?.length > 0 ? "succeeded" : "notFound";
 
       state.featured.data = data ?? [];
-
-      if (error) {
-        console.warn(error);
-      }
     });
 
     builder.addCase(fetchFeaturedPortfolios.rejected, (state, action) => {
       state.featured.status = "failed";
       state.featured.error = action.error;
-
-      console.error(state.featured.error);
     });
 
     builder.addCase(fetchPortfolios.pending, state => {
@@ -257,17 +249,11 @@ const gallerySlice = createSlice({
 
       state.data = formattedData;
       state.count = count ?? 0;
-
-      if (error) {
-        console.warn(error);
-      }
     });
 
     builder.addCase(fetchPortfolios.rejected, (state, action) => {
       state.status = "failed";
       state.error = action.error;
-
-      console.error(state.error);
     });
     builder.addCase(fetchMorePortfolios.fulfilled, (state, action) => {
       const { data, error, count } = action.payload;
@@ -277,16 +263,10 @@ const gallerySlice = createSlice({
 
         state.data.push(...formattedData);
       }
-
-      if (error) {
-        console.warn(error);
-      }
     });
 
     builder.addCase(fetchMorePortfolios.rejected, (state, action) => {
       state.error = action.error;
-
-      console.error(state.error);
     });
   },
 });
