@@ -442,7 +442,6 @@ export default function Home() {
                 fullWidth
                 size="small"
                 placeholder="탐색을 시작하세요"
-                aria-label="포트폴리오 검색"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 slotProps={{
@@ -458,6 +457,9 @@ export default function Home() {
                         />
                       </InputAdornment>
                     ),
+                  },
+                  htmlInput: {
+                    "aria-label": "포트폴리오 검색",
                   },
                 }}
                 sx={{
