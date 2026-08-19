@@ -253,6 +253,8 @@ const createEditorAiAnalysisResult = aiCreated => ({
   analysisLimitation: aiCreated.analysis_limitation ?? "",
   analysisEvidence: aiCreated.analysis_evidence ?? null,
   analyzedAt: aiCreated.github_analyzed_at ?? "",
+  // DB에는 쿨타임 길이를 저장하지 않으므로, 새로 분석하기 전까지는 프론트 기본값(ANALYZE_COOLDOWN_MS)으로 표시한다.
+  cooldownMs: null,
 });
 
 // DB에서 가져온 portfolio_ai_created row를 초안 가이드 상태 구조로 변환
@@ -263,6 +265,8 @@ const createEditorDraftGuide = aiCreated => ({
   generatedAt: aiCreated.draft_generated_at ?? "",
   appliedDescriptionSource: "",
   isSummaryApplied: Boolean(aiCreated.ai_short_summary),
+  // DB에는 쿨타임 길이를 저장하지 않으므로, 새로 생성하기 전까지는 프론트 기본값(DRAFT_COOLDOWN_MS)으로 표시한다.
+  cooldownMs: null,
 });
 
 // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
@@ -343,6 +347,7 @@ export default function PortfolioEditor({ data }) {
     participationDetails: "",
     analysisLimitation: "",
     analysisEvidence: null,
+    cooldownMs: null,
   });
 
   // AI 초안 생성 저장 데이터 상태 객체
@@ -353,6 +358,7 @@ export default function PortfolioEditor({ data }) {
     generatedAt: "",
     appliedDescriptionSource: "",
     isSummaryApplied: false,
+    cooldownMs: null,
   });
 
   // 화면 동작 관리용 상태 객체
@@ -827,6 +833,7 @@ export default function PortfolioEditor({ data }) {
         ...prev,
         ...data.aiAnalysisResult,
         analyzedAt: data.analyzedAt,
+        cooldownMs: data.cooldownMs,
       }));
     } catch (error) {
       notify(await getEdgeFunctionErrorMessage(error), "error");
@@ -872,6 +879,7 @@ export default function PortfolioEditor({ data }) {
         aiDraftDescription: data.draftGuideResult.draftDescription,
         aiShortSummary: data.draftGuideResult.shortSummary,
         generatedAt: data.generatedAt,
+        cooldownMs: data.cooldownMs,
         appliedDescriptionSource: "current",
         isSummaryApplied: false,
       }));

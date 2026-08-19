@@ -5,7 +5,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
-import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
+import { assertCooldownReady, COOLDOWN_MS_BY_ACTION, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import {
   collectGithubRepositoryData,
   GithubApiError,
@@ -170,7 +170,13 @@ export default {
       // 성공했을 때만 쿨타임을 시작시킨다 (실패한 시도까지 쿨타임을 소모시키지 않기 위해).
       await markCooldownStart(ctx.supabase, userId, "analyze", cooldownScope);
 
-      return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
+      return Response.json({
+        githubData,
+        aiAnalysisResult,
+        alanUsage,
+        analyzedAt,
+        cooldownMs: COOLDOWN_MS_BY_ACTION.analyze,
+      });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });
