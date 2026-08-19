@@ -48,7 +48,7 @@ export default function ContactSection() {
         <Text component="p">관심 & 연락을 불러오는 중...</Text>
       ) : (
         <List>
-          {notifications.map(item => (
+          {notifications.slice(0, 5).map(item => (
             <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
           ))}
         </List>
