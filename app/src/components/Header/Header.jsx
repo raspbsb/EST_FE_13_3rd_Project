@@ -1,3 +1,4 @@
+// app/src/components/Header/Header.jsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   AppBar,
@@ -16,32 +17,50 @@ import {
   Divider,
   Typography as MuiTypography,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useSelector } from "react-redux";
 
 import { HEADER_AUTH_PATHS, HEADER_NAV_ITEMS } from "../../constants/header";
 import styles from "./Header.module.css";
 
 /**
- * Header with hover / click profile menu
+ * Responsive Header:
+ * - Desktop: logo left, tabs centered, avatar right
+ * - Mobile: hamburger left, logo centered, avatar right
+ *
+ * Profile displayName: prefer profiles.user_name (from Redux). Fallbacks to user metadata or email.
  */
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // mobile breakpoint
   const currentTab = ["/", "/gallery", "/portfolios/new", "/mypage"].includes(location.pathname)
     ? location.pathname
     : false;
 
+  // Auth user from supabase (contains email, user_metadata)
   const [user, setUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null); // anchor for menu
+  const [anchorEl, setAnchorEl] = useState(null); // profile menu anchor
   const menuOpen = Boolean(anchorEl);
   const avatarBtnRef = useRef(null);
+
+  // Mobile nav menu anchor
+  const [mobileNavAnchor, setMobileNavAnchor] = useState(null);
+  const mobileNavOpen = Boolean(mobileNavAnchor);
+
+  // Redux: fetch stored profile (fetchUser action should populate this earlier)
+  const reduxUser = useSelector(state => state.user.user);
+  const profileFromStore = reduxUser?.profile ?? null;
 
   useEffect(() => {
     let mounted = true;
@@ -75,7 +94,11 @@ export default function Header() {
   }, []);
 
   const isLoggedIn = !!user;
+
+  // displayName resolution: prefer profile.user_name from profiles table (Redux),
+  // then fallback to user metadata fields, then email.
   const displayName =
+    profileFromStore?.user_name ||
     user?.user_metadata?.name ||
     user?.user_metadata?.full_name ||
     user?.user_metadata?.displayName ||
@@ -83,11 +106,10 @@ export default function Header() {
     "User";
   const displayEmail = user?.email || "";
 
-  // open menu (hover or click)
+  // Profile menu handlers
   const handleOpenMenu = event => {
     setAnchorEl(event.currentTarget);
   };
-  // close menu
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -95,7 +117,6 @@ export default function Header() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
-      // onAuthStateChange will clear user and menu; optionally navigate home
       navigate("/", { replace: true });
     } catch (err) {
       console.error("Sign out failed", err);
@@ -114,125 +135,213 @@ export default function Header() {
     navigate("/mypage");
   };
 
+  // Mobile nav handlers
+  const openMobileNav = event => {
+    setMobileNavAnchor(event.currentTarget);
+  };
+  const closeMobileNav = () => {
+    setMobileNavAnchor(null);
+  };
+  const handleMobileNavClick = path => {
+    closeMobileNav();
+    navigate(path);
+  };
+
   return (
     <AppBar position="sticky" color="inherit" elevation={1}>
-      <Toolbar disableGutters sx={{ maxWidth: 1272, width: "100%", mx: "auto", position: "relative" }}>
-        {/* 1. 좌측: 로고 */}
-        <Typography
-          variant="h6"
-          component={Link}
-          to="/"
-          sx={{ fontWeight: "bold", color: "primary.main", textDecoration: "none", ml: 2 }}
-        >
-          Portfolio+
-        </Typography>
+      <Toolbar
+        disableGutters
+        sx={{ maxWidth: 1272, width: "100%", mx: "auto", position: "relative", px: { xs: 1, sm: 2 } }}
+      >
+        {isMobile ? (
+          // Mobile layout: hamburger | centered logo | avatar
+          <>
+            <IconButton aria-label="menu" onClick={openMobileNav} size="large" sx={{ ml: 1 }}>
+              <MenuIcon />
+            </IconButton>
 
-        {/* 2. 중앙: Tabs */}
-        <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
-          <Tabs value={currentTab} textColor="primary" indicatorColor="primary">
-            <Tab disableRipple label="Home" component={Link} to="/" value="/" />
-            <Tab disableRipple label="Gallery" component={Link} to="/gallery" value="/gallery" />
-            <Tab disableRipple label="Upload" component={Link} to="/portfolios/new" value="/portfolios/new" />
-            <Tab disableRipple label="MyPage" component={Link} to="/mypage" value="/mypage" />
-          </Tabs>
-        </Box>
-
-        {/* 3. 우측: 로그인 / 회원가입 또는 프로필 + 메뉴 */}
-        <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1, pr: 2 }}>
-          {isLoggedIn ? (
-            <>
-              <IconButton
-                ref={avatarBtnRef}
-                aria-controls={menuOpen ? "profile-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={menuOpen ? "true" : undefined}
-                onClick={e => (menuOpen ? handleCloseMenu() : handleOpenMenu(e))}
-                onMouseEnter={handleOpenMenu}
-                size="large"
-                sx={{ p: 0 }}
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+              <Typography
+                variant="h6"
+                component={Link}
+                to="/"
+                sx={{ fontWeight: "bold", color: "primary.main", textDecoration: "none" }}
               >
-                {avatarUrl ? (
-                  <Avatar src={avatarUrl} alt="프로필" sx={{ width: 40, height: 40 }} />
-                ) : (
-                  <Avatar sx={{ width: 40, height: 40 }}>
-                    <AccountCircleIcon />
-                  </Avatar>
-                )}
-              </IconButton>
+                Portfolio+
+              </Typography>
+            </Box>
 
-              <Menu
-                id="profile-menu"
-                anchorEl={anchorEl}
-                open={menuOpen}
-                onClose={handleCloseMenu}
-                disableScrollLock
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-                slotProps={{
-                  list: {
-                    onMouseLeave: handleCloseMenu,
-                    "aria-labelledby": "profile-avatar",
-                  },
-                  paper: {
-                    elevation: 4,
-                    sx: {
-                      mt: 1,
-                      minWidth: 220,
-                      borderRadius: 1,
-                      overflow: "hidden",
-                    },
-                  },
-                }}
-              >
-                {/* Top user info */}
-                <Box sx={{ px: 2, py: 1.25 }}>
-                  <MuiTypography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {displayName}
-                  </MuiTypography>
-                  {displayEmail && (
-                    <MuiTypography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
-                      {displayEmail}
-                    </MuiTypography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mr: 1 }}>
+              {isLoggedIn ? (
+                <IconButton
+                  ref={avatarBtnRef}
+                  aria-controls={menuOpen ? "profile-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={menuOpen ? "true" : undefined}
+                  onClick={e => (menuOpen ? handleCloseMenu() : handleOpenMenu(e))}
+                  size="large"
+                  sx={{ p: 0 }}
+                >
+                  {avatarUrl ? (
+                    <Avatar src={avatarUrl} alt="프로필" sx={{ width: 40, height: 40 }} />
+                  ) : (
+                    <Avatar sx={{ width: 40, height: 40 }}>
+                      <AccountCircleIcon />
+                    </Avatar>
                   )}
-                </Box>
+                </IconButton>
+              ) : (
+                <>
+                  <Button
+                    component={Link}
+                    to={HEADER_AUTH_PATHS.login}
+                    variant="outlined"
+                    color="primary"
+                    sx={{ mr: 1 }}
+                  >
+                    로그인
+                  </Button>
+                  <Button component={Link} to={HEADER_AUTH_PATHS.signup} variant="contained" color="primary">
+                    회원가입
+                  </Button>
+                </>
+              )}
+            </Box>
 
-                <Divider />
-
-                <MenuItem onClick={handleSettings}>
-                  <ListItemIcon>
-                    <SettingsIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Settings</ListItemText>
+            {/* Mobile nav menu */}
+            <Menu
+              anchorEl={mobileNavAnchor}
+              open={mobileNavOpen}
+              onClose={closeMobileNav}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+            >
+              {HEADER_NAV_ITEMS.map(item => (
+                <MenuItem
+                  key={item.path}
+                  onClick={() => handleMobileNavClick(item.path)}
+                  component={Link}
+                  to={item.path}
+                >
+                  {item.label}
                 </MenuItem>
+              ))}
+            </Menu>
+          </>
+        ) : (
+          // Desktop layout: logo left, tabs centered, avatar right
+          <>
+            <Typography
+              variant="h6"
+              component={Link}
+              to="/"
+              sx={{ fontWeight: "bold", color: "primary.main", textDecoration: "none", ml: 2 }}
+            >
+              Portfolio+
+            </Typography>
 
-                <MenuItem onClick={handleProfile}>
-                  <ListItemIcon>
-                    <PersonOutlinedIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Profile</ListItemText>
-                </MenuItem>
+            <Box sx={{ position: "absolute", left: "50%", transform: "translateX(-50%)" }}>
+              <Tabs value={currentTab} textColor="primary" indicatorColor="primary">
+                <Tab disableRipple label="Home" component={Link} to="/" value="/" />
+                <Tab disableRipple label="Gallery" component={Link} to="/gallery" value="/gallery" />
+                <Tab disableRipple label="Upload" component={Link} to="/portfolios/new" value="/portfolios/new" />
+                <Tab disableRipple label="MyPage" component={Link} to="/mypage" value="/mypage" />
+              </Tabs>
+            </Box>
 
-                <Divider />
+            <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1, pr: 2 }}>
+              {isLoggedIn ? (
+                <>
+                  <IconButton
+                    ref={avatarBtnRef}
+                    aria-controls={menuOpen ? "profile-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={menuOpen ? "true" : undefined}
+                    onClick={e => (menuOpen ? handleCloseMenu() : handleOpenMenu(e))}
+                    onMouseEnter={handleOpenMenu}
+                    size="large"
+                    sx={{ p: 0 }}
+                  >
+                    {avatarUrl ? (
+                      <Avatar src={avatarUrl} alt="프로필" sx={{ width: 40, height: 40 }} />
+                    ) : (
+                      <Avatar sx={{ width: 40, height: 40 }}>
+                        <AccountCircleIcon />
+                      </Avatar>
+                    )}
+                  </IconButton>
 
-                <MenuItem onClick={handleSignOut}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Sign Out</ListItemText>
-                </MenuItem>
-              </Menu>
-            </>
-          ) : (
-            <>
-              <Button component={Link} to={HEADER_AUTH_PATHS.login} variant="outlined" color="primary">
-                로그인
-              </Button>
-              <Button component={Link} to={HEADER_AUTH_PATHS.signup} variant="contained" color="primary">
-                회원가입
-              </Button>
-            </>
-          )}
-        </Box>
+                  <Menu
+                    id="profile-menu"
+                    anchorEl={anchorEl}
+                    open={menuOpen}
+                    onClose={handleCloseMenu}
+                    MenuListProps={{
+                      onMouseLeave: handleCloseMenu,
+                      "aria-labelledby": "profile-avatar",
+                    }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    PaperProps={{
+                      elevation: 4,
+                      sx: {
+                        mt: 1,
+                        minWidth: 220,
+                        borderRadius: 1,
+                        overflow: "hidden",
+                      },
+                    }}
+                  >
+                    <Box sx={{ px: 2, py: 1.25 }}>
+                      <MuiTypography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        {displayName}
+                      </MuiTypography>
+                      {displayEmail && (
+                        <MuiTypography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                          {displayEmail}
+                        </MuiTypography>
+                      )}
+                    </Box>
+
+                    <Divider />
+
+                    <MenuItem onClick={handleSettings}>
+                      <ListItemIcon>
+                        <SettingsIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Settings</ListItemText>
+                    </MenuItem>
+
+                    <MenuItem onClick={handleProfile}>
+                      <ListItemIcon>
+                        <PersonOutlinedIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Profile</ListItemText>
+                    </MenuItem>
+
+                    <Divider />
+
+                    <MenuItem onClick={handleSignOut}>
+                      <ListItemIcon>
+                        <LogoutIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Sign Out</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </>
+              ) : (
+                <>
+                  <Button component={Link} to={HEADER_AUTH_PATHS.login} variant="outlined" color="primary">
+                    로그인
+                  </Button>
+                  <Button component={Link} to={HEADER_AUTH_PATHS.signup} variant="contained" color="primary">
+                    회원가입
+                  </Button>
+                </>
+              )}
+            </Box>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

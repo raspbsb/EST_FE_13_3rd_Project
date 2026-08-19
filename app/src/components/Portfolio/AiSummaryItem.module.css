@@ -1,4 +1,5 @@
 dt.ai-summary-item-title {
+  padding-left: 8px;
   display: flex;
   flex-direction: row;
   gap: 8px;

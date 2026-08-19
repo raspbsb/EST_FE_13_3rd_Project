@@ -93,7 +93,7 @@ export default function BookmarkSection() {
         </Link>
       </Box>
       <List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {collections.map(c => (
+        {collections.slice(0, 3).map(c => (
           <BookmarkCard
             key={c.id}
             title={c.title}

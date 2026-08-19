@@ -24,9 +24,19 @@ export default function HeroImage({}) {
 
   if (!images || images.length <= 0) {
     return (
-      <Text component={"p"} color="textDisabled" variant="h6" align="center">
-        등록된 이미지가 없습니다.
-      </Text>
+      <Box component={"div"} className={`${styles["hero-image-section-container"]}`}>
+        <Box component={"div"} className={`${styles["hero-image-selected-wrapper"]}`}>
+          <Text
+            component={"p"}
+            color="textDisabled"
+            variant="h6"
+            align="center"
+            className={`${styles["hero-image-not-found"]}`}
+          >
+            등록된 이미지가 없습니다.
+          </Text>
+        </Box>
+      </Box>
     );
   }
 

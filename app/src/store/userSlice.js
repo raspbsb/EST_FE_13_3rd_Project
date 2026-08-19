@@ -2,25 +2,23 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supabase } from "../utils/supabase";
 
 export const fetchUser = createAsyncThunk("user", async () => {
-  const result = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = result;
-
-  // 로그인하지 않은 경우
-  if (!user) {
+  // 로그인하지 않은 경우 (세션 없음)
+  if (error || !data?.user) {
     return {
-      ...result,
+      user: null,
       profile: null,
     };
   }
+
+  const user = data.user;
 
   // profiles 조회
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*, collections(*)")
-    .eq("user_id", user.id)
+    .eq("user_id", user.id) // DB 트리거 기준 id 컬럼과 매칭
     .maybeSingle();
 
   if (profileError) {
@@ -28,7 +26,7 @@ export const fetchUser = createAsyncThunk("user", async () => {
   }
 
   return {
-    ...result,
+    user,
     profile,
   };
 });
@@ -55,32 +53,22 @@ const userSlice = createSlice({
     });
 
     builder.addCase(fetchUser.fulfilled, (state, action) => {
-      const {
-        data: { user },
-        error,
-        profile,
-      } = action.payload;
+      const { user, profile } = action.payload;
 
       state.user = user ? { id: user.id, email: user.email, profile } : null;
-
-      // 사용자 정보가 없어서 에러가 발생한 경우에도 성공으로 처리
-      if (!error || error.name.includes("AuthSessionMissing")) {
-        state.status = "succeeded";
-        state.error = null;
-      } else {
-        state.error = error;
-        state.status = "failed";
-        console.warn(error);
-      }
+      state.status = "succeeded";
+      state.error = null;
     });
+
     builder.addCase(fetchUser.rejected, (state, action) => {
       state.status = "failed";
-      state.error = action.error;
+      state.error = action.error.message || "사용자 정보를 불러오는데 실패했습니다.";
 
-      console.error(state.error);
+      console.error(action.error);
     });
   },
 });
+
 export const { updateProfile } = userSlice.actions;
 
 export default userSlice.reducer;
