@@ -1,5 +1,6 @@
 .project-card {
   width: 100%;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
@@ -68,9 +69,12 @@
   &-skills {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     gap: 6px;
     min-width: 0;
     flex: 1;
+    height: 46px;
+    overflow: hidden;
 
     .MuiChip-root {
       height: 20px;
@@ -94,6 +98,7 @@
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
+    margin-top: 8px;
   }
 
   &-title {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
 import ProjectCard from "../ProjectCard";
@@ -10,6 +11,9 @@ import Text from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
 export default function MyProjectsSection({ mode }) {
+  const { user } = useSelector(state => state.user);
+  const currentUserId = user?.id ?? null;
+
   const { userId: profileUserId } = useParams();
 
   const { profile } = useOutletContext();
@@ -56,7 +60,7 @@ export default function MyProjectsSection({ mode }) {
         .limit(3);
 
       // Public Profile에서는 공개 프로젝트만 조회
-      if (mode === "public") {
+      if (mode === "public" && currentUserId !== profileUserId) {
         query = query.eq("is_public", true);
       }
 
@@ -84,7 +88,11 @@ export default function MyProjectsSection({ mode }) {
       component="section"
       className={styles.section}
       sx={{
-        pt: 9,
+        pt: {
+          mobile: 4,
+          tablet: 6,
+          desktop: 9,
+        },
       }}
     >
       <Box className={styles.header} sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>

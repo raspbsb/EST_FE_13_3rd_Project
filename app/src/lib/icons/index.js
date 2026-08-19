@@ -12,6 +12,8 @@ export { default as DropDownIcon } from "@mui/icons-material/ArrowDropDown";
 export { default as DropUpIcon } from "@mui/icons-material/ArrowDropUp";
 export { default as PublicIcon } from "@mui/icons-material/Public";
 export { default as LockIcon } from "@mui/icons-material/Lock";
+export { default as LockOpenIcon } from "@mui/icons-material/LockOpenOutlined";
+export { default as DeleteIcon } from "@mui/icons-material/DeleteOutlineOutlined";
 export { default as ErrorTriangleIcon } from "@mui/icons-material/ReportProblemOutlined";
 export { default as CalendarIcon } from "@mui/icons-material/CalendarMonthOutlined";
 export { default as AwesomeIcon } from "@mui/icons-material/AutoAwesomeOutlined";

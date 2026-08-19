@@ -17,7 +17,7 @@ export default function HeroSection({}) {
           tablet: `"i h" "i m" "i s" "i a"`,
           desktop: `"i h" "i m" "i s" "i a"`,
         },
-        gridTemplateColumns: { mobile: "1fr", tablet: "3fr 5fr", desktop: "1fr 2fr" },
+        gridTemplateColumns: { mobile: "1fr", tablet: "1fr 1fr", desktop: "1fr 2fr" },
         rowGap: 2,
         columnGap: 3,
         position: "relative",
@@ -25,7 +25,16 @@ export default function HeroSection({}) {
         maxWidth: "100%",
       }}
     >
-      <Box sx={{ gridArea: "i", minWidth: "0px", maxWidth: "100%", height: "100%" }}>
+      <Box
+        sx={{
+          gridArea: "i",
+          minWidth: "0px",
+          maxWidth: "100%",
+          minHeight: "0px",
+          height: "100%",
+          display: "flex",
+        }}
+      >
         <HeroImage />
       </Box>
       <Box sx={{ gridArea: "h", minWidth: "0px", maxWidth: "100%" }}>

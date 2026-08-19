@@ -10,9 +10,9 @@ import Box from "@mui/material/Box";
 import Text from "@mui/material/Typography";
 
 export default function MyProjects({ mode }) {
-  // const [currentUserId, setCurrentUserId] = useState(null);
   const { user } = useSelector(state => state.user);
   const currentUserId = user?.id ?? null;
+
   const [collectionExists, setCollectionExists] = useState(true);
 
   const { userId: profileUserId, collectionId } = useParams();
@@ -22,19 +22,6 @@ export default function MyProjects({ mode }) {
   const [loading, setLoading] = useState(true);
 
   const targetUserId = mode === "public" ? profileUserId : profile?.user_id;
-
-  //auth user 가져오기
-  // useEffect(() => {
-  //   const getCurrentUser = async () => {
-  //     const {
-  //       data: { user },
-  //     } = await supabase.auth.getUser();
-
-  //     setCurrentUserId(user?.id ?? null);
-  //   };
-
-  //   getCurrentUser();
-  // }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -72,7 +59,7 @@ export default function MyProjects({ mode }) {
 
         setCollectionExists(true);
 
-        // 북마크 조회
+        // 컬렉션에 포함된 북마크 프로젝트 조회
         const { data, error } = await supabase
           .from("bookmarks")
           .select(
@@ -146,7 +133,7 @@ export default function MyProjects({ mode }) {
         .eq("author_id", targetUserId)
         .order("created_at", { ascending: false });
 
-      // Public Profile에서는 공개 프로젝트만 조회
+      // 다른 사람의 Public Profile에서는 공개 프로젝트만 조회
       if (mode === "public" && currentUserId !== profileUserId) {
         query = query.eq("is_public", true);
       }
@@ -175,7 +162,7 @@ export default function MyProjects({ mode }) {
 
   return (
     <Box component="section" className={styles.section}>
-      <Text component="h2" variant="h6" className={styles.title}>
+      <Text component="h2" variant="h6" className={styles.title} sx={{ mb: 3 }}>
         {mode === "mypage"
           ? "내 프로젝트"
           : mode === "collection"

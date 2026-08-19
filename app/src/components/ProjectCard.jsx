@@ -46,20 +46,18 @@ export default function ProjectCard({ project }) {
           <div className="project-card-thumbnail-placeholder">이미지 없음</div>
         )}
 
-        {project.project_type === "Team" && <span className="project-card-type">Team</span>}
+        {project.project_type === "team" && <span className="project-card-type">Team</span>}
       </div>
 
       {/* 카드 내용 */}
       <div className="project-card-content">
-        {/* 기술 스택 + 난이도 */}
+        {/* 기술 스택 */}
         <div className="project-card-top">
           <div className="project-card-skills">
             {project.portfolio_tech_stacks?.map(({ tech_stack }) => (
               <TagChip key={tech_stack} label={tech_stack} />
             ))}
           </div>
-
-          <span className="project-card-project-level">{/* 프로젝트 난이도 */}중</span>
         </div>
 
         {/* 제목 + 날짜 */}
@@ -89,7 +87,8 @@ export default function ProjectCard({ project }) {
 
           <div className="project-card-stats">
             <span className="project-card-like">
-              <FavoriteBorderIcon />0
+              <FavoriteBorderIcon />
+              {project.likes_count ?? 0}
             </span>
 
             <span className="project-card-view">

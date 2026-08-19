@@ -329,44 +329,39 @@
   background-color: #fbfcfd;
   opacity: 0.6;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__list.MuiStack-root) {
+/* 아래 임시저장 목록 다이얼로그 규칙들은 .page 조상 없이 클래스명만으로 선택한다.
+   MUI Dialog는 실제 DOM에서 document.body 하위로 Portal 렌더링되어 .page의 자손이 아니게 되고,
+   .page에서 정의한 CSS 변수도 상속되지 않아 :global(.portfolio-editor-temporary-draft-dialog__*) 형태로만 써야 한다. */
+:global(.portfolio-editor-temporary-draft-dialog__list.MuiStack-root) {
   padding-top: 4px;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__item.MuiStack-root) {
+:global(.portfolio-editor-temporary-draft-dialog__item.MuiStack-root) {
   width: 100%;
   align-items: stretch;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__apply-button.MuiButton-root) {
+:global(.portfolio-editor-temporary-draft-dialog__apply-button.MuiButton-root) {
   flex: 1 1 auto;
   justify-content: flex-start;
   min-width: 0;
-  border-color: var(--portfolio-border);
+  border-color: #c2c6d8;
   border-radius: 8px;
   padding: 12px;
   text-align: left;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__delete-button.MuiButton-root) {
-  flex: 0 0 auto;
-  min-width: 64px;
-  border-radius: 8px;
-}
-.page :global(.portfolio-editor-temporary-draft-dialog__item-text.MuiBox-root) {
-  display: flex;
+:global(.portfolio-editor-temporary-draft-dialog__item-text.MuiStack-root) {
   min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  flex: 1 1 auto;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__item-title.MuiTypography-root) {
-  color: var(--portfolio-text-primary);
+:global(.portfolio-editor-temporary-draft-dialog__item-title.MuiTypography-root) {
+  color: #212121;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 20px;
 }
-.page :global(.portfolio-editor-temporary-draft-dialog__item-date.MuiTypography-root) {
-  color: var(--portfolio-text-secondary);
+:global(.portfolio-editor-temporary-draft-dialog__item-date.MuiTypography-root) {
+  color: #757575;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 16px;
 }
 @media (max-width: 767px) {
@@ -434,6 +429,10 @@
   border: 2px dashed #8d99ae;
   border-radius: 8px;
   background-color: var(--portfolio-surface);
+}
+.page :global(.portfolio-editor-image-section__dropzone--active.MuiButtonBase-root) {
+  border-color: var(--portfolio-primary, #0d6efd);
+  background-color: rgba(13, 110, 253, 0.06);
 }
 .page :global(.portfolio-editor-image-section__dropzone .MuiSvgIcon-root) {
   color: var(--portfolio-text-primary);

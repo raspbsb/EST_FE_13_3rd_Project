@@ -9,7 +9,7 @@ import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { CancelIcon, CloudUploadIcon } from "../../lib/icons";
 import ImageActionButton from "./ImageActionButton";
 import SortableImageItem from "./SortableImageItem";
-import { memo, useRef } from "react";
+import { memo, useRef, useState } from "react";
 
 function ImageAttachmentSection({
   sectionCardSx,
@@ -21,6 +21,8 @@ function ImageAttachmentSection({
   onMoveImage,
 }) {
   const fileInputRef = useRef(null);
+  // 드래그로 파일을 끌고 오는 중인지 표시해 드롭존 테두리를 강조한다.
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   // 대표 이미지는 큰 미리보기로 표시하고, 나머지 이미지만 드래그 정렬 대상으로 사용한다.
   const sortedImages = [...images].sort((a, b) => a.order - b.order);
@@ -62,11 +64,11 @@ function ImageAttachmentSection({
   return (
     <Paper className="portfolio-editor-image-section" elevation={0} sx={sectionCardSx}>
       <Stack className="portfolio-editor-image-section__header" direction="row">
-        <Text component="h2" variant="h5" fontWeight={700}>
+        <Text component="h2" variant="h5" sx={{ fontWeight: 700 }}>
           이미지 첨부
         </Text>
 
-        <Text className="portfolio-editor-image-section__limit" color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__limit" color="text.secondary" sx={{ fontSize: 12 }}>
           최대 5
         </Text>
       </Stack>
@@ -85,7 +87,9 @@ function ImageAttachmentSection({
       />
 
       <ButtonBase
-        className="portfolio-editor-image-section__dropzone"
+        className={`portfolio-editor-image-section__dropzone${
+          isDraggingOver ? " portfolio-editor-image-section__dropzone--active" : ""
+        }`}
         disabled={isImageLimitReached}
         aria-label={isImageLimitReached ? "이미지는 최대 5장까지 업로드할 수 있습니다" : "이미지 파일 업로드"}
         aria-describedby="portfolio-image-upload-help portfolio-image-upload-count"
@@ -93,11 +97,23 @@ function ImageAttachmentSection({
           if (isImageLimitReached) return;
           fileInputRef.current?.click();
         }}
+        onDragOver={e => {
+          if (isImageLimitReached) return;
+          e.preventDefault();
+          setIsDraggingOver(true);
+        }}
+        onDragLeave={() => setIsDraggingOver(false)}
+        onDrop={e => {
+          e.preventDefault();
+          setIsDraggingOver(false);
+          if (isImageLimitReached) return;
+          onAddImages(Array.from(e.dataTransfer.files));
+        }}
       >
         <Stack className="portfolio-editor-image-section__dropzone-content" spacing={1}>
           <CloudUploadIcon className="portfolio-editor-image-section__dropzone-icon" aria-hidden="true" />
 
-          <Text className="portfolio-editor-image-section__dropzone-title" fontWeight={700}>
+          <Text className="portfolio-editor-image-section__dropzone-title" sx={{ fontWeight: 700 }}>
             {isImageLimitReached ? "최대 5장 업로드됨" : "파일을 끌어서 놓거나 클릭하여 업로드"}
           </Text>
 
@@ -105,7 +121,7 @@ function ImageAttachmentSection({
             id="portfolio-image-upload-help"
             className="portfolio-editor-image-section__dropzone-help"
             color="text.secondary"
-            fontSize={12}
+            sx={{ fontSize: 12 }}
           >
             PNG, JPG, WebP (최대 10MB)
           </Text>
@@ -114,7 +130,7 @@ function ImageAttachmentSection({
         </Stack>
       </ButtonBase>
 
-      <Text className="portfolio-editor-image-section__preview-title" fontWeight={700}>
+      <Text className="portfolio-editor-image-section__preview-title" sx={{ fontWeight: 700 }}>
         이미지 미리보기
       </Text>
 
@@ -165,13 +181,17 @@ function ImageAttachmentSection({
       </Stack>
 
       <Stack className="portfolio-editor-image-section__footer" direction="row">
-        <Text className="portfolio-editor-image-section__upload-count" color="primary" fontWeight={700} fontSize={12}>
+        <Text
+          className="portfolio-editor-image-section__upload-count"
+          color="primary"
+          sx={{ fontWeight: 700, fontSize: 12 }}
+        >
           <Box id="portfolio-image-upload-count" component="span">
             {images.length}/5장 업로드됨
           </Box>
         </Text>
 
-        <Text className="portfolio-editor-image-section__file-size" color="text.secondary" fontSize={12}>
+        <Text className="portfolio-editor-image-section__file-size" color="text.secondary" sx={{ fontSize: 12 }}>
           {formatFileSize(totalImageSize)}
         </Text>
       </Stack>

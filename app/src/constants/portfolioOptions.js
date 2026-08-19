@@ -15,41 +15,6 @@ export const typeOptions = [
   { value: "community", label: "커뮤니티" },
 ];
 
-// GitHub AI 분석 근거 개발용 임시 데이터
-// 실제 백엔드 연결 후에는 저장소 분석 응답으로 생성된 evidence 목록으로 교체
-export const evidenceTabs = [
-  {
-    value: "project-structure",
-    label: "프로젝트 구조",
-    description:
-      "app/src/pages와 app/src/components가 페이지 단위와 기능 단위로 분리되어 있어, 라우팅 화면과 재사용 UI의 책임이 비교적 명확합니다. PortfolioEditor.jsx는 등록/수정 화면의 상태를 소유하고, ProjectBasicInfoSection, ImageAttachmentSection, ProjectMetaSection, GithubAiAnalysisSection으로 입력 영역을 나누어 관리합니다. 이 구조를 기준으로 프로젝트는 단일 페이지가 아니라 이미지 첨부, 메타데이터 입력, AI 분석 결과 표시가 결합된 복합 편집 화면으로 판단했습니다.",
-  },
-  {
-    value: "commit-history",
-    label: "커밋 기록",
-    description:
-      "커밋 흐름은 이미지 첨부, 드래그 정렬, 칩 스타일, 날짜 선택, 임시저장처럼 사용자 입력 흐름을 단계적으로 보강하는 방향으로 이어졌습니다. 기능별 변경이 페이지 전체 리팩터링보다 작은 단위로 누적되어 있어, 등록/수정 페이지의 핵심 UX를 먼저 완성하고 이후 백엔드 저장 로직으로 확장하는 작업 방식으로 해석했습니다.",
-  },
-  {
-    value: "package-json",
-    label: "package.json",
-    description:
-      "package.json의 의존성에는 React, MUI, MUI X Date Pickers, dnd-kit, Supabase 클라이언트가 포함되어 있습니다. 이를 통해 UI는 MUI 컴포넌트를 중심으로 구성되고, 날짜 입력은 DatePicker, 이미지 순서 변경은 dnd-kit, 향후 저장과 인증은 Supabase 연동을 전제로 설계된 프로젝트로 분석했습니다.",
-  },
-  {
-    value: "app-entry",
-    label: "App.jsx",
-    description:
-      "App.jsx의 라우트 구성을 기준으로 Home, Gallery, Portfolio, MyPage, Upload/Edit 흐름이 분리되어 있습니다. 등록/수정 페이지는 전체 서비스 안에서 작품 데이터를 생성하거나 갱신하는 진입점이며, 상세 페이지와 갤러리에서 소비될 포트폴리오 데이터를 준비하는 역할로 판단했습니다.",
-  },
-  {
-    value: "src-files",
-    label: "src 내부 파일",
-    description:
-      "src/components/PortfolioEditor 내부 파일들은 기본 정보, 이미지 첨부, 메타 정보, AI 분석 결과, 초안 가이드, 하단 액션바처럼 편집 화면의 섹션 단위로 분리되어 있습니다. 이 파일 구성을 근거로 프로젝트의 구현 범위는 단순 입력 폼보다 넓고, 이미지 관리와 AI 보조 작성까지 포함한 포트폴리오 편집 워크플로우로 분석했습니다.",
-  },
-];
-
 // ProjectMetaSection의 "참여 규모" Select 고정 옵션 목록
 export const scaleOptions = [
   { value: "solo", label: "개인 (1명)" },
