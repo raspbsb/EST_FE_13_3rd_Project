@@ -8,6 +8,11 @@
   align-items: flex-end;
   margin-bottom: 24px;
 }
+@media (max-width: 767px) {
+  .header {
+    margin-bottom: 16px;
+  }
+}
 
 .grid {
   display: grid;

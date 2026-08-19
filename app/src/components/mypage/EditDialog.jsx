@@ -1,9 +1,10 @@
 import { supabase } from "../../utils/supabase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../../store/userSlice";
 
 import TagChip from "../TagChip";
+import { techStackOptions } from "../../constants/portfolioOptions";
 
 import { CloseIcon, LockIcon } from "../../lib/icons";
 
@@ -23,6 +24,11 @@ import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import FormLabel from "@mui/material/FormLabel";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
+const filterTechStackOptions = createFilterOptions();
 
 export default function EditDialog({ open, onClose, profile, onProfileUpdate }) {
   const theme = useTheme();
@@ -30,6 +36,12 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
 
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.user);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error",
+  });
 
   //Edit dialog form 관리
   const [form, setForm] = useState({
@@ -43,43 +55,58 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
     is_public: true,
   });
 
-  // 기술 스택 상태관리
-  const [skillInput, setSkillInput] = useState("");
+  // 기술 스택 입력값
+  const [skillInputValue, setSkillInputValue] = useState("");
 
   useEffect(() => {
     if (open) {
       setForm({
-        user_name: profile.user_name,
-        user_category: profile.user_category,
-        bio: profile.bio,
+        user_name: profile.user_name ?? "",
+        user_category: profile.user_category ?? "",
+        bio: profile.bio ?? "",
         skills: profile.skills ?? [],
-        email: profile.email,
+        email: profile.email ?? "",
         github_url: profile.github_url ?? "",
         url2: profile.url2 ?? "",
         is_public: profile.is_public,
       });
-      setSkillInput("");
+      setSkillInputValue("");
     }
   }, [open, profile]);
 
-  // 스택 입력값
-  const handleSkillChange = e => {
-    setSkillInput(e.target.value);
-  };
+  // 기술 스택 Autocomplete 검색 결과
+  const handleFilterTechStackOptions = useCallback((options, params) => {
+    const filteredOptions = filterTechStackOptions(options, params);
 
-  //엔터 누르면 chip 추가
-  const handleSkillKeyDown = e => {
-    if (e.key !== "Enter") return;
+    const inputValue = params.inputValue.trim();
 
-    e.preventDefault();
+    const hasSameOption = options.some(option => option.label.toLowerCase() === inputValue.toLowerCase());
 
-    const value = skillInput.trim();
+    if (inputValue && !hasSameOption) {
+      filteredOptions.unshift({
+        value: inputValue.toLowerCase().replace(/\s+/g, "-"),
+        label: `직접 입력 중: ${inputValue}`,
+        inputValue,
+      });
+    }
+
+    return filteredOptions;
+  }, []);
+
+  // 기술 스택 선택 / 직접 입력
+  const handleSkillChange = (_, selectedOption) => {
+    if (!selectedOption) return;
+
+    const value =
+      typeof selectedOption === "string"
+        ? selectedOption.trim()
+        : selectedOption.inputValue?.trim() || selectedOption.label;
 
     if (!value) return;
 
     // 중복 방지
-    if (form.skills.includes(value)) {
-      setSkillInput("");
+    if (form.skills.some(skill => skill.toLowerCase() === value.toLowerCase())) {
+      setSkillInputValue("");
       return;
     }
 
@@ -88,7 +115,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
       skills: [...prev.skills, value],
     }));
 
-    setSkillInput("");
+    setSkillInputValue("");
   };
 
   //chip 삭제
@@ -103,7 +130,7 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
   const handlePublicChange = e => {
     setForm(prev => ({
       ...prev,
-      is_public: e.target.checked,
+      is_public: !e.target.checked,
     }));
   };
 
@@ -147,15 +174,19 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
         throw error;
       }
 
-      console.log("프로필 수정 완료:", data);
-
+      // local profile 업데이트
       onProfileUpdate(data);
+      // local profile 업데이트
       dispatch(updateProfile(data));
 
       onClose();
     } catch (error) {
       console.error("프로필 수정 실패:", error);
-      alert("프로필 수정에 실패했습니다.");
+      setSnackbar({
+        open: true,
+        message: "프로필 수정에 실패했습니다.",
+        severity: "error",
+      });
     }
   };
 
@@ -231,13 +262,28 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
 
             <Box>
               <FormLabel>기술 스택</FormLabel>
-              <TextField
-                label="기술 스택"
-                placeholder="기술을 입력하고 엔터를 눌러주세요."
-                fullWidth
-                value={skillInput}
+
+              <Autocomplete
+                freeSolo
+                options={techStackOptions}
+                value={null}
+                inputValue={skillInputValue}
+                filterOptions={handleFilterTechStackOptions}
+                getOptionLabel={option => (typeof option === "string" ? option : option.label)}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                onInputChange={(_, value, reason) => {
+                  if (reason === "input") {
+                    setSkillInputValue(value);
+                  }
+
+                  if (reason === "clear") {
+                    setSkillInputValue("");
+                  }
+                }}
                 onChange={handleSkillChange}
-                onKeyDown={handleSkillKeyDown}
+                renderInput={params => (
+                  <TextField {...params} placeholder="기술 스택을 검색하거나 직접 입력하세요." fullWidth />
+                )}
               />
               <Stack direction="row" spacing={1} useFlexGap flexwrap="wrap" sx={{ pt: "10px" }}>
                 {form.skills.map(skill => (
@@ -292,8 +338,8 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
                 }}
               >
                 <FormControlLabel
-                  control={<Switch checked={form.is_public} onChange={handlePublicChange} />}
-                  label="활동 내역 비공개 설정"
+                  control={<Switch checked={!form.is_public} onChange={handlePublicChange} />}
+                  label="활동내역 비공개"
                 />
                 <LockIcon color="primary" />
               </Box>
@@ -307,6 +353,34 @@ export default function EditDialog({ open, onClose, profile, onProfileUpdate }) 
           적용하기
         </Button>
       </DialogActions>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() =>
+          setSnackbar(prev => ({
+            ...prev,
+            open: false,
+          }))
+        }
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          onClose={() =>
+            setSnackbar(prev => ({
+              ...prev,
+              open: false,
+            }))
+          }
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Dialog>
   );
 }

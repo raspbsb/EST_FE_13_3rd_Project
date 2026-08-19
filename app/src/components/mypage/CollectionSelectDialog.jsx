@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
+import Text from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -11,7 +13,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Radio from "@mui/material/Radio";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 
 export default function CollectionSelectDialog({
   open,
@@ -57,7 +58,10 @@ export default function CollectionSelectDialog({
               textAlign: "center",
             }}
           >
-            <Typography color="text.secondary">생성된 컬렉션이 없습니다.</Typography>
+            <Text color="text.secondary">생성된 컬렉션이 없습니다.</Text>
+            <Button component={Link} to="/mypage/collections" color="primary" variant="text" sx={{ mt: 2 }}>
+              컬렉션 추가하러 가기
+            </Button>
           </Box>
         ) : (
           <List disablePadding>

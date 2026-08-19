@@ -3,10 +3,6 @@
   padding-top: 72px;
 }
 
-.title {
-  margin-bottom: 24px;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
