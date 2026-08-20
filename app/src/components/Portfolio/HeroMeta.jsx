@@ -11,14 +11,19 @@ import Avatar from "@mui/material/Avatar";
 
 import { ViewsIcon, LikeIcon, LikeIconActive, StarIcon, StarIconActive } from "../../lib/icons";
 import { fetchLikes } from "./portfolioSlice";
+import { fetchUser } from "../../store/userSlice";
 import { toUrl } from "../../services/toUrl";
 
+import HeroMetaLoginDialog from "./HeroMetaLoginDialog";
 import CollectionSelectDialog from "../mypage/CollectionSelectDialog";
+import HeroMetaBookmarkCancelDialog from "./HeroMetaBookmarkCancelDialog";
 
 export default function HeroMeta({}) {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isCollectionOpen, setIsCollectionOpen] = useState(false);
+  const [isBookmarkCancelOpen, setIsBookmarkCancelOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
 
   const navigate = useNavigate();
@@ -39,8 +44,7 @@ export default function HeroMeta({}) {
     if (status !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
-      alert("로그인이 필요합니다!");
-      navigate("/login");
+      setIsLoginOpen(true);
       return;
     }
     if (isLiked) {
@@ -54,7 +58,6 @@ export default function HeroMeta({}) {
         .select("*", { count: "exact", head: true })
         .eq("project_id", data.project_id);
       if (error) {
-        console.warn("좋아요 제거 실패!: ", error);
         return;
       }
       dispatch(fetchLikes(data.project_id));
@@ -66,7 +69,6 @@ export default function HeroMeta({}) {
         .from("portfolio_likes")
         .insert({ project_id: data.project_id, user_id: user.id });
       if (error) {
-        console.warn("좋아요 추가 실패!: ", error);
         return;
       }
       dispatch(fetchLikes(data.project_id));
@@ -78,26 +80,16 @@ export default function HeroMeta({}) {
     if (status !== "succeeded") return;
     if (!user) {
       // 로그인 필요 문구 출력
-      alert("로그인이 필요합니다!");
-      navigate("/login");
+      setIsLoginOpen(true);
       return;
     }
     if (isBookmarked) {
-      // 북마크 제거
-      if (confirm("정말로 북마크를 취소하시겠습니까?")) {
-        const { error } = await supabase
-          .schema("public")
-          .from("bookmarks")
-          .delete()
-          .eq("project_id", data.project_id)
-          .eq("user_id", user.id);
-        if (error) {
-          console.warn("북마크 제거 실패!: ", error);
-          return;
-        }
-        setIsBookmarked(false);
-      }
+      // 북마크 제거, 유저 정보 갱신
+      dispatch(fetchUser());
+      setIsBookmarkCancelOpen(true);
     } else {
+      // 북마크 추가, 유저 정보 갱신
+      dispatch(fetchUser());
       setIsCollectionOpen(true);
     }
   };
@@ -109,16 +101,28 @@ export default function HeroMeta({}) {
     setSelectedCollectionId(selectedCollection);
   };
   const handleColllectionSave = async selectedCollection => {
-    // 북마크 추가
     const { error } = await supabase
       .schema("public")
       .from("bookmarks")
       .insert({ project_id: data.project_id, user_id: user.id, collection_id: selectedCollection.collection_id });
     if (error) {
-      console.warn("북마크 추가 실패!: ", error);
       return;
     }
+    setIsCollectionOpen(false);
     setIsBookmarked(true);
+  };
+  const handleBookmarkCancel = async () => {
+    const { error } = await supabase
+      .schema("public")
+      .from("bookmarks")
+      .delete()
+      .eq("project_id", data.project_id)
+      .eq("user_id", user.id);
+    if (error) {
+      return;
+    }
+    setIsBookmarkCancelOpen(false);
+    setIsBookmarked(false);
   };
 
   return (
@@ -177,6 +181,7 @@ export default function HeroMeta({}) {
           </Button>
         </Box>
       </Box>
+      <HeroMetaLoginDialog open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
       <CollectionSelectDialog
         open={isCollectionOpen}
         onClose={handleCollectionClose}
@@ -184,6 +189,11 @@ export default function HeroMeta({}) {
         onSelect={handleCollectionSelect}
         selectedCollectionId={selectedCollectionId}
         onSave={handleColllectionSave}
+      />
+      <HeroMetaBookmarkCancelDialog
+        open={isBookmarkCancelOpen}
+        onClose={() => setIsBookmarkCancelOpen(false)}
+        onConfirm={handleBookmarkCancel}
       />
     </>
   );

@@ -10,11 +10,11 @@ import { Typography } from "@mui/material";
 import styles from "./Login.module.css";
 import { supabase } from "../../utils/supabase";
 
-// assets (파일명/위치 확인하세요)
+// assets
 import heroImg from "../../assets/login-hero.png";
 import googleBtn from "../../assets/Google-Button.png";
 import kakaoBtn from "../../assets/Kakao-Button.png";
-import naverBtn from "../../assets/Naver-Button.png";
+import discordBtn from "../../assets/Discord-Button.png";
 import githubBtn from "../../assets/Github-Button.png";
 
 export default function Login() {
@@ -57,7 +57,7 @@ export default function Login() {
     return true;
   };
 
-  // 비밀번호 입력 여부만 검사 (정규식 제거)
+  // 비밀번호 입력 여부만 검사
   const validatePassword = value => {
     if (!value) {
       setPasswordError("비밀번호를 입력해 주세요.");
@@ -98,7 +98,7 @@ export default function Login() {
         setError(authError.message || "로그인 중 오류가 발생했습니다.");
         return;
       }
-      // 로그인 성공 시 리다이렉트 (Header는 onAuthStateChange로 갱신)
+      // 로그인 성공 시 리다이렉트
       navigate("/", { replace: true });
     } catch (err) {
       setError(err?.message || "로그인 중 오류가 발생했습니다.");
@@ -120,7 +120,7 @@ export default function Login() {
   };
 
   return (
-    <Box component="main" className={styles.container} role="main">
+    <Box component="main" className={styles.loginContainer} role="main">
       <div className={styles.content}>
         {/* 왼쪽: 로그인 폼 영역 */}
         <div className={styles.left}>
@@ -135,7 +135,7 @@ export default function Login() {
                 variant="outlined"
                 fullWidth
                 className={styles.field}
-                value={email}
+                value={email || ""}
                 onChange={handleEmailChange}
                 onBlur={() => validateEmail(email)}
                 required
@@ -143,9 +143,11 @@ export default function Login() {
                 autoComplete="email"
                 error={!!emailError}
                 helperText={emailError}
-                inputProps={{
-                  "aria-invalid": !!emailError,
-                  "aria-describedby": emailError ? "email-error" : undefined,
+                slotProps={{
+                  htmlInput: {
+                    "aria-invalid": !!emailError,
+                    "aria-describedby": emailError ? "email-error" : undefined,
+                  },
                 }}
               />
 
@@ -154,7 +156,7 @@ export default function Login() {
                 variant="outlined"
                 fullWidth
                 className={styles.field}
-                value={password}
+                value={password || ""}
                 onChange={handlePasswordChange}
                 onBlur={() => validatePassword(password)}
                 required
@@ -162,9 +164,11 @@ export default function Login() {
                 autoComplete="current-password"
                 error={!!passwordError}
                 helperText={passwordError}
-                inputProps={{
-                  "aria-invalid": !!passwordError,
-                  "aria-describedby": passwordError ? "password-error" : undefined,
+                slotProps={{
+                  htmlInput: {
+                    "aria-invalid": !!passwordError,
+                    "aria-describedby": passwordError ? "password-error" : undefined,
+                  },
                 }}
               />
 
@@ -194,7 +198,7 @@ export default function Login() {
 
               <Divider className={styles.divider} />
 
-              {/* 소셜 로그인 버튼: 이미지 원형 버튼으로 대체, 가운데 정렬 */}
+              {/* 소셜 로그인 버튼 */}
               <div className={styles.oauthRow} role="group" aria-label="소셜 로그인">
                 <button
                   type="button"
@@ -217,10 +221,10 @@ export default function Login() {
                 <button
                   type="button"
                   className={styles.socialBtn}
-                  aria-label="Sign in with Naver"
-                  onClick={() => handleOAuth("naver")}
+                  aria-label="Sign in with Discord"
+                  onClick={() => handleOAuth("discord")}
                 >
-                  <img src={naverBtn} alt="Naver 로그인" className={styles.socialImg} />
+                  <img src={discordBtn} alt="Discord 로그인" className={styles.socialImg} />
                 </button>
 
                 <button
@@ -243,7 +247,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* 오른쪽: 이미지 (컨테이너 내부에 머무름) */}
+        {/* 오른쪽: 이미지 */}
         <div className={styles.right}>
           <img
             src={heroImg}

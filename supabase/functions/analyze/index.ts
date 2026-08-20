@@ -5,8 +5,13 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
-import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
-import { collectGithubRepositoryData, GithubApiError, GithubRepositoryUrlError } from "../_shared/github.ts";
+import { assertCooldownReady, COOLDOWN_MS_BY_ACTION, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
+import {
+  collectGithubRepositoryData,
+  GithubApiError,
+  GithubRepositoryUrlError,
+  parseGithubRepositoryUrl,
+} from "../_shared/github.ts";
 import {
   createCommitBatchPrompts,
   createFinalMergePrompt,
@@ -22,11 +27,13 @@ import {
 export default {
   fetch: withSupabase({ auth: ["user", "publishable", "secret"] }, async (req, ctx) => {
     let repositoryUrl: string | undefined;
+    let portfolioId: string | undefined;
+    let githubUsername: string | undefined;
     let formData: PortfolioFormContext | undefined;
 
     // 요청 본문이 JSON 형식이 아니면 500이 아니라 400으로 명확히 구분한다.
     try {
-      ({ repositoryUrl, formData } = await req.json());
+      ({ repositoryUrl, portfolioId, githubUsername, formData } = await req.json());
     } catch {
       return Response.json({ error: "요청 본문이 올바른 JSON 형식이 아닙니다." }, { status: 400 });
     }
@@ -44,10 +51,48 @@ export default {
       return Response.json({ error: "로그인이 필요합니다." }, { status: 401 });
     }
 
-    // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
-    // "계정 + 저장소" 단위라, 이미 분석한 다른 저장소를 새로 분석하는 건 막지 않는다.
+    // 프론트 라우트 가드를 devtools로 우회해서 남의 portfolioId로 직접 요청해도,
+    // 이 포트폴리오의 작성자가 아니면 여기서 막는다.
+    if (portfolioId) {
+      const { data: portfolio, error: portfolioError } = await ctx.supabase
+        .from("portfolios")
+        .select("author_id")
+        .eq("project_id", portfolioId)
+        .maybeSingle();
+
+      if (portfolioError) throw portfolioError;
+
+      if (!portfolio || portfolio.author_id !== userId) {
+        return Response.json({ error: "수정 권한이 없는 포트폴리오입니다." }, { status: 403 });
+      }
+    }
+
+    // 프론트에서도 같은 검증을 하지만, devtools로 우회할 수 있으니 서버에서도 한 번 더 확인한다.
+    // 저장소 URL의 소유자(owner)가 연동된 GitHub 계정과 다르면 분석을 거부한다.
     try {
-      await assertCooldownReady(ctx.supabase, userId, "analyze", repositoryUrl);
+      const { owner } = parseGithubRepositoryUrl(repositoryUrl);
+
+      if (!githubUsername || owner.toLowerCase() !== githubUsername.toLowerCase()) {
+        return Response.json(
+          { error: "입력한 GitHub 저장소 주소가 연동된 계정 소유가 아닙니다." },
+          { status: 403 },
+        );
+      }
+    } catch (error) {
+      if (error instanceof GithubRepositoryUrlError) {
+        return Response.json({ error: error.message }, { status: 400 });
+      }
+
+      throw error;
+    }
+
+    // 클라이언트 버튼 비활성화를 우회해도(devtools 등) 서버에서 한 번 더 쿨타임을 강제한다.
+    // "계정 + 포트폴리오" 단위라, 같은 저장소라도 다른 포트폴리오에서 분석하는 건 막지 않는다.
+    // 수정(edit) 페이지는 project_id로 구분하고, 아직 project_id가 없는 등록(신규) 페이지는 저장소 URL로 구분한다.
+    const cooldownScope = portfolioId ? `portfolio:${portfolioId}` : repositoryUrl;
+
+    try {
+      await assertCooldownReady(ctx.supabase, userId, "analyze", cooldownScope);
     } catch (error) {
       if (error instanceof CooldownActiveError) {
         return Response.json({ error: error.message }, { status: 429 });
@@ -63,7 +108,7 @@ export default {
     }
 
     try {
-      const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken);
+      const githubData = await collectGithubRepositoryData(repositoryUrl, githubToken, githubUsername);
 
       const formContextPrompt = createFormContextPrompt(formData ?? {});
       const commitBatchPrompts = createCommitBatchPrompts(githubData.commits);
@@ -123,9 +168,15 @@ export default {
       const analyzedAt = new Date().toISOString();
 
       // 성공했을 때만 쿨타임을 시작시킨다 (실패한 시도까지 쿨타임을 소모시키지 않기 위해).
-      await markCooldownStart(ctx.supabase, userId, "analyze", repositoryUrl);
+      await markCooldownStart(ctx.supabase, userId, "analyze", cooldownScope);
 
-      return Response.json({ githubData, aiAnalysisResult, alanUsage, analyzedAt });
+      return Response.json({
+        githubData,
+        aiAnalysisResult,
+        alanUsage,
+        analyzedAt,
+        cooldownMs: COOLDOWN_MS_BY_ACTION.analyze,
+      });
     } catch (error) {
       if (error instanceof GithubRepositoryUrlError) {
         return Response.json({ error: error.message }, { status: 400 });

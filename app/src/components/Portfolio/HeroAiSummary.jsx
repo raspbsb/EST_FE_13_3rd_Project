@@ -6,11 +6,13 @@ import MuiLink from "@mui/material/Link";
 
 import { AiIcon } from "../../lib/icons";
 import { alpha, useTheme } from "@mui/material/styles";
+import { useAiSummary } from "./AiSummaryContext";
 
 export default function HeroAiSummary({}) {
   const theme = useTheme();
   const { data } = useSelector(state => state.portfolio);
   const aiCreated = data?.portfolio_ai_created;
+  const { openAndScroll } = useAiSummary();
 
   return (
     <Box
@@ -35,7 +37,15 @@ export default function HeroAiSummary({}) {
             {aiCreated?.ai_short_summary}
           </Text>
           <Text align="right" variant="body2">
-            <MuiLink href="#ai-analysis">전체 AI 분석 보기</MuiLink>
+            <MuiLink
+              href="#ai-analysis"
+              onClick={e => {
+                e.preventDefault();
+                openAndScroll();
+              }}
+            >
+              전체 AI 분석 보기
+            </MuiLink>
           </Text>
         </>
       ) : (

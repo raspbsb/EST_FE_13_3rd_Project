@@ -243,12 +243,11 @@ export const createStructurePrompt = ({ fileTree, languages, readme }: Portfolio
 
 // ── 4. 최종 취합 프롬프트 ────────────────────────────────────────
 
-const FINAL_MERGE_INSTRUCTION = `아래 세 분석 결과만 근거로 포트폴리오 분석 JSON을 작성하라. 추측 금지, 원본 데이터 재분석 금지.
-커밋 수만으로 기여도·실력을 평가하지 마라. projectStructure는 [구조 분석 결과]를 반드시 반영하라.
-technicalFeatures는 기술 이름 나열 대신 [구조 분석 결과]의 실제 구현 방식(라우팅/상태관리/API연동 등)을 설명하라.
-analyzedRole·participationDetails는 자연스러운 문장으로 풀어써라.
-analysisEvidence는 [커밋 분석 결과]·[구조 분석 결과]에서만 뽑고(최대 10개, 전역적인 근거 우선), 각 항목은 {"value":"","label":"12자 이내","description":""} 형태로, 실제 파일·커밋 근거를 써라.
-근거 부족한 항목은 빈 문자열/배열로. 설명 없이 JSON만 출력하라.
+const FINAL_MERGE_INSTRUCTION = `세 결과만 근거로 분석 JSON 작성. 추측·재분석 금지. 커밋 수만으로 기여도 판단 금지.
+projectStructure는 구조 분석 결과 반영 필수. technicalFeatures는 기술명 나열 대신 실제 구현 방식 설명.
+analyzedRole·participationDetails는 자연스러운 문장으로.
+analysisEvidence는 커밋·구조 결과에서만, 최대10개(전역 근거 우선), {"value":"","label":"12자내","description":""} 형태.
+근거 부족시 빈값. JSON만 출력.
 
 출력 형식:
 {"projectSummary":"","mainFeatures":"","technicalFeatures":"","projectStructure":"","analyzedRole":"","participationDetails":"","analysisLimitation":"","analysisEvidence":[{"value":"","label":"","description":""}]}`;

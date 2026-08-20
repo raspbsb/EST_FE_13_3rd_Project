@@ -10,6 +10,7 @@ import Stack from "@mui/material/Stack";
 import MuiLink from "@mui/material/Link";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import { AiSummaryProvider } from "../components/Portfolio/AiSummaryContext";
 import { resetPortfolio, fetchPortfolio, fetchOtherPortfolios } from "../components/Portfolio/portfolioSlice";
 import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
 
@@ -39,9 +40,6 @@ export default function Portfolio() {
   if (status === "idle" || status === "loading") {
     return (
       <Container>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
           <CircularProgress size={40} />
         </Box>
@@ -52,9 +50,6 @@ export default function Portfolio() {
   if (status === "failed") {
     return (
       <Container>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
         <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
           DB와 통신에 실패했습니다.
         </Text>
@@ -78,9 +73,6 @@ export default function Portfolio() {
   if (status === "notFound") {
     return (
       <Container>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
         <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
           해당하는 포트폴리오가 없습니다.
         </Text>
@@ -98,12 +90,9 @@ export default function Portfolio() {
     );
   }
 
-  if (!data.is_public && data.author_id !== user.id) {
+  if (!data?.is_public && data?.author_id !== user?.id) {
     return (
       <Container>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
         <Text component={"h1"} variant="h4" sx={{ my: 6 }}>
           작성자가 포트폴리오를 비공개로 설정했습니다
         </Text>
@@ -122,16 +111,15 @@ export default function Portfolio() {
   }
 
   return (
-    <Container>
-      <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 } }}>
-        <Text component={"p"} variant="h4">
-          포트폴리오 상세
-        </Text>
-        <HeroSection />
-        <DescriptionSection />
-        <AiSummarySection />
-        <AuthorInfoSection />
-      </Stack>
-    </Container>
+    <AiSummaryProvider>
+      <Container>
+        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 }, pt: 6 }}>
+          <HeroSection />
+          <DescriptionSection />
+          <AiSummarySection />
+          <AuthorInfoSection />
+        </Stack>
+      </Container>
+    </AiSummaryProvider>
   );
 }

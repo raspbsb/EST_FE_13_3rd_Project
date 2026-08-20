@@ -4,7 +4,9 @@
 // analyze는 "계정 + 저장소" 단위(다른 저장소를 분석하는 건 막지 않음), draft는 "계정" 단위(저장소가 없는 액션이라 repositoryUrl은 항상 "").
 
 // 초안 생성은 분석과 달리 Alan 호출 1회짜리 단순 작업이라 쿨타임을 더 짧게 둔다.
-const COOLDOWN_MS_BY_ACTION: Record<"analyze" | "draft", number> = {
+// 프론트도 이 값을 그대로 쓸 수 있도록 export한다. analyze/draft Edge Function이 응답에 cooldownMs로 실어 보내면,
+// 프론트는 이 값을 따로 하드코딩하지 않고 서버가 내려준 값을 그대로 표시에 사용한다.
+export const COOLDOWN_MS_BY_ACTION: Record<"analyze" | "draft", number> = {
   analyze: 30 * 60 * 1000,
   draft: 10 * 60 * 1000,
 };

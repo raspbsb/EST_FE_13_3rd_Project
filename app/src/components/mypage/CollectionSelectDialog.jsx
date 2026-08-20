@@ -1,7 +1,9 @@
 import { supabase } from "../../utils/supabase";
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
+import Text from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -13,8 +15,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Radio from "@mui/material/Radio";
 import Box from "@mui/material/Box";
-import Text from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 
 export default function CollectionSelectDialog({
   open,

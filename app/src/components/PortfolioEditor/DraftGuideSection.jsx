@@ -43,7 +43,12 @@ function DraftGuideSection({
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(draftGuide.generatedAt, DRAFT_COOLDOWN_MS);
+  // 서버가 응답에 실어 보낸 실제 쿨타임 길이를 우선 쓰고, 아직 한 번도 생성한 적 없어 서버 값이 없을 때만
+  // 프론트 기본값(DRAFT_COOLDOWN_MS)으로 표시한다.
+  const cooldownRemainingMs = getAiCooldownRemainingMs(
+    draftGuide.generatedAt,
+    draftGuide.cooldownMs ?? DRAFT_COOLDOWN_MS,
+  );
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {
@@ -75,7 +80,7 @@ function DraftGuideSection({
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <EditIcon aria-hidden="true" />
 
-            <Text id="draft-guide-title" component="h2" variant="h5" fontWeight={700}>
+            <Text id="draft-guide-title" component="h2" variant="h5" sx={{ fontWeight: 700 }}>
               프로젝트 설명 초안 가이드 생성
             </Text>
           </Stack>
@@ -181,8 +186,7 @@ function DraftGuideSection({
             component="h3"
             variant="subtitle1"
             color="primary"
-            fontWeight={700}
-            sx={{ mb: 1 }}
+            sx={{ fontWeight: 700, mb: 1 }}
           >
             AI 추천 한 줄 요약 (미리보기)
           </Text>
@@ -190,7 +194,6 @@ function DraftGuideSection({
           <DraftSummaryField
             formInputSx={formInputSx}
             summary={summary}
-            isDraftGenerated={isDraftGenerated}
             isSummaryApplied={isSummaryApplied}
             onApplyDraftSummary={onApplyDraftSummary}
           />

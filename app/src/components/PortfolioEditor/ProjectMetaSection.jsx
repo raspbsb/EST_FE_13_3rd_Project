@@ -233,9 +233,15 @@ function ProjectMetaSection({
                 {...params}
                 size="small"
                 sx={formInputSx}
-                aria-label="카테고리 추가"
                 aria-invalid={Boolean(formErrors.categories)}
                 aria-describedby="category-feedback"
+                slotProps={{
+                  ...params.slotProps,
+                  htmlInput: {
+                    ...params.slotProps?.htmlInput,
+                    "aria-label": "카테고리 추가",
+                  },
+                }}
               />
             )}
           />
@@ -303,9 +309,15 @@ function ProjectMetaSection({
                 {...params}
                 size="small"
                 sx={formInputSx}
-                aria-label="기술 스택 추가"
                 aria-invalid={Boolean(formErrors.tech_stacks)}
                 aria-describedby="tech-stack-feedback"
+                slotProps={{
+                  ...params.slotProps,
+                  htmlInput: {
+                    ...params.slotProps?.htmlInput,
+                    "aria-label": "기술 스택 추가",
+                  },
+                }}
               />
             )}
           />

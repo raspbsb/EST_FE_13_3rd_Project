@@ -41,7 +41,12 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
 
   // 쿨타임 남은 시간(ms). 1초마다 tick을 갱신해 화면이 자동으로 다시 계산되게 한다.
   const [, forceTick] = useState(0);
-  const cooldownRemainingMs = getAiCooldownRemainingMs(aiAnalysisResult.analyzedAt, ANALYZE_COOLDOWN_MS);
+  // 서버가 응답에 실어 보낸 실제 쿨타임 길이를 우선 쓰고, 아직 한 번도 분석한 적 없어 서버 값이 없을 때만
+  // 프론트 기본값(ANALYZE_COOLDOWN_MS)으로 표시한다.
+  const cooldownRemainingMs = getAiCooldownRemainingMs(
+    aiAnalysisResult.analyzedAt,
+    aiAnalysisResult.cooldownMs ?? ANALYZE_COOLDOWN_MS,
+  );
   const isCoolingDown = cooldownRemainingMs > 0;
 
   useEffect(() => {
@@ -64,6 +69,8 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
   const analysisEvidenceTabs = hasAnalysisEvidence
     ? aiAnalysisResult.analysisEvidence.slice(0, MAX_ANALYSIS_EVIDENCE_COUNT).map(evidence => ({
         ...evidence,
+        // 탭 라벨은 짧게 자르되, 콘텐츠 제목에는 원본 전체를 그대로 보여준다.
+        fullLabel: evidence.label,
         label:
           evidence.label && evidence.label.length > MAX_EVIDENCE_LABEL_LENGTH
             ? `${evidence.label.slice(0, MAX_EVIDENCE_LABEL_LENGTH)}...`
@@ -188,8 +195,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
           className="portfolio-editor-analysis-evidence__title"
           component="h3"
           variant="h6"
-          fontWeight={700}
-          sx={{ mb: 1 }}
+          sx={{ fontWeight: 700, mb: 1 }}
         >
           분석 근거
         </Text>
@@ -235,7 +241,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
           ) : selectedEvidence ? (
             <Stack spacing={1}>
               <Text className="portfolio-editor-analysis-evidence__content-title" component="h4">
-                {selectedEvidence.label}
+                {selectedEvidence.fullLabel}
               </Text>
               <Text className="portfolio-editor-analysis-evidence__content-text" component="p">
                 {selectedEvidence.description}
