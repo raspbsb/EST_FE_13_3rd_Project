@@ -1,11 +1,12 @@
 import { useSelector } from "react-redux";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link as RouterLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useNotifications from "../hooks/useNotifications";
 
 import Container from "@mui/material/Container";
 import Text from "@mui/material/Typography";
-import Link from "@mui/material/Link";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { Stack } from "@mui/material";
 
 import ProfileHeader from "../components/mypage/ProfileHeader";
@@ -37,23 +38,159 @@ export default function MyPageLayout() {
     return null;
   }
 
-  if (!profile) {
+  // 로그인하지 않은 상태
+  if (user === null) {
     return (
-      <div>
-        <Text color="text.primary">프로필 정보를 불러올 수 없습니다.</Text>
-        <Link
-          href="/login"
-          underline="hover"
+      <Box
+        component="main"
+        sx={{
+          minHeight: "calc(100vh - 64px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 2,
+          py: 6,
+          bgcolor: "background.default",
+        }}
+      >
+        <Box
           sx={{
-            display: "flex",
-            mt: 1,
-            fontSize: 14,
-            fontWeight: 600,
+            width: "100%",
+            maxWidth: 480,
+            textAlign: "center",
+            bgcolor: "#fff",
+            border: "1px solid secondary.main",
+            borderRadius: 3,
+            px: {
+              mobile: 3,
+              tablet: 5,
+              desktop: 6,
+            },
+            py: {
+              mobile: 5,
+              tablet: 6,
+              desktop: 7,
+            },
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
           }}
         >
-          로그인 하기
-        </Link>
-      </div>
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              mx: "auto",
+              mb: 3,
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "#eef4ff",
+              color: "primary.main",
+              fontSize: 30,
+            }}
+          >
+            👤
+          </Box>
+
+          <Text
+            component="h1"
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              mb: 1.5,
+            }}
+          >
+            로그인이 필요합니다
+          </Text>
+
+          <Text
+            component="p"
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              lineHeight: 1.7,
+              mb: 4,
+              wordBreak: "keep-all",
+            }}
+          >
+            마이페이지의 프로젝트, 북마크, 프로필 정보를
+            <br />
+            확인하려면 로그인해주세요.
+          </Text>
+
+          <Stack
+            direction={{ mobile: "column", tablet: "row" }}
+            spacing={1.5}
+            sx={{
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              component={RouterLink}
+              to="/login"
+              variant="contained"
+              fullWidth
+              sx={{
+                maxWidth: {
+                  tablet: 160,
+                },
+                py: 1.2,
+                fontWeight: 600,
+              }}
+            >
+              로그인
+            </Button>
+
+            <Button
+              component={RouterLink}
+              to="/signup"
+              variant="outlined"
+              fullWidth
+              sx={{
+                maxWidth: {
+                  tablet: 160,
+                },
+                py: 1.2,
+                fontWeight: 600,
+              }}
+            >
+              회원가입
+            </Button>
+          </Stack>
+        </Box>
+      </Box>
+    );
+  }
+
+  // 로그인했지만 profile 정보가 없는 상태
+  if (!profile) {
+    return (
+      <Box
+        component="main"
+        sx={{
+          minHeight: "calc(100vh - 64px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          px: 2,
+          py: 6,
+        }}
+      >
+        <Box
+          sx={{
+            textAlign: "center",
+            maxWidth: 420,
+          }}
+        >
+          <Text component="h1" variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+            프로필 정보를 불러올 수 없습니다.
+          </Text>
+
+          <Text component="p" variant="body2" color="text.secondary">
+            잠시 후 다시 시도해주세요.
+          </Text>
+        </Box>
+      </Box>
     );
   }
 
