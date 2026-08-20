@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useOutletContext, useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
 
 import ProjectCard from "../ProjectCard";
+import EmptyState from "./EmptyState";
 import styles from "./MyProjectsSection.module.css";
 
 import Box from "@mui/material/Box";
@@ -13,7 +14,7 @@ import Link from "@mui/material/Link";
 export default function MyProjectsSection({ mode }) {
   const { user } = useSelector(state => state.user);
   const currentUserId = user?.id ?? null;
-
+  const navigate = useNavigate();
   const { userId: profileUserId } = useParams();
 
   const { profile } = useOutletContext();
@@ -101,7 +102,7 @@ export default function MyProjectsSection({ mode }) {
             <Text component="h2" variant="h6">
               내 프로젝트
             </Text>
-            <Link component="a" href="/mypage/projects" underline="hover" variant="subtitle2">
+            <Link component={RouterLink} to="/mypage/projects" underline="hover" variant="subtitle2">
               View all
             </Link>
           </>
@@ -111,11 +112,20 @@ export default function MyProjectsSection({ mode }) {
           </Text>
         )}
       </Box>
-      <div className={styles.grid}>
-        {projects.map(project => (
-          <ProjectCard key={project.project_id} project={project} />
-        ))}
-      </div>
+      {projects.length > 0 ? (
+        <div className={styles.grid}>
+          {projects.map(project => (
+            <ProjectCard key={project.project_id} project={project} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          message="아직 프로젝트가 없습니다."
+          description="첫 번째 프로젝트를 등록해보세요."
+          buttonText="프로젝트 등록"
+          onClick={() => navigate("/portfolios/new")}
+        />
+      )}
     </Box>
   );
 }

@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import ContactCard from "./ContactCard";
 import ContactDialog from "./ContactDialog";
 import MessageDialog from "./MessageDialog";
+import EmptyState from "./EmptyState";
 
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
@@ -46,13 +47,16 @@ export default function ContactSection() {
       </Box>
       {loading ? (
         <Text component="p">관심 & 연락을 불러오는 중...</Text>
-      ) : (
+      ) : notifications.length > 0 ? (
         <List>
           {notifications.slice(0, 5).map(item => (
             <ContactCard key={item.id} item={item} onMessageClick={handleMessageClick} />
           ))}
         </List>
+      ) : (
+        <EmptyState message="아직 활동 내역이 없습니다." description="좋아요나 메시지가 도착하면 여기에 표시됩니다." />
       )}
+
       <MessageDialog
         open={openMessage}
         onClose={() => setOpenMessage(false)}
