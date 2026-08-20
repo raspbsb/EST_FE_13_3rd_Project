@@ -120,7 +120,7 @@ export default function Login() {
   };
 
   return (
-    <Box component="main" className={styles.container} role="main">
+    <Box component="main" className={styles.loginContainer} role="main">
       <div className={styles.content}>
         {/* 왼쪽: 로그인 폼 영역 */}
         <div className={styles.left}>

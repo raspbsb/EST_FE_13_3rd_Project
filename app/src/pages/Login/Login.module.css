@@ -1,7 +1,7 @@
 /* app/src/pages/Login/Login.module.css (대체) */
 
 /* container: 브라우저 전체 스크롤 허용을 위해 min-height 사용 */
-.container {
+.loginContainer {
   width: 100%;
   min-height: calc(100vh - var(--header-height, 64px));
   background-color: #fafafa;
@@ -162,6 +162,6 @@
     max-width: 720px;
   }
 }
-:global(footer) {
+body:has(.loginContainer) footer {
   display: none !important;
 }
