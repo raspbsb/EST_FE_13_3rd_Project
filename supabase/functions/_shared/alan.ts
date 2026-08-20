@@ -5,15 +5,16 @@
 const ALAN_API_BASE = "https://kdt-api-function.azurewebsites.net";
 // Alan AI가 응답을 너무 오래 끌면(관측상 무한정 대기) Edge Function 자체 실행 시간 제한(546)에 걸리므로,
 // client_id 하나당 이 시간을 넘기면 포기하고 다음 client_id로 넘어간다.
-const ALAN_REQUEST_TIMEOUT_MS = 30000;
+// 정상 응답도 ~30초 가까이 걸리는 경우가 있어 너무 짧게 잡으면 살아있는 키도 오탐으로 끊길 수 있다 — 20~25초 선에서 절충.
+const ALAN_REQUEST_TIMEOUT_MS = 25000;
 
 // ALAN_API_KEYS에 등록한 client_id 순서와 동일한 순서로 맞춘 이름 목록.
 // 어떤 client_id가 실제로 쓰였는지 로그/응답에는 이름만 노출하고, client_id 원본 값은 노출하지 않는다.
 const ALAN_API_KEY_NAMES = ["배정호", "유태구", "맹예진", "강채희", "오예은"];
 
-// 배정호/유태구/맹예진/강채희 키가 하루 한도 소진(HTTP 401)으로 계속 실패하는 게 관측돼서,
-// 지금 유일하게 살아있는 오예은 키를 맨 앞으로 옮긴다. (env의 ALAN_API_KEYS 순서는 그대로 두고, 시도 순서만 재배치)
-const ALAN_KEY_TRY_ORDER = [4, 1, 2, 3, 0];
+// 오예은/유태구/맹예진 키가 하루 한도 소진으로 응답을 안 주고 타임아웃까지 물고 있는 게 관측돼서(2026-08-19),
+// 지금 살아있는 키를 맨 앞으로 옮긴다. (env의 ALAN_API_KEYS 순서는 그대로 두고, 시도 순서만 재배치)
+const ALAN_KEY_TRY_ORDER = [3, 0, 4, 1, 2];
 
 // Alan AI 호출/응답 관련 에러
 export class AlanApiError extends Error {}
@@ -118,7 +119,9 @@ export const callAlanAi = async (
       // 타임아웃(AbortError)이든 네트워크 오류든, 이 client_id가 실패해도 다음 client_id로 계속 시도한다.
       const isTimeout = error instanceof Error && error.name === "AbortError";
 
-      console.log(`[Alan] 실패: ${keyName} - ${isTimeout ? "타임아웃" : error instanceof Error ? error.message : "알 수 없는 오류"}`);
+      console.log(
+        `[Alan] 실패: ${keyName} - ${isTimeout ? "타임아웃" : error instanceof Error ? error.message : "알 수 없는 오류"}`,
+      );
 
       lastError = isTimeout
         ? new AlanApiError("AI 분석 서버의 응답 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")

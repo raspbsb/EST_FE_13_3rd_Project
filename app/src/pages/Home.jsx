@@ -16,7 +16,6 @@ import CodeIcon from "@mui/icons-material/Code";
 import PeopleIcon from "@mui/icons-material/People";
 
 import PortfolioCard from "../components/Home/PortfolioCard";
-import ProfileDropdown from "../components/Home/ProfileDropdown";
 import { supabase } from "../utils/supabase";
 
 const FeatureIconWrapper = styled(Box)(({ theme }) => ({
@@ -273,6 +272,7 @@ export default function Home() {
           .limit(12);
 
         const cleanedQuery = searchTerm.trim();
+
         if (cleanedQuery) {
           query = query.ilike("title", `%${cleanedQuery}%`);
         }
@@ -302,13 +302,16 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
   const getInfinitePortfolios = () => {
     if (searchTerm.trim()) {
       return portfolios;
     }
+
     if (portfolios.length === 0) {
       return [];
     }
+
     const repeated = [];
 
     while (repeated.length < 12) {
@@ -358,19 +361,6 @@ export default function Home() {
 
         <link rel="canonical" href={typeof window !== "undefined" ? window.location.href : ""} />
       </Helmet>
-
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          px: { mobile: 2, tablet: 3 },
-          pt: 2,
-        }}
-      >
-        <ProfileDropdown />
-      </Box>
 
       <Box
         component="main"
@@ -468,6 +458,9 @@ export default function Home() {
                       </InputAdornment>
                     ),
                   },
+                  htmlInput: {
+                    "aria-label": "포트폴리오 검색",
+                  },
                 }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
@@ -528,7 +521,6 @@ export default function Home() {
               alignItems: "center",
             }}
           >
-            {/* Desktop */}
             <Box
               sx={{
                 display: {
@@ -574,6 +566,7 @@ export default function Home() {
                   </Box>
                 ))}
               </Box>
+
               {!searchTerm.trim() && (
                 <Box
                   sx={{
@@ -616,19 +609,17 @@ export default function Home() {
 
                 <Box
                   sx={{
-                    display: "flex",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
                     gap: "24px",
-                    justifyContent: "center",
                     width: "100%",
-                    flexWrap: "wrap",
                   }}
                 >
                   {portfolios.slice(0, 3).map((item, index) => (
                     <Box
                       key={`tab-${item?.id ?? "card"}-${index}`}
                       sx={{
-                        width: "312px",
-                        flexShrink: 0,
+                        width: "100%",
                       }}
                     >
                       <PortfolioCard portfolio={item} />

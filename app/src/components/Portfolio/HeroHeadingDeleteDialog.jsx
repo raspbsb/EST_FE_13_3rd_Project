@@ -6,14 +6,17 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 
-export default function HeroMetaBookmarkCancelDialog({ open, onClose, onConfirm }) {
+export default function HeroHeadingDeleteDialog({ open, onClose, onConfirm }) {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>북마크 삭제</DialogTitle>
+      <DialogTitle>포트폴리오 삭제</DialogTitle>
       <DialogContent dividers>
         <Box sx={{ py: 1, textAlign: "center" }}>
           <Text component={"p"} variant="body1">
-            북마크를 삭제하시겠습니까?
+            포트폴리오를 삭제하시겠습니까?
+          </Text>
+          <Text component={"p"} variant="body1" color="error" sx={{ fontWeight: "700" }}>
+            한번 삭제하면 복구할 수 없습니다!
           </Text>
         </Box>
       </DialogContent>

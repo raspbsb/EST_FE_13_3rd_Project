@@ -5,7 +5,7 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
 import { withSupabase } from "@supabase/server";
 import { AlanApiError, callAlanAi, hasAnyContent, parseAlanJson } from "../_shared/alan.ts";
-import { assertCooldownReady, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
+import { assertCooldownReady, COOLDOWN_MS_BY_ACTION, CooldownActiveError, markCooldownStart } from "../_shared/cooldown.ts";
 import { createDraftGuidePrompt, type DraftGuideFormContext } from "../_shared/prompts.ts";
 
 // 사용자가 입력한 프로젝트 정보(주로 기존 설명)를 받아 Alan AI에 초안 생성 프롬프트를 보내고,
@@ -62,6 +62,7 @@ export default {
         draftGuideResult,
         alanUsage: [{ keyName: result.keyName, callCount: 1 }],
         generatedAt,
+        cooldownMs: COOLDOWN_MS_BY_ACTION.draft,
       });
     } catch (error) {
       if (error instanceof AlanApiError) {

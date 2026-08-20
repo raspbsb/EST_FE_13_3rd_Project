@@ -215,6 +215,7 @@ export default function Header() {
               onClose={closeMobileNav}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
+              disableScrollLock
             >
               {HEADER_NAV_ITEMS.map(item => (
                 <MenuItem
@@ -258,9 +259,8 @@ export default function Header() {
                     aria-haspopup="true"
                     aria-expanded={menuOpen ? "true" : undefined}
                     onClick={e => (menuOpen ? handleCloseMenu() : handleOpenMenu(e))}
-                    onMouseEnter={handleOpenMenu}
                     size="large"
-                    sx={{ p: 0 }}
+                    sx={{ p: 0, cursor: "pointer" }}
                   >
                     {avatarUrl ? (
                       <Avatar src={avatarUrl} alt="프로필" sx={{ width: 40, height: 40 }} />
@@ -276,8 +276,9 @@ export default function Header() {
                     anchorEl={anchorEl}
                     open={menuOpen}
                     onClose={handleCloseMenu}
+                    disableScrollLock
+                    disableAutoFocusItem
                     MenuListProps={{
-                      onMouseLeave: handleCloseMenu,
                       "aria-labelledby": "profile-avatar",
                     }}
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}

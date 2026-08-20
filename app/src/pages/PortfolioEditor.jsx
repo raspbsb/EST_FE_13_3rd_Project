@@ -253,6 +253,8 @@ const createEditorAiAnalysisResult = aiCreated => ({
   analysisLimitation: aiCreated.analysis_limitation ?? "",
   analysisEvidence: aiCreated.analysis_evidence ?? null,
   analyzedAt: aiCreated.github_analyzed_at ?? "",
+  // DB에는 쿨타임 길이를 저장하지 않으므로, 새로 분석하기 전까지는 프론트 기본값(ANALYZE_COOLDOWN_MS)으로 표시한다.
+  cooldownMs: null,
 });
 
 // DB에서 가져온 portfolio_ai_created row를 초안 가이드 상태 구조로 변환
@@ -263,6 +265,8 @@ const createEditorDraftGuide = aiCreated => ({
   generatedAt: aiCreated.draft_generated_at ?? "",
   appliedDescriptionSource: "",
   isSummaryApplied: Boolean(aiCreated.ai_short_summary),
+  // DB에는 쿨타임 길이를 저장하지 않으므로, 새로 생성하기 전까지는 프론트 기본값(DRAFT_COOLDOWN_MS)으로 표시한다.
+  cooldownMs: null,
 });
 
 // 포트폴리오 에디터 임시저장 목록을 localStorage에 저장할 때 사용하는 key
@@ -343,6 +347,7 @@ export default function PortfolioEditor({ data }) {
     participationDetails: "",
     analysisLimitation: "",
     analysisEvidence: null,
+    cooldownMs: null,
   });
 
   // AI 초안 생성 저장 데이터 상태 객체
@@ -353,6 +358,7 @@ export default function PortfolioEditor({ data }) {
     generatedAt: "",
     appliedDescriptionSource: "",
     isSummaryApplied: false,
+    cooldownMs: null,
   });
 
   // 화면 동작 관리용 상태 객체
@@ -610,6 +616,21 @@ export default function PortfolioEditor({ data }) {
 
     setTemporaryDrafts(draftList);
 
+    // GitHub 연동 페이지에서 돌아왔는데 연동이 실패했으면(이미 다른 계정에 연동된 GitHub 계정, 사용자가 취소함 등)
+    // Supabase가 리다이렉트 URL 쿼리에 error/error_code를 실어 보낸다. 그대로 두면 사용자 눈엔 아무 반응 없이
+    // 멈춘 것처럼 보이므로, 안내 메시지를 띄우고 URL의 에러 쿼리는 지운다.
+    const oauthErrorCode = new URLSearchParams(window.location.search).get("error_code");
+
+    if (oauthErrorCode) {
+      const oauthErrorMessages = {
+        identity_already_exists: "이미 다른 계정에 연동된 GitHub 계정입니다. 다른 GitHub 계정으로 다시 시도해주세요.",
+        access_denied: "GitHub 연동이 취소되었습니다.",
+      };
+
+      notify(oauthErrorMessages[oauthErrorCode] ?? "GitHub 연동 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", "error");
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+
     // GitHub 연동 페이지로 갔다가 돌아온 경우, 연동 성공/취소와 상관없이
     // 떠나기 전 저장해둔 임시저장을 확인창 없이 바로 복원한다.
     const pendingDraftId = loadLocalStorageItem(PORTFOLIO_EDITOR_PENDING_RESTORE_KEY);
@@ -827,6 +848,7 @@ export default function PortfolioEditor({ data }) {
         ...prev,
         ...data.aiAnalysisResult,
         analyzedAt: data.analyzedAt,
+        cooldownMs: data.cooldownMs,
       }));
     } catch (error) {
       notify(await getEdgeFunctionErrorMessage(error), "error");
@@ -872,6 +894,7 @@ export default function PortfolioEditor({ data }) {
         aiDraftDescription: data.draftGuideResult.draftDescription,
         aiShortSummary: data.draftGuideResult.shortSummary,
         generatedAt: data.generatedAt,
+        cooldownMs: data.cooldownMs,
         appliedDescriptionSource: "current",
         isSummaryApplied: false,
       }));

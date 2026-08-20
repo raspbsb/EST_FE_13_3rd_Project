@@ -21,10 +21,6 @@ export const fetchUser = createAsyncThunk("user", async () => {
     .eq("user_id", user.id) // DB 트리거 기준 id 컬럼과 매칭
     .maybeSingle();
 
-  if (profileError) {
-    console.error("프로필 조회 실패:", profileError);
-  }
-
   return {
     user,
     profile,
@@ -63,8 +59,6 @@ const userSlice = createSlice({
     builder.addCase(fetchUser.rejected, (state, action) => {
       state.status = "failed";
       state.error = action.error.message || "사용자 정보를 불러오는데 실패했습니다.";
-
-      console.error(action.error);
     });
   },
 });

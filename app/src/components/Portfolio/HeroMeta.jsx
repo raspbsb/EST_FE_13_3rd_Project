@@ -58,7 +58,6 @@ export default function HeroMeta({}) {
         .select("*", { count: "exact", head: true })
         .eq("project_id", data.project_id);
       if (error) {
-        console.warn("좋아요 제거 실패!: ", error);
         return;
       }
       dispatch(fetchLikes(data.project_id));
@@ -70,7 +69,6 @@ export default function HeroMeta({}) {
         .from("portfolio_likes")
         .insert({ project_id: data.project_id, user_id: user.id });
       if (error) {
-        console.warn("좋아요 추가 실패!: ", error);
         return;
       }
       dispatch(fetchLikes(data.project_id));
@@ -108,7 +106,6 @@ export default function HeroMeta({}) {
       .from("bookmarks")
       .insert({ project_id: data.project_id, user_id: user.id, collection_id: selectedCollection.collection_id });
     if (error) {
-      console.error("북마크 추가 실패!: ", error);
       return;
     }
     setIsCollectionOpen(false);
@@ -122,7 +119,6 @@ export default function HeroMeta({}) {
       .eq("project_id", data.project_id)
       .eq("user_id", user.id);
     if (error) {
-      console.error("북마크 제거 실패!: ", error);
       return;
     }
     setIsBookmarkCancelOpen(false);
