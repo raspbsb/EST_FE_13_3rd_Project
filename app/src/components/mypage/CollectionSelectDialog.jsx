@@ -1,3 +1,5 @@
+import { supabase } from "../../utils/supabase";
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -23,6 +25,8 @@ export default function CollectionSelectDialog({
   onSave,
 }) {
   const [selectedId, setSelectedId] = useState(selectedCollectionId);
+  const [collectionsWithCount, setCollectionsWithCount] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Dialog를 다시 열 때 선택 상태 동기화
   useEffect(() => {
@@ -30,6 +34,52 @@ export default function CollectionSelectDialog({
       setSelectedId(selectedCollectionId);
     }
   }, [open, selectedCollectionId]);
+
+  // 컬렉션의 북마크 갯수 조회하기 위한 함수
+  useEffect(() => {
+    if (!open || collections.length === 0) {
+      setCollectionsWithCount([]);
+      return;
+    }
+
+    const fetchBookmarkCounts = async () => {
+      setLoading(true);
+
+      const collectionIds = collections.map(collection => collection.collection_id);
+
+      const { data, error } = await supabase
+        .from("bookmarks")
+        .select("collection_id")
+        .in("collection_id", collectionIds);
+
+      if (error) {
+        console.error("북마크 개수 조회 실패:", error);
+        setCollectionsWithCount(
+          collections.map(collection => ({
+            ...collection,
+            total: 0,
+          })),
+        );
+        setLoading(false);
+        return;
+      }
+
+      const countMap = data.reduce((acc, bookmark) => {
+        acc[bookmark.collection_id] = (acc[bookmark.collection_id] ?? 0) + 1;
+        return acc;
+      }, {});
+
+      const result = collections.map(collection => ({
+        ...collection,
+        total: countMap[collection.collection_id] ?? 0,
+      }));
+
+      setCollectionsWithCount(result);
+      setLoading(false);
+    };
+
+    fetchBookmarkCounts();
+  }, [open, collections]);
 
   const handleSelect = collectionId => {
     onSelect(collectionId);
@@ -40,7 +90,7 @@ export default function CollectionSelectDialog({
   const handleSave = () => {
     if (!selectedId) return;
 
-    const selectedCollection = collections.find(collection => collection.collection_id === selectedId);
+    const selectedCollection = collectionsWithCount.find(collection => collection.collection_id === selectedId);
 
     onSave?.(selectedCollection);
     onClose();
@@ -48,10 +98,19 @@ export default function CollectionSelectDialog({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>컬렉션에 북마크</DialogTitle>
+      <DialogTitle>북마크 추가</DialogTitle>
 
       <DialogContent dividers>
-        {collections.length === 0 ? (
+        {loading ? (
+          <Box
+            sx={{
+              py: 4,
+              textAlign: "center",
+            }}
+          >
+            <Text color="text.secondary">컬렉션 정보를 불러오는 중...</Text>
+          </Box>
+        ) : collectionsWithCount.length === 0 ? (
           <Box
             sx={{
               py: 4,
@@ -59,13 +118,14 @@ export default function CollectionSelectDialog({
             }}
           >
             <Text color="text.secondary">생성된 컬렉션이 없습니다.</Text>
+
             <Button component={Link} to="/mypage/collections" color="primary" variant="text" sx={{ mt: 2 }}>
               컬렉션 추가하러 가기
             </Button>
           </Box>
         ) : (
           <List disablePadding>
-            {collections.map(collection => (
+            {collectionsWithCount.map(collection => (
               <ListItem key={collection.collection_id} disablePadding>
                 <ListItemButton
                   selected={selectedId === collection.collection_id}
@@ -73,7 +133,7 @@ export default function CollectionSelectDialog({
                 >
                   <Radio edge="start" checked={selectedId === collection.collection_id} tabIndex={-1} disableRipple />
 
-                  <ListItemText primary={collection.title} secondary={`총 ${collection.total ?? 0}개`} />
+                  <ListItemText primary={collection.title} secondary={`총 ${collection.total}개`} />
                 </ListItemButton>
               </ListItem>
             ))}
