@@ -29,11 +29,11 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onSave
         sx={{
           maxWidth: 1272,
           mx: "auto",
-          px: { xs: 2, tablet: 3 },
+          px: { xs: 1, tablet: 3 },
           py: 2,
           justifyContent: "space-between",
           alignItems: "center",
-          gap: 2,
+          gap: { xs: 1, tablet: 2 },
         }}
       >
         {/* 공개/비공개 토글 그룹 */}
@@ -69,11 +69,34 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onSave
         </Stack>
 
         {/* 임시저장/수정완료 버튼 */}
-        <Stack direction="row" sx={{ gap: 1.5, alignItems: "center" }}>
-          <Button type="button" variant="outlined" aria-label="현재 작성 내용을 임시저장" onClick={onSaveDraft}>
+        <Stack direction="row" sx={{ gap: { xs: 0.75, tablet: 1.5 }, alignItems: "center" }}>
+          <Button
+            type="button"
+            variant="outlined"
+            aria-label="현재 작성 내용을 임시저장"
+            onClick={onSaveDraft}
+            sx={{
+              whiteSpace: "nowrap",
+              minWidth: "auto",
+              px: { xs: 1, tablet: 2 },
+              py: { xs: 0.5, tablet: 1 },
+              fontSize: { xs: 12, tablet: 14 },
+            }}
+          >
             임시저장
           </Button>
-          <Button type="submit" variant="contained" aria-label={isEdit ? "포트폴리오 수정 완료" : "포트폴리오 작성 완료"}>
+          <Button
+            type="submit"
+            variant="contained"
+            aria-label={isEdit ? "포트폴리오 수정 완료" : "포트폴리오 작성 완료"}
+            sx={{
+              whiteSpace: "nowrap",
+              minWidth: "auto",
+              px: { xs: 1, tablet: 2 },
+              py: { xs: 0.5, tablet: 1 },
+              fontSize: { xs: 12, tablet: 14 },
+            }}
+          >
             {isEdit ? "수정 완료" : "작성 완료"}
           </Button>
         </Stack>

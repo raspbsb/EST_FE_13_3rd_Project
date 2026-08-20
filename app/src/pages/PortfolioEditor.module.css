@@ -847,3 +847,13 @@
   font-weight: 500;
   line-height: 16px;
 }
+@media (max-width: 767px) {
+  /* 좁은 화면에서는 버튼 2개가 폭을 다 차지해서 이 텍스트가 0에 가깝게 눌리며
+     한 글자씩 세로로 줄바꿈되는 문제가 있어, 모바일에서는 아이콘+스위치만 남기고 텍스트는 숨긴다. */
+  .page :global(.portfolio-editor-visibility-control__text.MuiBox-root) {
+    display: none;
+  }
+  .page :global(.portfolio-editor-visibility-control.MuiStack-root) {
+    gap: 8px;
+  }
+}
