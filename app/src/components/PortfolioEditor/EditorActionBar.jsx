@@ -37,7 +37,7 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onSave
         }}
       >
         {/* 공개/비공개 토글 그룹 */}
-        <Stack className="portfolio-editor-visibility-control" direction="row">
+        <Stack className="portfolio-editor-visibility-control" direction="row" sx={{ flexShrink: 0 }}>
           <Switch
             id="is_public"
             name="is_public"
@@ -69,35 +69,45 @@ function EditorActionBar({ isEdit, isPortfolioPublic, onVisibilityChange, onSave
         </Stack>
 
         {/* 임시저장/수정완료 버튼 */}
-        <Stack direction="row" sx={{ gap: { xs: 0.75, tablet: 1.5 }, alignItems: "center" }}>
+        <Stack direction="row" sx={{ gap: { xs: 0.75, tablet: 1.5 }, alignItems: "center", minWidth: 0, flex: "1 1 auto", justifyContent: "flex-end" }}>
           <Button
             type="button"
             variant="outlined"
             aria-label="현재 작성 내용을 임시저장"
             onClick={onSaveDraft}
             sx={{
-              whiteSpace: "nowrap",
-              minWidth: "auto",
+              minWidth: 0,
+              flexShrink: 1,
               px: { xs: 1, tablet: 2 },
               py: { xs: 0.5, tablet: 1 },
               fontSize: { xs: 12, tablet: 14 },
+              "@media (max-width: 300px)": {
+                px: 0.5,
+              },
             }}
           >
-            임시저장
+            <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              임시저장
+            </Box>
           </Button>
           <Button
             type="submit"
             variant="contained"
             aria-label={isEdit ? "포트폴리오 수정 완료" : "포트폴리오 작성 완료"}
             sx={{
-              whiteSpace: "nowrap",
-              minWidth: "auto",
+              minWidth: 0,
+              flexShrink: 1,
               px: { xs: 1, tablet: 2 },
               py: { xs: 0.5, tablet: 1 },
               fontSize: { xs: 12, tablet: 14 },
+              "@media (max-width: 300px)": {
+                px: 0.5,
+              },
             }}
           >
-            {isEdit ? "수정 완료" : "작성 완료"}
+            <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {isEdit ? "수정 완료" : "작성 완료"}
+            </Box>
           </Button>
         </Stack>
       </Stack>
