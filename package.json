@@ -6,9 +6,13 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
-    "functions:serve": "supabase functions serve"
+    "functions:serve": "supabase functions serve --env-file ./supabase/.env.local"
   },
   "devDependencies": {
+    "react-snap": "^1.23.0",
     "supabase": "^2.111.0"
+  },
+  "dependencies": {
+    "react-helmet-async": "^3.0.0"
   }
 }

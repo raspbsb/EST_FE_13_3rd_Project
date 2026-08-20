@@ -1,0 +1,84 @@
+.item {
+  width: 100%;
+}
+
+.card {
+  display: flex !important;
+  align-items: center !important;
+
+  width: 100%;
+  min-height: 120px;
+
+  padding: 12px !important;
+
+  border: 1px solid #c4c7c7 !important;
+  border-radius: 4px !important;
+
+  box-sizing: border-box;
+}
+
+.thumbnail {
+  width: 185px;
+  height: 88px;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  object-fit: cover;
+}
+
+.info {
+  margin-left: 16px !important;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.total {
+  color: #666;
+}
+
+.arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Mobile Collection Card */
+@media (max-width: 767px) {
+  .card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    min-height: 0;
+
+    padding: 20px !important;
+  }
+
+  .thumbnail {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.6 / 1;
+
+    margin-bottom: 20px;
+  }
+
+  .info {
+    margin-left: 0 !important;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .total {
+    font-size: 16px;
+  }
+
+  .arrow {
+    display: none;
+  }
+}

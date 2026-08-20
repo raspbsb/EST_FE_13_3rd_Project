@@ -1,0 +1,51 @@
+.nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1200;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    height: 56px;
+
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    color: #212121;
+    text-decoration: none;
+
+    /* button 기본 스타일 제거 */
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: none;
+    font: inherit;
+  }
+
+  .item svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .item span {
+    font-size: 14px;
+  }
+
+  .active span {
+    color: #1677ff;
+  }
+}

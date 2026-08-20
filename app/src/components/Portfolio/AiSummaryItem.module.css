@@ -1,0 +1,33 @@
+dt.ai-summary-item-title {
+  padding-left: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: baseline;
+}
+dt.ai-summary-item-title p {
+  max-width: 100%;
+}
+
+dd.ai-summary-item {
+  margin-top: 4px;
+  margin-bottom: 16px;
+  padding: 12px;
+  max-height: 500px;
+  border-style: solid;
+  border-width: 1px 1px 1px 8px;
+  border-color: var(--mui-palette-primary-main);
+  border-radius: 4px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+dd.ai-summary-item {
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 1439px) {
+  dt.ai-summary-item-title {
+    flex-direction: column;
+    gap: 0px;
+  }
+}

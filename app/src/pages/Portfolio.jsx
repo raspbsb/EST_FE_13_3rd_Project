@@ -1,3 +1,125 @@
+import { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { supabase } from "../utils/supabase";
+
+import Text from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Stack from "@mui/material/Stack";
+import MuiLink from "@mui/material/Link";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { AiSummaryProvider } from "../components/Portfolio/AiSummaryContext";
+import { resetPortfolio, fetchPortfolio, fetchOtherPortfolios } from "../components/Portfolio/portfolioSlice";
+import { HeroSection, DescriptionSection, AiSummarySection, AuthorInfoSection } from "../components/Portfolio";
+
 export default function Portfolio() {
-  return <h1>포트폴리오 페이지</h1>;
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const { data, status, error, otherPortfolios } = useSelector(state => state.portfolio);
+  const { user } = useSelector(state => state.user);
+
+  useEffect(() => {
+    dispatch(fetchPortfolio(id));
+    return () => {
+      dispatch(resetPortfolio());
+    };
+  }, [id]);
+
+  async function incrementViews() {
+    await supabase.rpc("increment_portfolio_view", { p_project_id: data.project_id });
+  }
+  useEffect(() => {
+    if (status !== "succeeded") return;
+    incrementViews();
+    if (!data?.author_id) return;
+    dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
+  }, [status]);
+
+  if (status === "idle" || status === "loading") {
+    return (
+      <Container>
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+          <CircularProgress size={40} />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (status === "failed") {
+    return (
+      <Container>
+        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
+          DB와 통신에 실패했습니다.
+        </Text>
+        <Text component={"p"} variant="h5">
+          {error?.message}
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/"}>
+            홈으로 돌아가기
+          </MuiLink>
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/gallery"}>
+            목록으로 돌아가기
+          </MuiLink>
+        </Text>
+      </Container>
+    );
+  }
+
+  if (status === "notFound") {
+    return (
+      <Container>
+        <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
+          해당하는 포트폴리오가 없습니다.
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/"}>
+            홈으로 돌아가기
+          </MuiLink>
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/gallery"}>
+            목록으로 돌아가기
+          </MuiLink>
+        </Text>
+      </Container>
+    );
+  }
+
+  if (!data?.is_public && data?.author_id !== user?.id) {
+    return (
+      <Container>
+        <Text component={"h1"} variant="h4" sx={{ my: 6 }}>
+          작성자가 포트폴리오를 비공개로 설정했습니다
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/"}>
+            홈으로 돌아가기
+          </MuiLink>
+        </Text>
+        <Text component={"p"} variant="body1">
+          <MuiLink component={Link} to={"/gallery"}>
+            목록으로 돌아가기
+          </MuiLink>
+        </Text>
+      </Container>
+    );
+  }
+
+  return (
+    <AiSummaryProvider>
+      <Container>
+        <Stack sx={{ gap: { mobile: 4, tablet: 5, desktop: 6 }, pt: 6 }}>
+          <HeroSection />
+          <DescriptionSection />
+          <AiSummarySection />
+          <AuthorInfoSection />
+        </Stack>
+      </Container>
+    </AiSummaryProvider>
+  );
 }

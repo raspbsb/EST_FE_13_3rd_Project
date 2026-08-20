@@ -1,0 +1,202 @@
+/* Signup.module.css - 폼카드가 왼쪽 영역 중앙에 오도록 수정된 버전 */
+
+/* 전역: (선택적) */
+:global(body.no-scroll) {
+  overflow: hidden !important;
+  height: 100%;
+}
+
+/* 컨테이너 전체 높이(헤더 제외) */
+.container {
+  width: 100%;
+  min-height: calc(100vh - var(--header-height, 64px));
+  background-color: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* padding: 24px; */
+  box-sizing: border-box;
+}
+
+/* 히어로 폭 변수 */
+:root {
+  --hero-width: clamp(420px, 40vw, 680px);
+}
+
+/* content: 왼쪽(1fr) / 오른쪽(고정 hero 너비)
+   -> padding-right 제거(이전 패딩이 left를 압축시켰음)
+*/
+.content {
+  width: 100%;
+  max-width: 1400px;
+  display: grid;
+  grid-template-columns: 1fr var(--hero-width);
+  gap: 0;
+  align-items: stretch;
+  box-sizing: border-box;
+  padding: 24px;
+}
+
+/* LEFT: 폼카드가 이 칼럼의 정중앙에 놓이도록 flex로 중앙정렬 */
+.left {
+  display: flex;
+  justify-content: center; /* 수평 중앙 */
+  align-items: center; /* 수직 중앙 */
+  padding: 40px;
+  box-sizing: border-box;
+  min-height: calc(100vh - var(--header-height, 64px) - 80px);
+}
+
+/* formCard: 로그인과 동일한 크기 유지, 내부스크롤 처리 */
+.formCard {
+  width: 100%;
+  max-width: 580px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 36px 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* RIGHT: placeholder column (히어로는 fixed) */
+.right {
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* hero: fixed로 우측 전체 영역 차지 (카드 높이와 독립) */
+.heroImage {
+  position: fixed;
+  top: var(--header-height, 64px);
+  right: 0;
+  bottom: 0;
+  width: var(--hero-width);
+  max-width: 680px;
+  min-width: 420px;
+  height: calc(100vh - var(--header-height, 64px));
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 내부 스텝/폼 기본 스타일 유지 */
+.stepper {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.stepCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-weight: 700;
+}
+.stepActive .stepCircle {
+  background: var(--color-primary, #1976d2);
+  color: #fff;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agreeBox {
+  border: 1px solid #dcdcdc;
+  background: #fafafa;
+  padding: 8px;
+  border-radius: 4px;
+}
+.agreeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+.agreeRow:last-child {
+  border-bottom: none;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.leftCol {
+  width: 200px;
+  min-width: 140px;
+}
+.rightCol {
+  flex: 1;
+}
+
+.radioCard {
+  border: 1px solid #d0d7ff;
+  padding: 12px;
+  border-radius: 8px;
+  min-width: 160px;
+}
+.loginText {
+  text-align: center;
+  margin-top: 12px;
+}
+.loginLink {
+  color: var(--color-primary, #1976d2);
+  text-decoration: none;
+}
+
+/* 반응형: 작은 화면에서는 hero 숨김, 폼 전체 너비 */
+@media (max-width: 1100px) {
+  .content {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .right {
+    display: none;
+  }
+  .left {
+    padding: 24px;
+  }
+  .formCard {
+    max-width: 720px;
+  }
+}
+:global(footer) {
+  display: none !important;
+}
