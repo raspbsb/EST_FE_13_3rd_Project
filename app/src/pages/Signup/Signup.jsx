@@ -179,7 +179,22 @@ export default function Signup() {
       navigate("/login", { replace: true });
     } catch (err) {
       console.error("signup failed", err);
-      setFormError(err?.message || "회원가입 중 오류가 발생했습니다.");
+
+      // 영문 에러 메시지를 한글로 변환
+      let koreanMsg = "회원가입 중 오류가 발생했습니다.";
+      const rawMsg = err?.message || "";
+
+      if (rawMsg.includes("User already registered")) {
+        koreanMsg = "이미 가입된 이메일 주소입니다.";
+      } else if (rawMsg.includes("Password should be at least")) {
+        koreanMsg = "비밀번호는 최소 6자리 이상이어야 합니다.";
+      } else if (rawMsg.includes("Unable to validate email address")) {
+        koreanMsg = "올바른 이메일 형식이 아닙니다.";
+      } else if (rawMsg.includes("rate limit") || rawMsg.includes("Too many requests")) {
+        koreanMsg = "보안 정책상 짧은 시간 내 연속 가입이 제한되었습니다. 잠시 후 다시 시도해 주세요.";
+      }
+
+      setFormError(koreanMsg);
     } finally {
       setSubmitting(false);
     }
@@ -256,7 +271,7 @@ export default function Signup() {
   }
 
   return (
-    <Box component="main" className={styles.container}>
+    <Box component="main" className={styles.signupContainer}>
       <div className={styles.content}>
         {/* LEFT: 좌측 영역에 formCard를 가운데 정렬 */}
         <div className={styles.left}>
