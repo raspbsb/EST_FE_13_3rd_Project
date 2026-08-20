@@ -1,10 +1,11 @@
 import { supabase } from "../../utils/supabase";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { toUrl } from "../../services/toUrl";
 
 import BookmarkCard from "./BookmarkCard";
+import EmptyState from "./EmptyState";
 
 import List from "@mui/material/List";
 import Box from "@mui/material/Box";
@@ -88,21 +89,30 @@ export default function BookmarkSection() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <Text variant="h6">북마크</Text>
 
-        <Link href="/mypage/collections" underline="hover" variant="subtitle2">
+        <Link component={RouterLink} to="/mypage/collections" underline="hover" variant="subtitle2">
           View all
         </Link>
       </Box>
-      <List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {collections.slice(0, 3).map(c => (
-          <BookmarkCard
-            key={c.id}
-            title={c.title}
-            total={c.total}
-            thumbnail={c.thumbnail}
-            handleClick={() => navigate(`/mypage/collections/${c.id}`)}
-          />
-        ))}
-      </List>
+      {collections.length > 0 ? (
+        <List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {collections.slice(0, 3).map(c => (
+            <BookmarkCard
+              key={c.id}
+              title={c.title}
+              total={c.total}
+              thumbnail={c.thumbnail}
+              handleClick={() => navigate(`/mypage/collections/${c.id}`)}
+            />
+          ))}
+        </List>
+      ) : (
+        <EmptyState
+          message="저장한 컬렉션이 없습니다."
+          description="마음에 드는 프로젝트를 북마크해보세요."
+          buttonText="갤러리 탐색하기"
+          onClick={() => navigate("/gallery")}
+        />
+      )}
     </Box>
   );
 }
