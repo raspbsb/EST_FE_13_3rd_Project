@@ -134,53 +134,88 @@ export default function Signup() {
   // final submit: sign up + upload avatar (if provided) + insert profiles row
   async function handleSignup() {
     setFormError("");
+
+    // 최종 가입 전 1, 2단계 필수값 재검증
+    if (!validateStep1Fields()) {
+      setStep(1);
+      return;
+    }
+    if (!(agreeTerms && agreePrivacy && agree14)) {
+      setFormError("필수 약관에 동의해야 합니다.");
+      setStep(2);
+      return;
+    }
+
     if (submitting) return;
     setSubmitting(true);
 
     try {
-      const { data, error: signError } = await supabase.auth.signUp({ email, password });
+      // 1. Auth 회원가입 (Auth display_name으로 nickname 전달)
+      const { data: authData, error: signError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: nickname,
+            full_name: nickname,
+          },
+        },
+      });
+
       if (signError) throw signError;
 
-      const userId = data?.user?.id ?? null;
+      const userId = authData?.user?.id;
       if (!userId) {
-        // If email confirmation flow prevents immediate user creation, redirect to login
-        navigate("/login", { replace: true });
-        return;
+        throw new Error("사용자 ID를 생성하지 못했습니다.");
       }
 
+      // 💡 [핵심] 로그인 세션을 즉시 확보하여 authenticated(로그인) 권한을 취득
+      // 이 작업으로 인해 스토리지와 DB upsert 권한 막힘이 깨끗하게 해결됩니다.
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // 2. 프로필 이미지 스토리지 업로드 (profile_avatars 버킷)
       let avatarPath = null;
       if (avatarFile) {
         const extension = avatarFile.name.split(".").pop();
         const filePath = `${userId}/avatar_${Date.now()}.${extension}`;
+
         const { error: uploadError } = await supabase.storage
           .from("profile_avatars")
           .upload(filePath, avatarFile, { cacheControl: "3600", upsert: true });
-        if (!uploadError) avatarPath = filePath;
+
+        if (uploadError) {
+          console.error("스토리지 업로드 에러:", uploadError.message);
+        } else {
+          avatarPath = filePath;
+        }
       }
 
+      // 3. Profiles 테이블에 사용자 데이터 저장 (자기소개, 기술스택, 공개여부, 닉네임, 이미지 경로)
       const profileRow = {
         user_id: userId,
-        user_name: nickname, // ensure non-null for profiles.user_name
-        avatar_path: avatarPath,
-        user_category: null,
-        skills: techStacks,
-        bio: bio || null,
-        email,
-        is_public: Boolean(isPublic),
-        github_url: null,
+        user_name: nickname, // Auth display name과 동일하게 저장
+        avatar_path: avatarPath, // 스토리지에 올라간 이미지 경로
+        bio: bio || null, // 자기소개
+        skills: techStacks, // 기술 스택 (배열)
+        is_public: Boolean(isPublic), // 공개 여부
+        email: email,
         profile_view: 0,
-        url2: null,
       };
 
-      // const { error: profileError } = await supabase.from("profiles").insert(profileRow);
-      // if (profileError) throw profileError;
+      const { error: profileError } = await supabase.from("profiles").upsert(profileRow, { onConflict: "user_id" });
 
-      // signup complete -> redirect to login
+      if (profileError) {
+        console.error("프로필 저장 상세 에러:", profileError.message);
+        throw profileError;
+      }
+
       navigate("/login", { replace: true });
     } catch (err) {
       console.error("signup failed", err);
 
-      // 영문 에러 메시지를 한글로 변환
       let koreanMsg = "회원가입 중 오류가 발생했습니다.";
       const rawMsg = err?.message || "";
 
@@ -192,6 +227,8 @@ export default function Signup() {
         koreanMsg = "올바른 이메일 형식이 아닙니다.";
       } else if (rawMsg.includes("rate limit") || rawMsg.includes("Too many requests")) {
         koreanMsg = "보안 정책상 짧은 시간 내 연속 가입이 제한되었습니다. 잠시 후 다시 시도해 주세요.";
+      } else if (rawMsg.includes("row-level security")) {
+        koreanMsg = "프로필 저장 권한 오류가 발생했습니다.";
       }
 
       setFormError(koreanMsg);

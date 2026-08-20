@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import { PersonOutlinedIcon, ShareIcon, EmailIcon } from "../../lib/icons";
 import styles from "./Footer.module.css";
@@ -14,6 +14,21 @@ const iconButtonStyle = {
 };
 
 function Footer() {
+  const navigate = useNavigate();
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Portfolio+", url: window.location.href });
+      } catch (err) {
+        console.log("공유 취소 또는 에러:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("현재 페이지 링크가 클립보드에 복사되었습니다.");
+    }
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -26,15 +41,19 @@ function Footer() {
           </p>
 
           <div className={styles.social}>
-            <IconButton aria-label="프로필" sx={iconButtonStyle}>
+            <IconButton aria-label="프로필" sx={iconButtonStyle} onClick={() => navigate("/mypage")}>
               <PersonOutlinedIcon />
             </IconButton>
 
-            <IconButton aria-label="공유" sx={iconButtonStyle}>
+            <IconButton aria-label="공유" sx={iconButtonStyle} onClick={handleShare}>
               <ShareIcon />
             </IconButton>
 
-            <IconButton aria-label="이메일" sx={iconButtonStyle}>
+            <IconButton
+              aria-label="이메일"
+              sx={iconButtonStyle}
+              onClick={() => (window.location.href = "mailto:support@portfolio.com")}
+            >
               <EmailIcon />
             </IconButton>
           </div>
