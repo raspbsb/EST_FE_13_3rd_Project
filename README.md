@@ -15,26 +15,23 @@ Portfolio+는 흩어진 개인 프로젝트를 단순 링크 모음이 아닌 **
 
 ## 2. 팀원 소개 및 역할
 
-아래 역할은 저장소의 커밋 및 PR 이력에서 확인되는 작업 범위를 기준으로 정리했습니다. 실명 또는 개인 GitHub 주소가 이력만으로 확정되지 않는 경우 계정명/플레이스홀더로 표기했습니다.
-
-| 팀원   | 역할                  | 주요 담당                                                                            | GitHub                               |
-| ------ | --------------------- | ------------------------------------------------------------------------------------ | ------------------------------------ |
-| 배정호 | 포트폴리오 에디터·AI  | 라우팅, Supabase 연동, 프로젝트 등록/수정, 이미지 관리, GitHub/AI Edge Function, SEO | [https://github.com/raspbsb]         |
-| 유태구 | 포트폴리오 상세·Home  | 프로젝트 상세 화면, Hero/AI/작성자 섹션, 반응형 UI, Home                             | [https://github.com/rozer4heros]     |
-| 맹예진 | MyPage·Public Profile | 프로필/활동 통계, 컬렉션·북마크, 메시지·알림 UI, 모바일 프로필 내비게이션            | [https://github.com/rkskek8484-cell] |
-| 오예은 | 인증 화면             | 로그인·회원가입 화면 및 반응형 스타일, 헤더 보완                                     | [https://github.com/dhdpdms0712-oss] |
-| 강채희 | Gallery               | 갤러리 UI, 목록 조회·검색·필터·반응형 카드 처리                                      | [https://github.com/chae3110]        |
+| 팀원   | 역할                    | 주요 담당                                                                            | GitHub                             |
+| ------ | ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------- |
+| 배정호 | 포트폴리오 에디터·AI    | 라우팅, Supabase 연동, 프로젝트 등록/수정, 이미지 관리, GitHub/AI Edge Function, SEO | https://github.com/raspbsb         |
+| 유태구 | 포트폴리오 상세·Gallery | 프로젝트 상세 화면, Hero/AI/작성자 섹션, 반응형 UI, Home                             | https://github.com/rozer4heros     |
+| 맹예진 | MyPage·Public Profile   | 프로필/활동 통계, 컬렉션·북마크, 메시지·알림 UI, 모바일 프로필 내비게이션            | https://github.com/rkskek8484-cell |
+| 오예은 | 인증 화면·Header/Footer | 로그인·회원가입 화면 및 반응형 스타일, 헤더 보완                                     | https://github.com/dhdpdms0712-oss |
+| 강채희 | Gallery·Home            | 갤러리 UI, 목록 조회·검색·필터·반응형 카드 처리, Home 화면 구성                      | https://github.com/chae3110        |
 
 ## 3. 주요 기능
 
 ### 인증
 
 - Supabase Auth 기반 이메일/비밀번호 회원가입과 로그인
+- 소셜 로그인과 GitHub 계정 연결
 - Redux `user` slice 및 `onAuthStateChange`로 로그인 사용자/프로필 상태 동기화
 - 회원가입 시 선택한 프로필 이미지를 `profile_avatars` Storage 버킷에 업로드하고 `profiles` 행 생성
 - 포트폴리오 작성·수정 화면 진입 시 인증 여부 확인 및 로그인 화면 리다이렉트
-
-> GitHub OAuth 연결을 위한 헬퍼는 있으나, 현재 에디터의 연결·소유자 대조 흐름은 주석 처리되어 있습니다. 따라서 소셜 로그인 또는 GitHub 계정 연결을 현재 제공 기능으로 기재하지 않습니다.
 
 ### Home · Gallery
 
@@ -156,7 +153,7 @@ flowchart LR
 - 코드 블록/부가 문장을 제거한 JSON 파싱과 필수 내용 검증에 실패하면 다음 키를 시도합니다.
 - 서버가 성공한 요청에 한해 쿨다운을 기록합니다. 분석은 사용자+저장소 기준 30분, 초안은 사용자 기준 10분입니다. 클라이언트는 서버 응답 메시지를 표시합니다.
 
-> 현재 `analyze` 함수는 유효한 로그인 사용자와 요청 형식, GitHub URL/API 오류를 서버에서 확인합니다. 현행 코드에는 GitHub 계정-저장소 소유자 대조나 `project_id` 기반 포트폴리오 소유자 대조가 포함되어 있지 않으므로, 이를 구현 완료 기능으로 설명하지 않습니다.
+> `analyze` Edge Function에서 로그인 사용자 인증, 요청 형식 및 GitHub URL/API 오류를 검증하며, GitHub 계정과 저장소 owner를 대조하여 저장소 소유권을 확인합니다. 또한 `project_id`를 기반으로 포트폴리오 작성자를 조회하고 현재 로그인 사용자와 일치하는지 서버 측에서 검증하여, 클라이언트 라우트 가드 우회를 통한 타인의 포트폴리오 분석 요청을 차단합니다.
 
 ## 8. 인증 및 권한 / 보안
 
@@ -167,11 +164,29 @@ flowchart LR
 - Edge Function은 `withSupabase({ auth: ["user", "publishable", "secret"] })` 및 `ctx.userClaims`로 로그인 사용자를 확인하고, 서버 측 AI 쿨다운을 강제합니다.
 - 클라이언트에는 `VITE_SUPABASE_PUBLISHABLE_KEY`만 사용하며, GitHub 토큰과 Alan API 키는 Edge Function 환경 변수로 읽습니다.
 
-**RLS 확인 범위:** 현재 저장소에는 migration 또는 RLS policy SQL이 포함되어 있지 않고 생성된 DB 타입도 빈 스키마입니다. 따라서 bookmarks/collections/messages 등의 실제 RLS 정책 정의는 **확인 필요**입니다. 위 접근 제한 중 일부는 클라이언트 쿼리 조건이므로, 운영 환경에서는 동일 정책을 Supabase RLS로 검증해야 합니다.
+### RLS 정책
+
+`supabase/rls_policies.sql`에는 아래 12개 테이블에 대한 `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`와 정책 정의가 포함되어 있습니다. 표의 `공개`는 `anon`과 `authenticated` 역할이 조회할 수 있음을, `본인/작성자`는 `auth.uid()` 비교 또는 연결된 `portfolios.author_id` 확인을 뜻합니다.
+
+| 테이블                  | RLS    | SELECT                                                          | INSERT                                  | UPDATE                                                         | DELETE                                  |
+| ----------------------- | ------ | --------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------- | --------------------------------------- |
+| `profiles`              | 활성화 | `anon`, `authenticated`: 공개 프로필 또는 본인(`user_id`)       | `authenticated`: 본인 `user_id`         | `authenticated`: 본인 `user_id` (기존 행·변경 값 모두)         | `authenticated`: 본인 `user_id`         |
+| `portfolios`            | 활성화 | `anon`, `authenticated`: 공개 프로젝트 또는 작성자(`author_id`) | `authenticated`: 본인 `author_id`       | `authenticated`: 본인 `author_id` (기존 행·변경 값 모두)       | `authenticated`: 본인 `author_id`       |
+| `portfolio_tech_stacks` | 활성화 | `anon`, `authenticated`: 연결 프로젝트가 공개이거나 본인 작성자 | `authenticated`: 연결 프로젝트의 작성자 | `authenticated`: 연결 프로젝트의 작성자 (기존 행·변경 값 모두) | `authenticated`: 연결 프로젝트의 작성자 |
+| `portfolio_likes`       | 활성화 | `anon`, `authenticated`: 모든 좋아요 행                         | `authenticated`: 본인 `user_id`         | 정책 없음                                                      | `authenticated`: 본인 `user_id`         |
+| `portfolio_images`      | 활성화 | `anon`, `authenticated`: 연결 프로젝트가 공개이거나 본인 작성자 | `authenticated`: 연결 프로젝트의 작성자 | `authenticated`: 연결 프로젝트의 작성자 (기존 행·변경 값 모두) | `authenticated`: 연결 프로젝트의 작성자 |
+| `portfolio_categories`  | 활성화 | `anon`, `authenticated`: 연결 프로젝트가 공개이거나 본인 작성자 | `authenticated`: 연결 프로젝트의 작성자 | `authenticated`: 연결 프로젝트의 작성자 (기존 행·변경 값 모두) | `authenticated`: 연결 프로젝트의 작성자 |
+| `portfolio_ai_created`  | 활성화 | `anon`, `authenticated`: 연결 프로젝트가 공개이거나 본인 작성자 | `authenticated`: 연결 프로젝트의 작성자 | `authenticated`: 연결 프로젝트의 작성자 (기존 행·변경 값 모두) | `authenticated`: 연결 프로젝트의 작성자 |
+| `messages`              | 활성화 | `authenticated`: 송신자 또는 수신자                             | `authenticated`: 본인 `sender_id`       | `authenticated`: 송신자 또는 수신자 (기존 행·변경 값 모두)     | `authenticated`: 송신자 또는 수신자     |
+| `collections`           | 활성화 | `authenticated`: 본인 `owner_id`                                | `authenticated`: 본인 `owner_id`        | `authenticated`: 본인 `owner_id` (기존 행·변경 값 모두)        | `authenticated`: 본인 `owner_id`        |
+| `bookmarks`             | 활성화 | `authenticated`: 본인 `user_id`                                 | `authenticated`: 본인 `user_id`         | `authenticated`: 본인 `user_id` (기존 행·변경 값 모두)         | `authenticated`: 본인 `user_id`         |
+| `ai_action_cooldowns`   | 활성화 | `authenticated`: 본인 `user_id`                                 | `authenticated`: 본인 `user_id`         | `authenticated`: 본인 `user_id` (기존 행·변경 값 모두)         | `authenticated`: 본인 `user_id`         |
+
+`portfolio_likes`에는 UPDATE 정책이 정의되어 있지 않습니다. `messages`의 UPDATE/DELETE는 SQL상 송신자와 수신자 모두에게 허용됩니다. `ai_action_cooldowns` 주석에는 elevated privileges를 사용하는 Edge Function이 구성에 따라 RLS를 우회할 수 있다고 명시되어 있습니다.
 
 ## 9. 데이터베이스 구조
 
-저장소에 DB migration/DDL이 없으므로, 아래는 실제 Supabase 쿼리·관계 선택문에서 확인되는 테이블과 **코드 관찰 관계**입니다. PK/FK 제약 조건의 정확한 선언은 확인 필요입니다.
+아래는 실제 Supabase 쿼리·관계 선택문에서 확인되는 테이블과 **코드 관찰 관계**입니다. 단, RLS 정책 정의는 `supabase/rls_policies.sql`에서 별도로 확인됩니다.
 
 | 테이블                  | 코드에서 확인된 역할                                                                 |
 | ----------------------- | ------------------------------------------------------------------------------------ |
@@ -204,7 +219,7 @@ erDiagram
   PROFILES ||--o{ MESSAGES : receiver_id
 ```
 
-`increment_portfolio_view`, `increment_profile_view` RPC가 각각 프로젝트·프로필 조회 수 증가에 호출됩니다. 함수 본문과 제약 조건은 저장소에서 확인되지 않습니다.
+`increment_portfolio_view`, `increment_profile_view` RPC가 각각 프로젝트·프로필 조회 수 증가에 호출됩니다.
 
 ## 10. 반응형 / UX
 
@@ -248,8 +263,6 @@ gantt
     성능 최적화 및 리팩토링               :b3, 2026-08-19, 3d
     최종 발표                             :milestone, b4, 2026-08-21, 0d
 ```
-
-> 일정 표에 연도가 명시되지 않아, 저장소 Git 이력의 작업 연도(2026)를 타임라인 표기에만 사용했습니다. 기간과 단계·내용은 위 일정표의 원문을 그대로 따릅니다.
 
 ## 12. 실행 방법
 
@@ -306,9 +319,7 @@ npm run functions:serve
 
 배포 URL: **확인 필요**
 
-## 15. 프로젝트 진행 중 주요 기술적 해결 사항
-
-Git 커밋/PR 이력과 현행 코드에서 함께 확인되는 작업을 정리했습니다.
+## 15. 프로젝트 진행 중 트러블 슈팅
 
 ### AI 분석 응답 안정화
 
@@ -340,15 +351,15 @@ Git 커밋/PR 이력과 현행 코드에서 함께 확인되는 작업을 정리
 
 **해결:** `/mypage`와 `/profiles/:userId` 레이아웃을 분리하고, Public Profile의 타인 조회에는 `is_public = true` 조건을 적용했습니다. 활동 내역 비공개 설정 시 통계는 잠금 표시합니다.
 
-**결과:** 본인 관리 UX와 외부 공개 UX를 구분했습니다. DB 수준 정책은 migration 부재로 별도 확인이 필요합니다.
+**결과:** 본인 관리 UX와 외부 공개 UX를 구분했습니다.
 
 ### SPA deep link 및 성능/SEO 보완
 
 **문제:** SPA의 상세 경로를 새로고침하면 호스팅 환경에서 404가 발생할 수 있고, 페이지 메타·이미지 로딩 최적화가 필요했습니다.
 
-**해결:** Git 이력에서 Vercel rewrite 설정을 추가했고, `SeoMeta`, sitemap/robots, 이미지 lazy loading을 반영했습니다.
+**해결:** Vercel rewrite 설정을 추가했고, `SeoMeta`, sitemap/robots, 이미지 lazy loading을 반영했습니다.
 
-**결과:** 이력상 deep link 배포 설정과 기본 SEO/이미지 로딩 개선이 추가됐습니다. 단, 현 브랜치의 `vercel.json` 존재 여부는 배포 전 확인해야 합니다.
+**결과:** deep link 배포 설정과 기본 SEO/이미지 로딩 개선이 추가됐습니다.
 
 ## 16. 회고 / 프로젝트 특징
 
@@ -356,12 +367,6 @@ Git 커밋/PR 이력과 현행 코드에서 함께 확인되는 작업을 정리
 - 포트폴리오 본문과 이미지/카테고리/기술 스택/AI 결과를 분리해 저장하고, 수정 시 연결 데이터를 교체·upsert하는 흐름을 구현했습니다.
 - 외부 GitHub 데이터와 AI API를 서비스에 연결하면서 timeout, key fallback, JSON 검증, 서버 기반 쿨다운 같은 실패 대응을 코드화했습니다.
 - MyPage와 Public Profile을 분리하고 공개 프로젝트·활동 통계 노출을 제어해 공개 데이터 UX를 설계했습니다.
-- Git 이력에서 Gallery 반응형, 메시지·컬렉션 Empty State, 이미지 드래그 앤 드롭, SEO/lazy loading, SPA rewrite를 반복적으로 개선한 과정이 확인됩니다.
+- Gallery 반응형, 메시지·컬렉션 Empty State, 이미지 드래그 앤 드롭, SEO/lazy loading, SPA rewrite를 개선했습니다.
 
 ---
-
-## 최종 점검 기록
-
-- 프로젝트명과 슬로건: `Portfolio+` / `Discover Works, Connect Possibilities.`
-- 라우트, 패키지, Supabase 함수, Storage 버킷, 환경 변수, Git 이력을 현 저장소 기준으로 대조했습니다.
-- DB migration/RLS SQL, 현재 `vercel.json`, 실제 배포 URL, 확정되지 않은 개인 GitHub 링크는 추측하지 않고 **확인 필요** 또는 플레이스홀더로 표시했습니다.

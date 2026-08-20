@@ -62,6 +62,7 @@ export default function HeroImage({}) {
               src={toUrl("portfolio_images", img.image_path)}
               alt={img.alt_text}
               className={`${styles["hero-image-list-item-image"]}`}
+              loading="lazy"
             />
           </ImageListItem>
         ))}

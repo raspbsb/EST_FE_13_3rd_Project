@@ -93,15 +93,33 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
       if (authError) {
-        setError(authError.message || "로그인 중 오류가 발생했습니다.");
+        let koreanMsg = "로그인 중 오류가 발생했습니다.";
+        const rawMsg = authError.message || "";
+
+        if (rawMsg.includes("Invalid login credentials")) {
+          koreanMsg = "이메일 또는 비밀번호가 일치하지 않습니다.";
+        } else if (rawMsg.includes("Email not confirmed")) {
+          koreanMsg = "이메일 인증이 완료되지 않았습니다. 메일함을 확인해 주세요.";
+        } else if (rawMsg.includes("Too many requests") || rawMsg.includes("rate limit")) {
+          koreanMsg = "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.";
+        } else if (rawMsg.includes("User not found")) {
+          koreanMsg = "존재하지 않는 계정입니다.";
+        }
+
+        setError(koreanMsg);
         return;
       }
+
       // 로그인 성공 시 리다이렉트
       navigate("/", { replace: true });
     } catch (err) {
-      setError(err?.message || "로그인 중 오류가 발생했습니다.");
+      setError("로그인 처리 중 문제가 발생했습니다. 다시 시도해 주세요.");
     } finally {
       setLoading(false);
     }
@@ -120,7 +138,7 @@ export default function Login() {
   };
 
   return (
-    <Box component="main" className={styles.container} role="main">
+    <Box component="main" className={styles.loginContainer} role="main">
       <div className={styles.content}>
         {/* 왼쪽: 로그인 폼 영역 */}
         <div className={styles.left}>
