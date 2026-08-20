@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useNotifications from "../hooks/useNotifications";
+import { supabase } from "../utils/supabase";
 
 import Container from "@mui/material/Container";
 import Text from "@mui/material/Typography";
@@ -24,14 +25,29 @@ export default function MyPageLayout() {
 
   //Redux에서 profile이 들어오면 local state에 넣기
   useEffect(() => {
-    if (user?.profile) {
-      setProfile(user.profile);
-      setLoading(false);
-    } else if (user === null) {
-      setProfile(null);
+    async function fetchProfile() {
+      if (!user?.id) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      // Supabase profiles 테이블에서 현재 로그인한 유저의 프로필 조회
+      const { data, error } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+
+      if (error) {
+        console.error("프로필 조회 실패:", error);
+      }
+
+      // DB에 데이터가 있으면 넣고, 없으면 기본 객체 생성
+      setProfile(data || { user_id: user.id, is_public: true });
       setLoading(false);
     }
-  }, [user]);
+
+    fetchProfile();
+  }, [user?.id]);
 
   if (loading) {
     return null;
