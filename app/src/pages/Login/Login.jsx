@@ -32,7 +32,6 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
-    // 로그인/회원가입 페이지에서는 footer 숨김 및 스크롤 잠금
     document.body.classList.add("hide-footer");
     document.body.classList.add("no-scroll");
     return () => {
