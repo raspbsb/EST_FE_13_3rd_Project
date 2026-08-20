@@ -69,6 +69,8 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
   const analysisEvidenceTabs = hasAnalysisEvidence
     ? aiAnalysisResult.analysisEvidence.slice(0, MAX_ANALYSIS_EVIDENCE_COUNT).map(evidence => ({
         ...evidence,
+        // 탭 라벨은 짧게 자르되, 콘텐츠 제목에는 원본 전체를 그대로 보여준다.
+        fullLabel: evidence.label,
         label:
           evidence.label && evidence.label.length > MAX_EVIDENCE_LABEL_LENGTH
             ? `${evidence.label.slice(0, MAX_EVIDENCE_LABEL_LENGTH)}...`
@@ -239,7 +241,7 @@ function GithubAiAnalysisSection({ sectionCardSx, aiAnalysisResult, isAnalyzing 
           ) : selectedEvidence ? (
             <Stack spacing={1}>
               <Text className="portfolio-editor-analysis-evidence__content-title" component="h4">
-                {selectedEvidence.label}
+                {selectedEvidence.fullLabel}
               </Text>
               <Text className="portfolio-editor-analysis-evidence__content-text" component="p">
                 {selectedEvidence.description}
