@@ -9,7 +9,7 @@ function HeroSpecsItem({ label = "", half, children, noBox }) {
   return (
     <>
       <Grid component={"dt"} size={{ mobile: 12, tablet: 3, desktop: 2 }} className={`${styles["hero-specs-item"]}`}>
-        <Text variant="subtitle2" noWrap>
+        <Text component={"p"} variant="subtitle2" noWrap>
           {label}
         </Text>
       </Grid>

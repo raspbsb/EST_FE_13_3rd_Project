@@ -37,6 +37,11 @@ export default function AuthorInfoCard({}) {
           src={toUrl("profile_avatars", author?.avatar_path)}
           alt={author?.user_name ?? "-"}
           sx={{ width: "128px", height: "128px" }}
+          slotProps={{
+            img: {
+              loading: "lazy",
+            },
+          }}
         />
         <Text component={"h3"} variant="h5">
           {author?.user_name ?? "-"}
