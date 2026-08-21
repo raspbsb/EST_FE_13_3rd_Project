@@ -1,4 +1,3 @@
-// app/src/components/Header/Header.jsx
 import React, { useEffect, useState, useRef } from "react";
 import {
   AppBar,
@@ -37,31 +36,36 @@ import styles from "./Header.module.css";
  * - Mobile: hamburger left, logo centered, avatar right
  *
  * Profile displayName: prefer profiles.user_name (from Redux). Fallbacks to user metadata or email.
+ * Avatar URL resolution priority:
+ *  1) profiles.avatar_path (Redux) -> getPublicUrl
+ *  2) auth.user.user_metadata fields (avatar_url/avatar/picture)
+ *  3) fallback avatar graphic
  */
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // mobile breakpoint
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const currentTab = ["/", "/gallery", "/portfolios/new", "/mypage"].includes(location.pathname)
     ? location.pathname
     : false;
 
-  // Auth user from supabase (contains email, user_metadata)
+  // auth user from supabase
   const [user, setUser] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [anchorEl, setAnchorEl] = useState(null); // profile menu anchor
   const menuOpen = Boolean(anchorEl);
   const avatarBtnRef = useRef(null);
 
-  // Mobile nav menu anchor
+  // mobile nav menu
   const [mobileNavAnchor, setMobileNavAnchor] = useState(null);
   const mobileNavOpen = Boolean(mobileNavAnchor);
 
-  // Redux: fetch stored profile (fetchUser action should populate this earlier)
+  // Redux stored profile (should be filled by fetchUser in app startup)
   const reduxUser = useSelector(state => state.user.user);
   const profileFromStore = reduxUser?.profile ?? null;
 
+  // subscribe to auth once to populate user state
   useEffect(() => {
     let mounted = true;
 
@@ -71,8 +75,7 @@ export default function Header() {
         if (!mounted) return;
         const u = data?.user ?? null;
         setUser(u);
-        const url = u?.user_metadata?.avatar_url || u?.user_metadata?.avatar || u?.user_metadata?.picture || "";
-        setAvatarUrl(url || "");
+        // don't set avatarUrl directly here; rely on profileFromStore or metadata in separate effect
       } catch (err) {
         console.error("Header getUser error:", err);
       }
@@ -83,8 +86,6 @@ export default function Header() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null;
       setUser(u);
-      const url = u?.user_metadata?.avatar_url || u?.user_metadata?.avatar || u?.user_metadata?.picture || "";
-      setAvatarUrl(url || "");
     });
 
     return () => {
@@ -93,10 +94,55 @@ export default function Header() {
     };
   }, []);
 
+  // Resolve avatar URL: prefer profiles.avatar_path (Redux) then auth metadata
+  useEffect(() => {
+    let mounted = true;
+
+    async function resolveAvatarUrl() {
+      try {
+        // 1) profile avatar path from profiles table (Redux)
+        const avatarPath = profileFromStore?.avatar_path;
+        if (avatarPath) {
+          // getPublicUrl (works for public bucket)
+          try {
+            const { data } = supabase.storage.from("profile_avatars").getPublicUrl(avatarPath);
+            if (mounted && data?.publicUrl) {
+              setAvatarUrl(data.publicUrl);
+              return;
+            }
+            // If no publicUrl, try signed url as fallback (optional)
+            const { data: signed, error: signError } = await supabase.storage
+              .from("profile_avatars")
+              .createSignedUrl(avatarPath, 60); // 60s signed url
+            if (mounted && signed?.signedUrl && !signError) {
+              setAvatarUrl(signed.signedUrl);
+              return;
+            }
+          } catch (e) {
+            console.warn("Failed to resolve avatar from storage:", e);
+          }
+        }
+
+        // 2) fallback to auth user metadata fields
+        const metaUrl =
+          user?.user_metadata?.avatar_url || user?.user_metadata?.avatar || user?.user_metadata?.picture || "";
+        if (mounted) setAvatarUrl(metaUrl || "");
+      } catch (err) {
+        console.error("resolve avatar url error:", err);
+        if (mounted) setAvatarUrl("");
+      }
+    }
+
+    resolveAvatarUrl();
+
+    return () => {
+      mounted = false;
+    };
+  }, [profileFromStore?.avatar_path, user]);
+
   const isLoggedIn = !!user;
 
-  // displayName resolution: prefer profile.user_name from profiles table (Redux),
-  // then fallback to user metadata fields, then email.
+  // displayName resolution: profiles.user_name (Redux) preferred
   const displayName =
     profileFromStore?.user_name ||
     user?.user_metadata?.name ||
@@ -215,7 +261,6 @@ export default function Header() {
               onClose={closeMobileNav}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
-              disableScrollLock
             >
               {HEADER_NAV_ITEMS.map(item => (
                 <MenuItem
@@ -230,7 +275,7 @@ export default function Header() {
             </Menu>
           </>
         ) : (
-          // Desktop layout: logo left, tabs centered, avatar right
+          // Desktop layout
           <>
             <Typography
               variant="h6"
@@ -259,8 +304,9 @@ export default function Header() {
                     aria-haspopup="true"
                     aria-expanded={menuOpen ? "true" : undefined}
                     onClick={e => (menuOpen ? handleCloseMenu() : handleOpenMenu(e))}
+                    onMouseEnter={handleOpenMenu}
                     size="large"
-                    sx={{ p: 0, cursor: "pointer" }}
+                    sx={{ p: 0 }}
                   >
                     {avatarUrl ? (
                       <Avatar src={avatarUrl} alt="프로필" sx={{ width: 40, height: 40 }} />
@@ -276,9 +322,8 @@ export default function Header() {
                     anchorEl={anchorEl}
                     open={menuOpen}
                     onClose={handleCloseMenu}
-                    disableScrollLock
-                    disableAutoFocusItem
                     MenuListProps={{
+                      onMouseLeave: handleCloseMenu,
                       "aria-labelledby": "profile-avatar",
                     }}
                     anchorOrigin={{ vertical: "bottom", horizontal: "right" }}

@@ -32,9 +32,20 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
-    // 로그인/회원가입 페이지에서는 footer 숨김 및 스크롤 잠금
     document.body.classList.add("hide-footer");
     document.body.classList.add("no-scroll");
+
+    // 기존에 저장된 이메일 및 remember 설정 불러오기
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedRemember = localStorage.getItem("rememberMeState");
+
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+    if (savedRemember !== null) {
+      setRemember(savedRemember === "true");
+    }
+
     return () => {
       document.body.classList.remove("hide-footer");
       document.body.classList.remove("no-scroll");
@@ -114,6 +125,20 @@ export default function Login() {
 
         setError(koreanMsg);
         return;
+      }
+
+      if (remember) {
+        // 체크 설정 시: 이메일과 상태를 저장하여 자동 채우기 지원
+        localStorage.setItem("rememberedEmail", email.trim());
+        localStorage.setItem("rememberMeState", "true");
+      } else {
+        // 체크 해제 시: 창을 닫으면 이메일 기억 해제 및 세션 분리
+        localStorage.removeItem("rememberedEmail");
+        localStorage.setItem("rememberMeState", "false");
+
+        if (data?.session) {
+          sessionStorage.setItem("sb-session", JSON.stringify(data.session));
+        }
       }
 
       // 로그인 성공 시 리다이렉트

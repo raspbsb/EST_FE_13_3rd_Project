@@ -13,10 +13,10 @@
   max-width: 1920px;
   margin: 0 auto;
   padding: 0 24px;
-  position: relative; /* 중앙에 nav를 배치하기 위해 필요 */
+  position: relative;
 }
 
-/* 로고 - 왼쪽 정렬 */
+/* 로고 */
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
@@ -34,7 +34,7 @@
   z-index: 3;
 }
 
-/* 중앙 네비게이션 (logo와 right 사이 중앙 고정) */
+/* 네비(중앙) */
 .navList {
   display: flex;
   align-items: center;
@@ -50,7 +50,6 @@
   z-index: 2;
 }
 
-/* 네비 링크 스타일 */
 .navLink {
   font-size: 1rem;
   font-weight: 400;
@@ -82,7 +81,7 @@
   gap: 0.75rem;
 }
 
-/* 로그인 - 아웃라인 스타일 */
+/* 로그인 버튼 스타일 */
 .loginButton {
   display: inline-flex;
   align-items: center;
@@ -112,92 +111,10 @@
   outline: none;
 }
 
-/* 회원가입 - 채워진 프라이머리 버튼 */
-.signupButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 88px;
-  height: 40px;
-  padding: 0 1rem;
-  border: 1px solid var(--color-primary);
-  border-radius: 6px;
-  background-color: var(--color-primary);
-  color: #ffffff;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
-  transition:
-    background-color 0.12s ease,
-    transform 0.12s ease;
-}
+/* 오른쪽 히어로 등에서 필요하면 추가 스타일들 */
+/* OAuth 버튼 행 등은 헤더에서 MUI로 처리하므로 생략 */
 
-.signupButton:hover,
-.signupButton:focus-visible {
-  background-color: #0b5ed7; /* 진한 블루 계열로 호버 */
-  border-color: #0b5ed7;
-  transform: translateY(-1px);
-  outline: none;
-}
-
-/* 로그인된 상태 - 아바타 링크 */
-.avatarLink {
-  display: flex;
-  align-items: center;
-  border-radius: 50%;
-  text-decoration: none;
-}
-
-.avatarLink:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* 반응형 조정 */
-@media (max-width: 1023px) {
-  .inner {
-    padding: 0 var(--layout-padding-tablet);
-  }
-
-  .right {
-    gap: 1.5rem;
-  }
-
-  .navList {
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .inner {
-    padding: 0 var(--layout-padding-mobile);
-  }
-
-  /* 모바일에서는 중앙 네비는 숨기고(토글 메뉴로 대체) 인증 액션만 표시.
-     토글 메뉴가 있다면 별도 구현 필요(여기서는 스타일만 제안). */
-  .navList {
-    display: none;
-    position: static;
-    transform: none;
-  }
-
-  .right {
-    gap: 1rem;
-  }
-
-  .logo {
-    font-size: 1.25rem;
-  }
-}
+/* 모바일 보완: padding 조정해 로고가 가운데 보이도록 함 */
 @media (max-width: 600px) {
   .inner {
     padding-left: 8px;
