@@ -308,8 +308,8 @@ npm run functions:serve
 
 ## 14. 배포
 
-- 프런트엔드 구성은 Vite SPA이며, Git 이력에는 Vercel의 deep link 새로고침 404를 해결하기 위해 `app/vercel.json` rewrite를 추가한 커밋이 남아 있습니다.
-- 다만 **현재 체크아웃된 저장소에는 `vercel.json`이 존재하지 않으며 배포 URL도 확인되지 않습니다.** 배포 시에는 Vercel 프로젝트의 Root Directory를 `app`으로 지정하고, 아래 SPA rewrite 설정이 배포 대상에 존재하는지 확인이 필요합니다.
+- 프런트엔드는 Vite SPA로 Vercel에 배포했습니다.
+- `app/vercel.json`의 rewrite 설정으로 모든 요청을 `/index.html`로 처리하여, `/portfolios/:id`와 같은 SPA deep link를 새로고침해도 404가 발생하지 않도록 구성했습니다.
 
 ```json
 {
@@ -317,7 +317,7 @@ npm run functions:serve
 }
 ```
 
-배포 URL: **확인 필요**
+배포 URL: [https://est-fe-13-3rd-project-inky.vercel.app/](https://est-fe-13-3rd-project-inky.vercel.app/)
 
 ## 15. 프로젝트 진행 중 트러블 슈팅
 
