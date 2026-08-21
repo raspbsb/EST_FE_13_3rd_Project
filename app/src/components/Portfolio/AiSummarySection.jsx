@@ -18,7 +18,7 @@ export default function AiSummarySection({}) {
   const aiCreated = data?.portfolio_ai_created;
   const { isOpen, setIsOpen, sectionRef } = useAiSummary();
 
-  if (!aiCreated) {
+  if (!aiCreated?.ai_short_summary) {
     return <></>;
   }
 
