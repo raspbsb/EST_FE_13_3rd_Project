@@ -16,10 +16,12 @@ export default function HeroImage({}) {
   const images = data?.portfolio_images;
 
   function setThumbnail() {
-    return data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order - 1 ?? 0;
+    const thumbnailOrder = data?.portfolio_images?.find(i => i.is_thumbnail === true)?.display_order;
+    return Number.isFinite(Number(thumbnailOrder)) ? Number(thumbnailOrder) - 1 : 0;
   }
   useEffect(() => {
-    setSelectedImg(setThumbnail());
+    const thumbnailIndex = setThumbnail();
+    setSelectedImg(currentIndex => (currentIndex === thumbnailIndex ? currentIndex : thumbnailIndex));
   }, [data?.project_id]);
 
   if (!images || images.length <= 0) {
