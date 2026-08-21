@@ -12,15 +12,22 @@ import ActivityStats from "../components/mypage/ActivityStats";
 export default function PublicProfileLayout() {
   const { userId } = useParams();
 
-  const [profile, setPeofile] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const countedUserId = useRef(false);
 
   //profiles 데이터 조회
   useEffect(() => {
+    let active = true;
+
+    setLoading(true);
+    setProfile(null);
+
     const fetchProfile = async () => {
       const { data, error } = await supabase.from("profiles").select("*").eq("user_id", userId).single();
+
+      if (!active) return;
 
       if (error) {
         console.error("프로필 조회 실패:", error);
@@ -41,8 +48,10 @@ export default function PublicProfileLayout() {
         }
       }
 
+      if (!active) return;
+
       // 증가된 조회수를 화면 데이터에도 반영
-      setPeofile({
+      setProfile({
         ...data,
         profile_view: (data.profile_view ?? 0) + 1,
       });
@@ -51,6 +60,10 @@ export default function PublicProfileLayout() {
     };
 
     fetchProfile();
+
+    return () => {
+      active = false;
+    };
   }, [userId]);
 
   //로딩 화면
