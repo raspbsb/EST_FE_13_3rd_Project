@@ -150,7 +150,7 @@ export default function Signup() {
     setSubmitting(true);
 
     try {
-      // 1. Auth 회원가입 (Auth display_name으로 nickname 전달)
+      // 1. Auth 회원가입 (비로그인 상태 유지)
       const { data: authData, error: signError } = await supabase.auth.signUp({
         email,
         password,
@@ -169,38 +169,51 @@ export default function Signup() {
         throw new Error("사용자 ID를 생성하지 못했습니다.");
       }
 
-      // 💡 [핵심] 로그인 세션을 즉시 확보하여 authenticated(로그인) 권한을 취득
-      // 이 작업으로 인해 스토리지와 DB upsert 권한 막힘이 깨끗하게 해결됩니다.
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      // 2. 프로필 이미지 스토리지 업로드 (profile_avatars 버킷)
+      // 2. 프로필 이미지 처리
       let avatarPath = null;
       if (avatarFile) {
         const extension = avatarFile.name.split(".").pop();
         const filePath = `${userId}/avatar_${Date.now()}.${extension}`;
 
+        // Storage 'profile_avatars' 버킷의 INSERT RLS가 anon(비로그인)에 열려있는 경우 바로 업로드
         const { error: uploadError } = await supabase.storage
           .from("profile_avatars")
           .upload(filePath, avatarFile, { cacheControl: "3600", upsert: true });
 
         if (uploadError) {
-          console.error("스토리지 업로드 에러:", uploadError.message);
+          console.warn("스토리지 직접 업로드 실패(권한 문제 등). 로컬 임시 저장으로 전환합니다:", uploadError.message);
+
+          // 바로 업로드가 안 되는 권한 구조라면 LocalStorage에 임시 저장 후 로그인 직후 업로드되도록 유도
+          try {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const pending = {
+                userId: userId,
+                name: avatarFile.name,
+                type: avatarFile.type,
+                data: reader.result, // base64
+                createdAt: Date.now(),
+              };
+              localStorage.setItem("pendingAvatar", JSON.stringify(pending));
+            };
+            reader.readAsDataURL(avatarFile);
+          } catch (e) {
+            console.warn("pending avatar save failed", e);
+          }
         } else {
           avatarPath = filePath;
         }
       }
 
-      // 3. Profiles 테이블에 사용자 데이터 저장 (자기소개, 기술스택, 공개여부, 닉네임, 이미지 경로)
+      // 3. Profiles 테이블에 사용자 정보 저장
+      // (profiles 테이블의 INSERT/UPSERT RLS 정책도 anon 허용 필요)
       const profileRow = {
         user_id: userId,
-        user_name: nickname, // Auth display name과 동일하게 저장
-        avatar_path: avatarPath, // 스토리지에 올라간 이미지 경로
-        bio: bio || null, // 자기소개
-        skills: techStacks, // 기술 스택 (배열)
-        is_public: Boolean(isPublic), // 공개 여부
+        user_name: nickname,
+        avatar_path: avatarPath,
+        bio: bio || null,
+        skills: techStacks,
+        is_public: Boolean(isPublic),
         email: email,
         profile_view: 0,
       };
@@ -211,6 +224,8 @@ export default function Signup() {
         console.error("프로필 저장 상세 에러:", profileError.message);
         throw profileError;
       }
+
+      // 4. 회원가입 완료 안내 후 로그인 페이지로 이동 (기획 의도)
 
       navigate("/login", { replace: true });
     } catch (err) {
@@ -228,7 +243,7 @@ export default function Signup() {
       } else if (rawMsg.includes("rate limit") || rawMsg.includes("Too many requests")) {
         koreanMsg = "보안 정책상 짧은 시간 내 연속 가입이 제한되었습니다. 잠시 후 다시 시도해 주세요.";
       } else if (rawMsg.includes("row-level security")) {
-        koreanMsg = "프로필 저장 권한 오류가 발생했습니다.";
+        koreanMsg = "프로필 저장 권한 오류가 발생했습니다. (RLS 정책을 확인해주세요)";
       }
 
       setFormError(koreanMsg);
