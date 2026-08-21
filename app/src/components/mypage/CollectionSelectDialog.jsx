@@ -16,10 +16,12 @@ import ListItemText from "@mui/material/ListItemText";
 import Radio from "@mui/material/Radio";
 import Box from "@mui/material/Box";
 
+const EMPTY_COLLECTIONS = [];
+
 export default function CollectionSelectDialog({
   open,
   onClose,
-  collections = [],
+  collections = EMPTY_COLLECTIONS,
   onSelect,
   selectedCollectionId = null,
   onSave,
@@ -37,8 +39,12 @@ export default function CollectionSelectDialog({
 
   // 컬렉션의 북마크 갯수 조회하기 위한 함수
   useEffect(() => {
-    if (!open || collections.length === 0) {
-      setCollectionsWithCount([]);
+    if (!open) {
+      return;
+    }
+
+    if (collections.length === 0) {
+      setCollectionsWithCount(current => (current.length === 0 ? current : []));
       return;
     }
 

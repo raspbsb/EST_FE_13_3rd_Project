@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { supabase } from "../../utils/supabase";
@@ -25,6 +25,7 @@ export default function HeroMeta({}) {
   const [isCollectionOpen, setIsCollectionOpen] = useState(false);
   const [isBookmarkCancelOpen, setIsBookmarkCancelOpen] = useState(false);
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const syncedKey = useRef("");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -33,12 +34,20 @@ export default function HeroMeta({}) {
   const author = data?.profiles;
 
   useEffect(() => {
-    setIsLiked(data?.portfolio_likes?.some(l => l.user_id === user?.id) ?? false);
+    const nextKey = `${data?.project_id ?? ""}:${user?.id ?? ""}`;
+    if (!data?.project_id || syncedKey.current === nextKey) return;
+    syncedKey.current = nextKey;
+
+    const nextIsLiked = data?.portfolio_likes?.some(l => l.user_id === user?.id) ?? false;
 
     const bookmark = data?.bookmarks?.find(b => b.user_id === user?.id);
-    setIsBookmarked(!!bookmark);
-    setSelectedCollectionId(bookmark?.collection_id ?? "");
-  }, [user, data?.project_id]);
+    const nextIsBookmarked = Boolean(bookmark);
+    const nextCollectionId = bookmark?.collection_id ?? "";
+
+    setIsLiked(current => (current === nextIsLiked ? current : nextIsLiked));
+    setIsBookmarked(current => (current === nextIsBookmarked ? current : nextIsBookmarked));
+    setSelectedCollectionId(current => (current === nextCollectionId ? current : nextCollectionId));
+  }, [user?.id, data?.project_id]);
 
   const handleLikeBtn = async () => {
     if (status !== "succeeded") return;
@@ -182,14 +191,16 @@ export default function HeroMeta({}) {
         </Box>
       </Box>
       <HeroMetaLoginDialog open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
-      <CollectionSelectDialog
-        open={isCollectionOpen}
-        onClose={handleCollectionClose}
-        collections={user?.profile?.collections}
-        onSelect={handleCollectionSelect}
-        selectedCollectionId={selectedCollectionId}
-        onSave={handleColllectionSave}
-      />
+      {isCollectionOpen && (
+        <CollectionSelectDialog
+          open={isCollectionOpen}
+          onClose={handleCollectionClose}
+          collections={user?.profile?.collections}
+          onSelect={handleCollectionSelect}
+          selectedCollectionId={selectedCollectionId}
+          onSave={handleColllectionSave}
+        />
+      )}
       <HeroMetaBookmarkCancelDialog
         open={isBookmarkCancelOpen}
         onClose={() => setIsBookmarkCancelOpen(false)}

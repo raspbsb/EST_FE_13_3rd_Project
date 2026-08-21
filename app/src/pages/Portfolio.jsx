@@ -25,17 +25,17 @@ export default function Portfolio() {
     return () => {
       dispatch(resetPortfolio());
     };
-  }, [id]);
+  }, [dispatch, id]);
 
-  async function incrementViews() {
-    await supabase.rpc("increment_portfolio_view", { p_project_id: data.project_id });
-  }
   useEffect(() => {
-    if (status !== "succeeded") return;
-    incrementViews();
-    if (!data?.author_id) return;
-    dispatch(fetchOtherPortfolios({ id, authorId: data?.author_id }));
-  }, [status]);
+    if (status !== "succeeded" || !data?.project_id) return;
+
+    supabase.rpc("increment_portfolio_view", { p_project_id: data.project_id });
+
+    if (data.author_id) {
+      dispatch(fetchOtherPortfolios({ id, authorId: data.author_id }));
+    }
+  }, [data?.author_id, data?.project_id, dispatch, id, status]);
 
   if (status === "idle" || status === "loading") {
     return (
