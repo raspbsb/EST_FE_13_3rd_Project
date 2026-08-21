@@ -31,7 +31,7 @@ export default function HeroAiSummary({}) {
         <AiIcon fontSize="small" sx={{ mr: 0.5 }} />
         AI 분석 미리보기
       </Text>
-      {aiCreated ? (
+      {aiCreated?.ai_short_summary ? (
         <>
           <Text component={"p"} variant="body1" sx={{ my: 1 }}>
             {aiCreated?.ai_short_summary}

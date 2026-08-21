@@ -74,7 +74,7 @@ export default function Portfolio() {
     return (
       <Container>
         <Text component={"h1"} variant="h3" sx={{ my: 6 }}>
-          해당하는 포트폴리오가 없습니다.
+          존재하지 않거나 비공개로 설정된 포트폴리오입니다.
         </Text>
         <Text component={"p"} variant="body1">
           <MuiLink component={Link} to={"/"}>
